@@ -50,8 +50,8 @@ export function initLock(onUnlock) {
   const el = document.getElementById('lock');
   el.innerHTML = `
     <div class="lock-card">
-      <p class="lock-kicker">German · Pushkar × Frau Dr. Richter</p>
-      <h1 class="lock-title">Frau Richter is expecting you.</h1>
+      <p class="lock-kicker">German · Pushkar</p>
+      <h1 class="lock-title">German lessons await you.</h1>
       <form id="lock-form" autocomplete="off">
         <input type="password" id="lock-pw" placeholder="Password" autocomplete="current-password" autofocus />
         <button type="submit" class="btn btn-primary">Unlock</button>
