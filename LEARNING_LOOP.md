@@ -36,12 +36,15 @@ At the start of a Claude Code session in this repo, the assistant (as Frau Richt
 the persona file's §8 protocol):
 
 ```bash
-GL_PASSWORD=… node scripts/read-report.js --latest      # or type the password at the prompt
+node scripts/read-report.js --latest    # uses .env (see scripts/save-password.js) or prompts
 ```
 
-This prints the decrypted latest report: first-try accuracy, per-category stats, weak
-categories, the exact missed items with what was given vs. expected, and the site's
-auto-generated `notesForTeacher`. The assistant cross-references:
+This prints the decrypted latest report: first-try accuracy, per-category and
+per-attempts-per-category stats (the latter surfaces categories that score fine but only
+after repeated tries — a weak spot accuracy alone hides), the exact missed items with what
+was given vs. expected, per-question detail for anything with retries/hints/audio
+replays/reorder hesitation, and the site's auto-generated `notesForTeacher`. The assistant
+cross-references:
 
 - `Deutsch_Sprachstand_Bericht.md` — the baseline diagnostic (long-term holes),
 - `Studienplan.md` — which phase/domain pack is current,
@@ -88,9 +91,16 @@ per-category breakdown, and the "Start today's homework" button whenever
 
 ## Step 4 — The report goes home
 
-On completion the site builds `report-NNNN.json` (first-try vs. eventual correctness,
-per-question attempts, category stats, weak categories, missed items verbatim, duration,
-auto notes), encrypts it under the same password, and:
+On completion the site builds `report-NNNN.json` — first-try vs. eventual correctness,
+category stats, weak categories, missed items verbatim, auto notes, and a deliberately
+generous set of per-question and per-session markers (Frau Richter invigilates, not just
+grades): per question — every answer given in order (not just the first), whether the
+final match was exact or only typo-forgiven, whether a hint was revealed and when, audio
+replay count, reorder-token move count, and seconds-to-first-answer (thinking time before
+the first guess). Per session — total rework ratio, average first-answer latency, hints
+used, audio replays, and per-category average attempts (so a category that's "100%
+eventually correct" but only after three tries each still gets flagged). It encrypts the
+report under the same password, and:
 
 - **with a PAT configured** (Settings page; stored in `localStorage` only): commits
   `docs/data/reports/report-NNNN.json.enc` and the updated `manifest.json`
@@ -123,8 +133,11 @@ session, and the next homework is a 5-minute maintenance set instead of a full l
   fresh 16-byte salt + 12-byte IV per file, envelope `{v, salt, iv, ct}` — identical in
   `docs/js/crypto.js` (Web Crypto) and `scripts/lib-crypto.js` (Node built-ins), verified
   interoperable in both directions.
-- **No secrets in the repo, ever.** The PAT lives only in the browser's localStorage; the
-  password lives only in memory (page session) or the `GL_PASSWORD` env var (never a file).
+- **No secrets in the repo, ever.** The PAT lives only in the browser's localStorage. The
+  password lives only in memory in the browser (page session); on the local machine it may
+  also live in a gitignored `.env` (via `scripts/save-password.js`) so scheduled/unattended
+  runs work — a deliberate convenience tradeoff for a single-user local machine, not an
+  oversight, and reversible by deleting that file.
 - **Plaintext lesson/homework sources** stay in `scripts/templates/` (gitignored) — only
   `.enc` files are committed under `docs/data/`.
 - **Lost password = lost content.** There is no recovery path, by design. Back it up.

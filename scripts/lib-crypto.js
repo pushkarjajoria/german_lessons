@@ -6,6 +6,29 @@
 // change it in BOTH files and re-encrypt everything.
 
 import { pbkdf2Sync, randomBytes, createCipheriv, createDecipheriv } from 'node:crypto';
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const ENV_FILE = join(REPO_ROOT, '.env');
+
+// Auto-load .env (gitignored, repo-root, plaintext by design — see scripts/save-password.js)
+// so GL_PASSWORD is available to every script and to unattended/scheduled runs without
+// any flags. Existing environment variables always win over the file.
+function loadDotEnv() {
+  if (!existsSync(ENV_FILE)) return;
+  for (const line of readFileSync(ENV_FILE, 'utf8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const value = trimmed.slice(eq + 1).trim();
+    if (key && !(key in process.env)) process.env[key] = value;
+  }
+}
+loadDotEnv();
 
 export const ITERATIONS = 210000;
 export const SALT_BYTES = 16;

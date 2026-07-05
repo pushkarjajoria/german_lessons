@@ -296,6 +296,8 @@ label input {
 }
 .q-prompt { font-size: 1.3rem; font-weight: 500; margin: 0 0 1rem; line-height: 1.65; font-family: var(--serif); }
 .q-hint { color: var(--text-dim); font-size: 0.88rem; }
+.hint-toggle { font-size: 0.85rem; padding: 0.35rem 0.75rem; margin-bottom: 0.6rem; color: var(--text-dim); }
+.hint-toggle:hover { color: var(--text); }
 
 .inline-blank {
   display: inline-block;

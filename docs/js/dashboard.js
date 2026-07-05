@@ -116,6 +116,14 @@ function richterNotes(manifest) {
   } else {
     performance = `${lastPct}% on first try. That is not an acceptable resting point. We slow down and rebuild before anything new is added.`;
   }
+  // Masked weak spots: categories that score fine on paper but only after repeated
+  // tries — accuracy alone would hide exactly this, which is the point of tracking it.
+  const maskedWeak = Object.entries(last.categoryAttempts || {})
+    .filter(([cat, a]) => a.count > 0 && a.attempts / a.count > 1.6 && !(last.weakCategories || []).includes(cat))
+    .map(([cat]) => cat);
+  if (maskedWeak.length) {
+    performance += ` ${maskedWeak.join(', ')} scored acceptably but only after repeated tries — that is not mastery, it is trial and error that happened to land. I am watching it either way.`;
+  }
 
   // Regularity
   const idle = daysSince(counters.lastPracticed);
@@ -135,17 +143,31 @@ function richterNotes(manifest) {
   }
 
   // Effort & sincerity — read from how the work was done, not just the score.
+  // Prefer true per-question thinking time over the session-average fallback,
+  // now that it's tracked; old history entries before this existed still work.
   const attemptsRatio = last.totalAttempts && last.totalQuestions ? last.totalAttempts / last.totalQuestions : 1;
-  const avgSec = last.totalQuestions ? last.durationSec / last.totalQuestions : null;
+  const avgLatency = typeof last.avgFirstAnswerLatencySec === 'number'
+    ? last.avgFirstAnswerLatencySec
+    : (last.totalQuestions ? last.durationSec / last.totalQuestions : null);
+  const hints = last.hintsUsedCount || 0;
+  const replays = last.audioReplaysTotal || 0;
   let effort;
   if (attemptsRatio <= 1.15) {
     effort = 'A clean run — little to no rework needed. Whatever preparation produced that, keep doing it.';
-  } else if (attemptsRatio > 1.6 && avgSec !== null && avgSec < 8) {
+  } else if (attemptsRatio > 1.6 && avgLatency !== null && avgLatency < 8) {
     effort = 'A lot of retries, answered quickly. That combination usually means guessing, not thinking — you are pattern-matching again, not working the answer out. Slow down before you answer, not after I tell you it is wrong.';
   } else if (attemptsRatio > 1.3) {
     effort = 'Several items needed more than one try, but you took real time on them. That reads as honest struggle, not carelessness — it earns patience, and the material simply repeats until it holds.';
   } else {
     effort = 'Ordinary effort. Nothing remarkable here, and nothing concerning either.';
+  }
+  if (hints >= 2) {
+    effort += ` You reached for the hint on ${hints} items before even attempting them. Occasionally, fine — if it becomes routine, it has stopped being a hint and become a crutch.`;
+  } else if (hints === 1) {
+    effort += ' One hint used before attempting. Noted, not a concern on its own.';
+  }
+  if (replays >= 3) {
+    effort += ' The audio needed repeated replays throughout. Listening comprehension is where you are weakest right now — expect more of it, not less.';
   }
 
   return { performance, regularity, effort };

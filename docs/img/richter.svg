@@ -1,39 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" role="img" aria-label="Frau Dr. Richter">
-  <!-- Austere line-art portrait: tight bun, thin glasses, high collar, brooch. -->
+  <!-- Line-art portrait, mid-to-late-30s: side-parted bob (filled), slim modern glasses with visible eyes, high collar, brooch. -->
+
+  <!-- hair mass: solid fill so it reads as hair, not a receding hairline -->
+  <path d="M58 160 Q50 130 56 98 Q62 46 100 38 Q138 46 144 98 Q150 130 142 160 Q120 145 100 150 Q80 145 58 160 Z"
+        fill="#5a4636" stroke="#d8cfc0" stroke-width="3" stroke-linejoin="round" />
+
+  <!-- face: filled with the page background so it "cuts" a hole through the hair for the forehead -->
+  <path d="M64 86 Q64 60 100 58 Q136 60 136 86 Q136 140 100 150 Q64 140 64 86 Z"
+        fill="#14161a" stroke="#d8cfc0" stroke-width="3" stroke-linejoin="round" />
+
+  <!-- side-swept fringe: a sliver of hair falling onto the forehead -->
+  <path d="M70 60 Q85 52 97 61 Q88 69 75 71 Z" fill="#5a4636" stroke="#d8cfc0" stroke-width="2.5" stroke-linejoin="round" />
+
   <g fill="none" stroke="#d8cfc0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <!-- bun -->
-    <circle cx="100" cy="34" r="16" />
-    <path d="M88 44 Q100 52 112 44" />
-    <!-- hair, pulled back hard -->
-    <path d="M58 108 Q52 54 100 48 Q148 54 142 108" />
-    <path d="M62 78 Q80 62 100 60 Q120 62 138 78" />
-    <!-- face -->
-    <path d="M66 92 Q66 148 100 156 Q134 148 134 92" />
-    <!-- ears -->
-    <path d="M62 104 Q56 112 63 120" />
-    <path d="M138 104 Q144 112 137 120" />
-    <!-- glasses: thin, rectangular, judging -->
-    <rect x="70" y="98" width="24" height="16" rx="3" />
-    <rect x="106" y="98" width="24" height="16" rx="3" />
-    <path d="M94 105 L106 105" />
-    <path d="M70 103 L63 106 M130 103 L137 106" />
-    <!-- brows: one slightly raised -->
-    <path d="M71 92 L93 90" />
-    <path d="M107 88 L129 92" />
-    <!-- nose -->
-    <path d="M100 108 Q97 122 94 126 Q100 130 106 126" />
-    <!-- mouth: flat. unimpressed. -->
-    <path d="M86 140 L114 140" />
-    <!-- neck -->
-    <path d="M86 154 L84 170 M114 154 L116 170" />
+    <!-- ears + small stud earrings -->
+    <path d="M61 100 Q55 108 62 116" />
+    <path d="M139 100 Q145 108 138 116" />
+    <circle cx="60" cy="112" r="1.8" fill="#d8cfc0" />
+    <circle cx="140" cy="112" r="1.8" fill="#d8cfc0" />
+    <!-- glasses: slim modern rectangles, eyes visible beneath -->
+    <rect x="72" y="94" width="21" height="14" rx="3" />
+    <rect x="107" y="94" width="21" height="14" rx="3" />
+    <path d="M93 100 L107 100" />
+    <path d="M72 98 L64 101 M128 98 L136 101" />
+    <circle cx="82.5" cy="101.5" r="2.3" fill="#d8cfc0" />
+    <circle cx="117.5" cy="101.5" r="2.3" fill="#d8cfc0" />
+    <!-- brows: thin, one arched (unimpressed, not severe) -->
+    <path d="M73 88 L91 86" />
+    <path d="M109 85 L127 89" />
+    <!-- nose: simple, refined -->
+    <path d="M100 104 Q98 117 96 120 Q100 123 104 120" />
+    <!-- mouth: closed, firm, faint natural curve -->
+    <path d="M87 132 Q100 135 113 132" />
     <!-- high-collar blouse -->
-    <path d="M46 226 Q48 184 84 170 L100 182 L116 170 Q152 184 154 226" />
-    <path d="M84 170 Q92 178 100 182 Q108 178 116 170" />
-    <path d="M93 186 L100 226 M107 186 L100 226" stroke-width="2" />
+    <path d="M44 226 Q46 182 82 168 L100 180 L118 168 Q154 182 156 226" />
+    <path d="M82 168 Q91 176 100 180 Q109 176 118 168" />
+    <path d="M91 184 L100 226 M109 184 L100 226" stroke-width="2" />
     <!-- collar -->
-    <path d="M88 168 L96 178 M112 168 L104 178" stroke-width="2.5" />
+    <path d="M86 166 L94 176 M114 166 L106 176" stroke-width="2.5" />
   </g>
+
   <!-- brooch: the one ornament — a small judge's seal -->
-  <circle cx="100" cy="186" r="6" fill="none" stroke="#b8433a" stroke-width="3" />
-  <circle cx="100" cy="186" r="1.8" fill="#b8433a" />
+  <circle cx="100" cy="184" r="6" fill="none" stroke="#b8433a" stroke-width="3" />
+  <circle cx="100" cy="184" r="1.8" fill="#b8433a" />
 </svg>

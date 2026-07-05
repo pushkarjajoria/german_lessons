@@ -33,16 +33,22 @@ export function levenshtein(a, b) {
   return prev[n];
 }
 
-export function checkTextAnswer(q, given) {
+// Reports whether the match was exact or only accepted via typo-forgiveness —
+// a real signal for whether an answer was known or half-guessed.
+export function checkTextAnswerDetailed(q, given) {
   const g = normalize(given);
-  if (!g) return false;
+  if (!g) return { correct: false, matchType: null };
   const norms = q.answers.map(normalize);
-  if (norms.includes(g)) return true;
+  if (norms.includes(g)) return { correct: true, matchType: 'exact' };
   // Fuzzy (Levenshtein ≤ 1) only for longer translate answers — typo grace, not laxity.
-  if (q.type === 'translate' && q.acceptFuzzy) {
-    return norms.some((a) => a.length > 10 && levenshtein(a, g) <= 1);
+  if (q.type === 'translate' && q.acceptFuzzy && norms.some((a) => a.length > 10 && levenshtein(a, g) <= 1)) {
+    return { correct: true, matchType: 'fuzzy' };
   }
-  return false;
+  return { correct: false, matchType: null };
+}
+
+export function checkTextAnswer(q, given) {
+  return checkTextAnswerDetailed(q, given).correct;
 }
 
 // ---------- feedback voice ----------
@@ -97,7 +103,7 @@ const state = {
   queue: [],          // question objects still to answer (misses re-inserted)
   totalUnique: 0,
   resolved: 0,
-  records: new Map(), // qid -> { attempts, firstTryCorrect, firstGiven, category, correct }
+  records: new Map(), // qid -> per-question tracking, see startQuiz for the full shape
   startedAt: null,
   reorderPicked: [],
 };
@@ -113,7 +119,21 @@ async function startQuiz(manifest) {
   state.totalUnique = homework.questions.length;
   state.startedAt = Date.now();
   for (const q of homework.questions) {
-    state.records.set(q.id, { attempts: 0, firstTryCorrect: null, firstGiven: null, category: q.category || 'Allgemein', correct: false });
+    state.records.set(q.id, {
+      attempts: 0,
+      firstTryCorrect: null,
+      firstGiven: null,
+      allGiven: [],           // every answer given, in order — shows whether they converged or thrashed
+      matchType: null,        // 'exact' | 'fuzzy', set when the correct answer lands
+      category: q.category || 'Allgemein',
+      type: q.type,
+      correct: false,
+      firstShownAt: null,     // set on first render, for latency below
+      timeToFirstAnswerSec: null, // thinking time before the very first attempt
+      hintShown: false,
+      replays: 0,             // listen_type: manual replay clicks
+      reorderMoves: 0,        // reorder: token add/remove clicks
+    });
   }
   $('hw-title').textContent = homework.title;
   renderNext();
@@ -122,6 +142,8 @@ async function startQuiz(manifest) {
 function renderNext() {
   if (!state.queue.length) return finish();
   const q = state.queue[0];
+  const rec = state.records.get(q.id);
+  if (rec.firstShownAt === null) rec.firstShownAt = Date.now();
   $('progress-label').textContent = `${state.resolved} of ${state.totalUnique} done · ${state.queue.length} open`;
   $('progress-fill').style.width = `${(state.resolved / state.totalUnique) * 100}%`;
   $('feedback').hidden = true;
@@ -166,12 +188,26 @@ function renderFillBlank(q, promptEl, area) {
   input.autocomplete = 'off';
   promptEl.append(document.createTextNode(parts[0] ?? ''), input, document.createTextNode(parts[1] ?? ''));
   if (q.hint) {
-    const hint = document.createElement('p');
-    hint.className = 'q-hint';
-    hint.textContent = `Hint: ${q.hint}`;
-    area.appendChild(hint);
+    // Hidden behind a click so "hint used" is an actual signal, not a given.
+    const hintBtn = document.createElement('button');
+    hintBtn.type = 'button';
+    hintBtn.className = 'btn hint-toggle';
+    hintBtn.textContent = 'Show hint';
+    const hintText = document.createElement('p');
+    hintText.className = 'q-hint';
+    hintText.textContent = `Hint: ${q.hint}`;
+    hintText.hidden = true;
+    hintBtn.addEventListener('click', () => {
+      hintText.hidden = false;
+      hintBtn.hidden = true;
+      state.records.get(q.id).hintShown = true;
+    });
+    area.append(hintBtn, hintText);
   }
-  const submit = () => handleAnswer(q, input.value, checkTextAnswer(q, input.value));
+  const submit = () => {
+    const { correct, matchType } = checkTextAnswerDetailed(q, input.value);
+    handleAnswer(q, input.value, correct, matchType);
+  };
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   submitBar(area, submit);
   input.focus();
@@ -184,7 +220,7 @@ function renderMultipleChoice(q, area) {
     const b = document.createElement('button');
     b.className = 'btn mc-option';
     b.textContent = opt;
-    b.addEventListener('click', () => handleAnswer(q, opt, i === q.answerIndex));
+    b.addEventListener('click', () => handleAnswer(q, opt, i === q.answerIndex, i === q.answerIndex ? 'exact' : null));
     list.appendChild(b);
   });
   area.appendChild(list);
@@ -208,13 +244,14 @@ function renderReorder(q, area) {
   answerRow.dataset.empty = 'Click the pieces in the right order.';
   const pool = document.createElement('div');
   pool.className = 'reorder-row reorder-pool';
+  const rec = state.records.get(q.id);
   const rerender = () => {
     answerRow.innerHTML = '';
     state.reorderPicked.forEach((tok, i) => {
       const b = document.createElement('button');
       b.className = 'btn token token-picked';
       b.textContent = tok;
-      b.addEventListener('click', () => { state.reorderPicked.splice(i, 1); rerender(); });
+      b.addEventListener('click', () => { rec.reorderMoves += 1; state.reorderPicked.splice(i, 1); rerender(); });
       answerRow.appendChild(b);
     });
     pool.innerHTML = '';
@@ -227,7 +264,7 @@ function renderReorder(q, area) {
       const b = document.createElement('button');
       b.className = 'btn token';
       b.textContent = tok;
-      b.addEventListener('click', () => { state.reorderPicked.push(tok); rerender(); });
+      b.addEventListener('click', () => { rec.reorderMoves += 1; state.reorderPicked.push(tok); rerender(); });
       pool.appendChild(b);
     }
   };
@@ -239,7 +276,7 @@ function renderReorder(q, area) {
     const given = state.reorderPicked.join(' ');
     const ok = state.reorderPicked.length === q.answer.length &&
       state.reorderPicked.every((t, i) => t === q.answer[i]);
-    handleAnswer(q, given, ok);
+    handleAnswer(q, given, ok, ok ? 'exact' : null);
   });
 }
 
@@ -254,7 +291,10 @@ function renderTextInput(q, area, placeholder) {
   tip.className = 'q-hint';
   tip.textContent = 'You may write umlauts as ae/oe/ue/ss.';
   area.appendChild(tip);
-  const submit = () => handleAnswer(q, input.value, checkTextAnswer(q, input.value));
+  const submit = () => {
+    const { correct, matchType } = checkTextAnswerDetailed(q, input.value);
+    handleAnswer(q, input.value, correct, matchType);
+  };
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   submitBar(area, submit);
   input.focus();
@@ -265,7 +305,10 @@ function renderListenType(q, area) {
   const play = document.createElement('button');
   play.className = 'btn play-btn';
   play.textContent = '▶ Play';
-  play.addEventListener('click', () => speak(q.audioText));
+  play.addEventListener('click', () => {
+    state.records.get(q.id).replays += 1; // manual replays only — the auto-play below doesn't count
+    speak(q.audioText);
+  });
   area.appendChild(play);
   renderTextInput(q, area, 'What did you hear?');
   speak(q.audioText);
@@ -273,17 +316,20 @@ function renderListenType(q, area) {
 
 // ---------- answer handling / requeue ----------
 
-function handleAnswer(q, given, isCorrect) {
+function handleAnswer(q, given, isCorrect, matchType = null) {
   const rec = state.records.get(q.id);
   rec.attempts += 1;
+  rec.allGiven.push(given);
   if (rec.attempts === 1) {
     rec.firstTryCorrect = isCorrect;
     rec.firstGiven = given;
+    rec.timeToFirstAnswerSec = Math.round((Date.now() - rec.firstShownAt) / 100) / 10;
   }
   state.queue.shift();
   let fb;
   if (isCorrect) {
     rec.correct = true;
+    rec.matchType = matchType;
     state.resolved += 1;
     fb = feedbackCorrect(q, rec.attempts);
   } else {
@@ -313,16 +359,34 @@ function buildReport() {
   const hw = state.homework;
   const perQuestion = [];
   const categoryStats = {};
+  const categoryAttempts = {}; // category -> {attempts, count} — reveals hidden difficulty even when accuracy looks fine
   const missedItems = [];
   let firstTryCorrect = 0;
-  for (const q of hw.questions) {
+  hw.questions.forEach((q, index) => {
     const r = state.records.get(q.id);
-    perQuestion.push({ qid: q.id, category: r.category, attempts: r.attempts, correct: r.correct, given: r.firstGiven });
+    perQuestion.push({
+      qid: q.id,
+      index,
+      type: r.type,
+      category: r.category,
+      attempts: r.attempts,
+      correct: r.correct,
+      given: r.firstGiven,
+      allGiven: r.allGiven,
+      matchType: r.matchType,
+      hintShown: r.hintShown,
+      replays: r.replays,
+      reorderMoves: r.reorderMoves,
+      timeToFirstAnswerSec: r.timeToFirstAnswerSec,
+    });
     const c = (categoryStats[r.category] ||= { correct: 0, total: 0 });
     c.total += 1;
     if (r.firstTryCorrect) { c.correct += 1; firstTryCorrect += 1; }
     else missedItems.push({ qid: q.id, prompt: q.prompt, correct: correctDisplay(q), given: r.firstGiven });
-  }
+    const ca = (categoryAttempts[r.category] ||= { attempts: 0, count: 0 });
+    ca.attempts += r.attempts;
+    ca.count += 1;
+  });
   const weakCategories = Object.entries(categoryStats)
     .filter(([, s]) => s.correct / s.total < 0.7)
     .map(([k]) => k);
@@ -332,16 +396,27 @@ function buildReport() {
     strong.length ? `Solid on first try: ${strong.join(', ')}.` : '',
     missedItems.length ? `Missed first-try: ${missedItems.map((m) => m.qid).join(', ')}.` : 'Clean run.',
   ].filter(Boolean).join(' ');
+  const totalAttempts = perQuestion.reduce((sum, p) => sum + p.attempts, 0);
+  const latencies = perQuestion.map((p) => p.timeToFirstAnswerSec).filter((v) => typeof v === 'number');
+  const avgFirstAnswerLatencySec = latencies.length
+    ? Math.round((latencies.reduce((a, b) => a + b, 0) / latencies.length) * 10) / 10
+    : null;
   return {
     id: hw.id,
     homeworkId: hw.id,
     lessonId: hw.lessonId,
-    date: new Date().toISOString(),
+    startedAt: new Date(state.startedAt).toISOString(),
+    date: new Date().toISOString(), // completion timestamp — kept for backward compatibility
     durationSec: Math.round((Date.now() - state.startedAt) / 1000),
     totalQuestions: hw.questions.length,
     firstTryCorrect,
     eventualCorrect: perQuestion.filter((p) => p.correct).length,
-    totalAttempts: perQuestion.reduce((sum, p) => sum + p.attempts, 0),
+    totalAttempts,
+    reworkRatio: Math.round((totalAttempts / hw.questions.length) * 100) / 100,
+    avgFirstAnswerLatencySec,
+    hintsUsedCount: perQuestion.filter((p) => p.hintShown).length,
+    audioReplaysTotal: perQuestion.reduce((sum, p) => sum + (p.replays || 0), 0),
+    categoryAttempts,
     perQuestion,
     categoryStats,
     weakCategories,
@@ -367,11 +442,17 @@ function updatedManifest(manifest, report) {
     homeworkId: report.homeworkId,
     title: state.homework.title,
     date: report.date,
+    startedAt: report.startedAt,
     durationSec: report.durationSec,
     totalQuestions: report.totalQuestions,
     firstTryCorrect: report.firstTryCorrect,
     eventualCorrect: report.eventualCorrect,
     totalAttempts: report.totalAttempts,
+    reworkRatio: report.reworkRatio,
+    avgFirstAnswerLatencySec: report.avgFirstAnswerLatencySec,
+    hintsUsedCount: report.hintsUsedCount,
+    audioReplaysTotal: report.audioReplaysTotal,
+    categoryAttempts: report.categoryAttempts,
     categories: report.categoryStats,
     weakCategories: report.weakCategories,
   });
