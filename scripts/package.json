@@ -1,0 +1,7 @@
+{
+  "name": "german-lessons-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Node helpers for the german_lessons learning loop. Built-ins only, no dependencies.",
+  "engines": { "node": ">=18" }
+}

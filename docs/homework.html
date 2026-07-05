@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Deutsch · Hausaufgabe</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="lock"></div>
+
+  <main hidden>
+    <header class="topbar">
+      <span class="brand">Deutsch · Pushkar × Frau Richter</span>
+      <nav>
+        <a href="index.html">Cockpit</a>
+        <a href="homework.html" class="active">Hausaufgabe</a>
+        <a href="settings.html">Einstellungen</a>
+      </nav>
+    </header>
+
+    <section class="panel quiz-panel">
+      <h1 id="hw-title" class="hw-title">…</h1>
+      <div class="progress">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <span class="progress-label" id="progress-label"></span>
+      </div>
+
+      <div id="question-area"></div>
+
+      <div id="feedback" class="feedback" hidden>
+        <p class="feedback-head" id="feedback-head"></p>
+        <p class="feedback-note" id="feedback-note"></p>
+        <button class="btn btn-primary" id="feedback-next">Weiter</button>
+      </div>
+
+      <div id="done-area" hidden>
+        <h2>Sitzung beendet.</h2>
+        <p id="done-summary" class="done-summary"></p>
+        <p id="done-detail" class="muted"></p>
+        <p id="done-status" class="status status-ok"></p>
+        <div id="done-downloads" class="downloads" hidden></div>
+        <a class="btn" href="index.html">← Zurück zum Cockpit</a>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/quiz.js"></script>
+</body>
+</html>

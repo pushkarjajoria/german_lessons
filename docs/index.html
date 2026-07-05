@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Deutsch · Cockpit</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="lock"></div>
+
+  <main hidden>
+    <header class="topbar">
+      <span class="brand">Deutsch · Pushkar × Frau Richter</span>
+      <nav>
+        <a href="index.html" class="active">Cockpit</a>
+        <a href="homework.html">Hausaufgabe</a>
+        <a href="settings.html">Einstellungen</a>
+      </nav>
+    </header>
+
+    <section id="cta" class="cta"></section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value" id="stat-streak">–</span>
+        <span class="stat-label">Tage Serie</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-lessons">–</span>
+        <span class="stat-label">Lektionen erledigt</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-accuracy">–</span>
+        <span class="stat-label">Trefferquote (1. Versuch)</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-last">–</span>
+        <span class="stat-label">Zuletzt geübt</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Nach Kategorie</h2>
+      <div id="categories"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Aktuelle Schwächen</h2>
+      <div id="weak-areas" class="chips"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Letzte Sitzungen</h2>
+      <div id="recent"></div>
+    </section>
+  </main>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

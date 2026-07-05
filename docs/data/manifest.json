@@ -1,0 +1,18 @@
+{
+  "currentLessonId": "0001",
+  "currentHomeworkId": "0001",
+  "counters": {
+    "lessonsCompleted": 0,
+    "totalQuestions": 0,
+    "totalCorrect": 0,
+    "streakDays": 0,
+    "lastPracticed": null
+  },
+  "history": [],
+  "canary": {
+    "v": 1,
+    "salt": "TfmQXW1j/Rcz2BoS0XMCxw==",
+    "iv": "KaFM0KPp8HKPABvo",
+    "ct": "jRgvFGcBKtqjTgRBQnYdb3T6jnk/dQX70KQPVHzmGVMn9ug8JWN3Ng=="
+  }
+}

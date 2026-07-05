@@ -1,0 +1,23 @@
+# Secrets must never enter this repo. The PAT lives in the browser's localStorage,
+# the password in memory / GL_PASSWORD env only.
+.env
+.env.*
+*.pem
+*.token
+
+# Personal pedagogy files — live ONLY on the local machine (the repo is public;
+# Claude reads these from disk during sessions). Never commit them.
+Deutsch_Sprachstand_Bericht.md
+Frau_Richter_Persona.md
+Studienplan.md
+
+# Plaintext lesson/homework sources — only the encrypted .enc versions under
+# docs/data/ get committed.
+scripts/templates/
+
+# Node / OS noise
+node_modules/
+.DS_Store
+
+# Local tooling
+.claude/

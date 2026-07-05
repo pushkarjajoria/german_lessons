@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Deutsch · Einstellungen</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <span class="brand">Deutsch · Pushkar × Frau Richter</span>
+      <nav>
+        <a href="index.html">Cockpit</a>
+        <a href="homework.html">Hausaufgabe</a>
+        <a href="settings.html" class="active">Einstellungen</a>
+      </nav>
+    </header>
+
+    <section class="panel">
+      <h2>Sicherheitsmodell — lies das einmal wirklich</h2>
+      <p>Diese Seite ist statisch und öffentlich erreichbar. Der „Login“ ist deshalb <strong>kein
+      Wächter, sondern ein Schlüssel</strong>: Lektionen, Hausaufgaben und Berichte liegen
+      AES-GCM-verschlüsselt im Repo (Schlüssel per PBKDF2 aus deinem Passwort, 210&nbsp;000 Iterationen).
+      Ein falsches Passwort öffnet nichts, weil es schlicht nichts entschlüsselt — es gibt keinen
+      gespeicherten Passwort-Hash, nirgends. Die Login-Maske ist Abschreckung; <em>die Verschlüsselung
+      ist der eigentliche Schutz.</em></p>
+      <p class="warn"><strong>⚠ Passwort verloren = Inhalte unwiederbringlich verloren.</strong>
+      Es gibt keinen Reset, keinen Zweitschlüssel. Sichere das Passwort in deinem Passwortmanager — jetzt.</p>
+      <p class="muted">Das abgeleitete Schlüsselmaterial lebt nur im Arbeitsspeicher der jeweils offenen Seite.
+      Deshalb fragt jede Seite neu nach dem Passwort — das ist Absicht, kein Bug.</p>
+    </section>
+
+    <section class="panel">
+      <h2>GitHub-Anbindung (Berichte automatisch committen)</h2>
+      <p class="muted">Fine-grained PAT, nur für dieses Repo, nur „Contents: Read and write“.
+      Der Token bleibt ausschließlich im <code>localStorage</code> dieses Browsers und landet nie im Repo.
+      Ohne Token funktioniert alles trotzdem — nach der Hausaufgabe gibt es dann einen
+      „Bericht herunterladen“-Knopf für den manuellen Commit.</p>
+      <label>Repo (owner/name)
+        <input id="gh-repo" placeholder="pushkarjajoria/german_lessons" autocomplete="off" />
+      </label>
+      <label>Branch
+        <input id="gh-branch" placeholder="main" autocomplete="off" />
+      </label>
+      <label>Fine-grained Personal Access Token
+        <input id="gh-token" type="password" placeholder="github_pat_…" autocomplete="off" />
+      </label>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="gh-save">Speichern &amp; testen</button>
+        <button class="btn" id="gh-clear">Token löschen</button>
+      </div>
+      <p id="gh-status" class="status" hidden></p>
+    </section>
+
+    <section class="panel">
+      <h2>Passwort ändern</h2>
+      <p class="muted">Verschlüsselt den Canary neu. <strong>Bestehende Inhalte bleiben unter dem
+      alten Passwort</strong>, bis du unten „Alles neu verschlüsseln“ ausführst — vorher brauchst du
+      zum Lesen alter Lektionen noch das alte Passwort.</p>
+      <label>Altes Passwort <input id="pw-old" type="password" autocomplete="off" /></label>
+      <label>Neues Passwort <input id="pw-new" type="password" autocomplete="off" /></label>
+      <label>Neues Passwort (wiederholen) <input id="pw-new2" type="password" autocomplete="off" /></label>
+      <div class="btn-row"><button class="btn btn-primary" id="pw-change">Passwort ändern</button></div>
+      <p id="pw-status" class="status" hidden></p>
+    </section>
+
+    <section class="panel">
+      <h2>Alles neu verschlüsseln</h2>
+      <p class="muted">Holt jede <code>.enc</code>-Datei aus dem Repo, entschlüsselt sie mit dem alten
+      Passwort, verschlüsselt sie mit dem neuen und committet sie zurück. Braucht Token + Repo (oben).
+      Danach gilt überall nur noch das neue Passwort.</p>
+      <label>Altes Passwort <input id="re-old" type="password" autocomplete="off" /></label>
+      <label>Neues Passwort <input id="re-new" type="password" autocomplete="off" /></label>
+      <div class="btn-row"><button class="btn btn-danger" id="re-run">Alles neu verschlüsseln</button></div>
+      <p id="re-status" class="status" hidden></p>
+      <pre id="re-log" class="log" hidden></pre>
+    </section>
+  </main>
+
+  <script type="module" src="js/settings.js"></script>
+</body>
+</html>
