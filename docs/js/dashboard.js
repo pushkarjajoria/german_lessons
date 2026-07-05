@@ -1,18 +1,24 @@
 // dashboard.js — the cockpit. Everything shown here comes from the plaintext,
 // non-sensitive aggregates in manifest.json (counters + history); lesson and
-// report content stays encrypted.
+// report content stays encrypted. Frau Richter's verdict is computed from the
+// same numbers — earned, specific, never sycophantic.
 
-import { initLock } from './auth.js';
+import { initLock, initLockButton } from './auth.js';
 
 const $ = (id) => document.getElementById(id);
 
 function fmtDate(iso) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+  return new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 function pct(correct, total) {
   return total ? Math.round((correct / total) * 100) : null;
+}
+
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
 }
 
 function aggregateCategories(history) {
@@ -25,6 +31,35 @@ function aggregateCategories(history) {
     }
   }
   return agg;
+}
+
+// Her opening line, per the persona's tier logic: acknowledgment is brief,
+// absence is named, recurring weakness is named, praise is rationed.
+function verdict(manifest, weak) {
+  const { counters, history } = manifest;
+  const idle = daysSince(counters.lastPracticed);
+  if (!history.length) {
+    return 'No data, no opinion. Opinions are earned with work. The first homework is waiting — start.';
+  }
+  if (idle >= 7) {
+    return `${idle} days of silence, and no word from you. If you were busy, you know the rule: say so. Otherwise — today, the homework. No preamble.`;
+  }
+  if (idle >= 3) {
+    return `${idle} days since you last practiced. The homework did not do itself. Sit down.`;
+  }
+  const last = history[history.length - 1];
+  const lastPct = pct(last.firstTryCorrect, last.totalQuestions);
+  if (weak.size) {
+    const w = [...weak].join(', ');
+    return `${w} keeps slipping. It is not a mystery, it is a pattern — and patterns harden. It returns until it sits.`;
+  }
+  if (counters.streakDays >= 3 && lastPct >= 90) {
+    return `${counters.streakDays} days in a row, ${lastPct}% on first try. Good. That is the first time I say it — do not make it the last.`;
+  }
+  if (lastPct >= 80) {
+    return `Last session: ${lastPct}% on first try. Acceptable. The remaining ${100 - lastPct}% is where we work today.`;
+  }
+  return `Last session: ${lastPct}% on first try. That is not where we stop. The misses come back until they sit.`;
 }
 
 function render(manifest) {
@@ -42,7 +77,7 @@ function render(manifest) {
   catWrap.innerHTML = '';
   const cats = Object.entries(agg).sort((a, b) => a[1].correct / a[1].total - b[1].correct / b[1].total);
   if (!cats.length) {
-    catWrap.innerHTML = '<p class="muted">Noch keine Daten. Die erste Hausaufgabe liefert sie.</p>';
+    catWrap.innerHTML = '<p class="muted">No data yet. The first homework will provide it.</p>';
   }
   for (const [cat, s] of cats) {
     const p = pct(s.correct, s.total);
@@ -62,36 +97,39 @@ function render(manifest) {
   const weakWrap = $('weak-areas');
   weakWrap.innerHTML = weak.size
     ? [...weak].map((w) => `<span class="chip chip-weak">${w}</span>`).join('')
-    : '<p class="muted">Keine markierten Schwächen — noch. Der Test kommt mit den Daten.</p>';
+    : '<p class="muted">No flagged weaknesses — yet. The test comes with the data.</p>';
+
+  $('verdict').textContent = verdict(manifest, weak);
 
   // Recent sessions
   const recentWrap = $('recent');
   const recent = history.slice(-5).reverse();
-  recentWrap.innerHTML = recent.length ? '' : '<p class="muted">Noch keine Sitzungen.</p>';
+  recentWrap.innerHTML = recent.length ? '' : '<p class="muted">No sessions yet.</p>';
   for (const h of recent) {
     const li = document.createElement('div');
     li.className = 'recent-row';
     li.innerHTML = `
       <span>${fmtDate(h.date)}</span>
-      <span class="recent-title">${h.title || 'Hausaufgabe ' + h.homeworkId}</span>
+      <span class="recent-title">${h.title || 'Homework ' + h.homeworkId}</span>
       <span class="recent-score">${h.firstTryCorrect}/${h.totalQuestions}</span>`;
     recentWrap.appendChild(li);
   }
 
-  // CTA vs. Frau-Richter empty state: is there homework newer than the last report?
+  // CTA vs. empty state: is there homework newer than the last report?
   const done = history.some((h) => h.homeworkId === manifest.currentHomeworkId);
   const cta = $('cta');
   if (done) {
     cta.innerHTML = `
       <div class="empty-state">
-        <p><strong>Nichts Neues.</strong> Hausaufgabe ${manifest.currentHomeworkId} ist erledigt; die nächste Lektion wird vorbereitet.</p>
-        <p class="muted">Nutze die Wartezeit sinnvoll: sprich deine Kaffee-Bestellung einmal laut durch. Erkennen ist nicht Können.</p>
+        <p><strong>Nothing new.</strong> Homework ${manifest.currentHomeworkId} is done; your next lesson is being prepared.</p>
+        <p class="muted">Use the wait properly: say your coffee order out loud, once, from memory. Recognizing is not knowing.</p>
       </div>`;
   } else {
     cta.innerHTML = `
-      <a class="btn btn-primary btn-big" href="homework.html">Heutige Hausaufgabe starten →</a>
-      <p class="muted cta-sub">Hausaufgabe ${manifest.currentHomeworkId} wartet. Sie weiß, dass du hier bist.</p>`;
+      <a class="btn btn-primary btn-big" href="homework.html">Start today's homework →</a>
+      <p class="muted cta-sub">Homework ${manifest.currentHomeworkId} is waiting. It knows you are here.</p>`;
   }
 }
 
+initLockButton();
 initLock(async (manifest) => render(manifest));

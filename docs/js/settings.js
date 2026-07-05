@@ -21,25 +21,25 @@ function setStatus(id, msg, ok = true) {
 function initGithub() {
   $('gh-repo').value = store.getRepo();
   $('gh-branch').value = store.getBranch();
-  $('gh-token').placeholder = store.getToken() ? '•••••••• (Token gespeichert)' : 'github_pat_…';
+  $('gh-token').placeholder = store.getToken() ? '•••••••• (token saved)' : 'github_pat_…';
 
   $('gh-save').addEventListener('click', async () => {
     store.setRepo($('gh-repo').value);
     store.setBranch($('gh-branch').value || 'main');
     if ($('gh-token').value.trim()) store.setToken($('gh-token').value.trim());
     $('gh-token').value = '';
-    $('gh-token').placeholder = store.getToken() ? '•••••••• (Token gespeichert)' : 'github_pat_…';
+    $('gh-token').placeholder = store.getToken() ? '•••••••• (token saved)' : 'github_pat_…';
     const check = await gh.checkAccess();
     setStatus('gh-status', check.ok
-      ? 'Gespeichert. Zugriff auf das Repo bestätigt.'
-      : `Gespeichert, aber Zugriff fehlgeschlagen: ${check.error}`, check.ok);
+      ? 'Saved. Repo access confirmed.'
+      : `Saved, but the access test failed: ${check.error}`, check.ok);
   });
 
   $('gh-clear').addEventListener('click', () => {
     store.setToken('');
     $('gh-token').value = '';
     $('gh-token').placeholder = 'github_pat_…';
-    setStatus('gh-status', 'Token aus diesem Browser gelöscht.');
+    setStatus('gh-status', 'Token removed from this browser.');
   });
 }
 
@@ -61,22 +61,22 @@ function initPassword() {
     const newPw = $('pw-new').value;
     const newPw2 = $('pw-new2').value;
     try {
-      if (!newPw || newPw.length < 8) throw new Error('Neues Passwort: mindestens 8 Zeichen.');
-      if (newPw !== newPw2) throw new Error('Die neuen Passwörter stimmen nicht überein.');
-      setStatus('pw-status', 'Prüfe altes Passwort…');
+      if (!newPw || newPw.length < 8) throw new Error('New password: at least 8 characters.');
+      if (newPw !== newPw2) throw new Error('The new passwords do not match.');
+      setStatus('pw-status', 'Checking the old password…');
       const manifest = await loadManifestFresh();
-      await verifyOld(oldPw, manifest).catch(() => { throw new Error('Altes Passwort ist falsch — es entschlüsselt den Canary nicht.'); });
+      await verifyOld(oldPw, manifest).catch(() => { throw new Error('The old password is wrong — it does not decrypt the canary.'); });
       manifest.canary = await encryptString(newPw, CANARY_VALUE);
       const text = JSON.stringify(manifest, null, 2);
       if (gh.isConfigured()) {
         await gh.writeText('data/manifest.json', text, 'settings: rotate canary (password change)');
-        setStatus('pw-status', 'Passwort geändert (Canary neu verschlüsselt und committet). WICHTIG: Alte Inhalte bleiben unter dem alten Passwort, bis du unten „Alles neu verschlüsseln“ ausführst.');
+        setStatus('pw-status', 'Password changed (canary re-encrypted and committed). IMPORTANT: existing content stays under the old password until you run "Re-encrypt everything" below.');
       } else {
         const a = document.createElement('a');
         a.download = 'manifest.json';
         a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
         a.click();
-        setStatus('pw-status', 'Kein Token: manifest.json wurde heruntergeladen — committe sie nach docs/data/. Alte Inhalte bleiben unter dem alten Passwort (siehe „Alles neu verschlüsseln“).');
+        setStatus('pw-status', 'No token: manifest.json was downloaded — commit it to docs/data/. Existing content stays under the old password (see "Re-encrypt everything").');
       }
       $('pw-old').value = $('pw-new').value = $('pw-new2').value = '';
     } catch (e) {
@@ -96,11 +96,11 @@ function initReencrypt() {
     log.textContent = '';
     const line = (s) => { log.textContent += s + '\n'; };
     try {
-      if (!gh.isConfigured()) throw new Error('Dafür braucht es Token + Repo (oben) — es liest und schreibt das ganze Repo-Datenverzeichnis.');
-      if (!newPw || newPw.length < 8) throw new Error('Neues Passwort: mindestens 8 Zeichen.');
+      if (!gh.isConfigured()) throw new Error('This needs token + repo (above) — it reads and rewrites the whole data directory in the repo.');
+      if (!newPw || newPw.length < 8) throw new Error('New password: at least 8 characters.');
       const manifest = await loadManifestFresh();
-      await verifyOld(oldPw, manifest).catch(() => { throw new Error('Altes Passwort ist falsch.'); });
-      line('Altes Passwort bestätigt. Sammle Dateien…');
+      await verifyOld(oldPw, manifest).catch(() => { throw new Error('The old password is wrong.'); });
+      line('Old password confirmed. Collecting files…');
       const dirs = ['data/lessons', 'data/homework', 'data/reports'];
       for (const dir of dirs) {
         const files = await gh.listDir(dir);
@@ -116,11 +116,11 @@ function initReencrypt() {
       }
       manifest.canary = await encryptString(newPw, CANARY_VALUE);
       await gh.writeText('data/manifest.json', JSON.stringify(manifest, null, 2), 're-encrypt: rotate canary');
-      line('Fertig. Alle Inhalte und der Canary liegen jetzt unter dem neuen Passwort.');
-      setStatus('re-status', 'Alles neu verschlüsselt. Ab jetzt gilt nur noch das neue Passwort.');
+      line('Done. All content and the canary are now under the new password.');
+      setStatus('re-status', 'Everything re-encrypted. From now on only the new password works.');
       $('re-old').value = $('re-new').value = '';
     } catch (e) {
-      line(`FEHLER: ${e.message}`);
+      line(`ERROR: ${e.message}`);
       setStatus('re-status', e.message, false);
     }
   });

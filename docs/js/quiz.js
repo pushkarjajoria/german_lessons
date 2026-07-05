@@ -3,7 +3,7 @@
 // requeue spaced within the session, and completion writes an encrypted report back.
 
 import { encryptString, decryptString } from './crypto.js';
-import { initLock, getPassword, getManifest } from './auth.js';
+import { initLock, initLockButton, getPassword, getManifest } from './auth.js';
 import * as gh from './github.js';
 
 // ---------- answer checking ----------
@@ -47,16 +47,17 @@ export function checkTextAnswer(q, given) {
 
 // ---------- feedback voice ----------
 
+// Her voice: "Richtig/Falsch" stay German — the first two words worth knowing.
 function feedbackCorrect(q, attempts) {
-  const head = attempts === 1 ? 'Richtig.' : `Richtig — beim ${attempts}. Versuch. Beim ersten Mal wäre besser.`;
+  const head = attempts === 1 ? 'Richtig.' : `Richtig — on attempt ${attempts}. First try would have been better.`;
   return { head, note: q.note || '' };
 }
 
 function feedbackWrong(q, attempts, correctShown) {
   let head;
   if (attempts === 1) head = 'Falsch.';
-  else if (attempts === 2) head = `Wieder falsch. Richtig ist: „${correctShown}“. Lies es. Dann kommt die Frage zurück.`;
-  else head = `Zum ${attempts}. Mal falsch. Richtig: „${correctShown}“. Genau diese Wiederholungen zementieren Fehler — deshalb kommt sie wieder, bis sie sitzt.`;
+  else if (attempts === 2) head = `Wrong again. The answer is: “${correctShown}”. Read it. The question comes back.`;
+  else head = `Wrong for the ${attempts}. time. The answer: “${correctShown}”. Exactly these repetitions are how errors set like concrete — so it returns until it sits.`;
   return { head, note: q.note || '' };
 }
 
@@ -121,7 +122,7 @@ async function startQuiz(manifest) {
 function renderNext() {
   if (!state.queue.length) return finish();
   const q = state.queue[0];
-  $('progress-label').textContent = `${state.resolved} von ${state.totalUnique} erledigt · ${state.queue.length} offen`;
+  $('progress-label').textContent = `${state.resolved} of ${state.totalUnique} done · ${state.queue.length} open`;
   $('progress-fill').style.width = `${(state.resolved / state.totalUnique) * 100}%`;
   $('feedback').hidden = true;
   const area = $('question-area');
@@ -139,7 +140,7 @@ function renderNext() {
   if (q.type === 'fill_blank') renderFillBlank(q, promptEl, area);
   else if (q.type === 'multiple_choice') renderMultipleChoice(q, area);
   else if (q.type === 'reorder') renderReorder(q, area);
-  else if (q.type === 'translate') renderTextInput(q, area, 'Auf Deutsch…');
+  else if (q.type === 'translate') renderTextInput(q, area, 'In German…');
   else if (q.type === 'listen_type') renderListenType(q, area);
   else { console.warn('Unknown question type', q.type); resolveMiss(q, '(unsupported type)'); }
 }
@@ -149,7 +150,7 @@ function submitBar(area, onSubmit) {
   bar.className = 'submit-bar';
   const btn = document.createElement('button');
   btn.className = 'btn btn-primary';
-  btn.textContent = 'Prüfen';
+  btn.textContent = 'Check';
   btn.addEventListener('click', onSubmit);
   bar.appendChild(btn);
   area.appendChild(bar);
@@ -167,7 +168,7 @@ function renderFillBlank(q, promptEl, area) {
   if (q.hint) {
     const hint = document.createElement('p');
     hint.className = 'q-hint';
-    hint.textContent = `Hinweis: ${q.hint}`;
+    hint.textContent = `Hint: ${q.hint}`;
     area.appendChild(hint);
   }
   const submit = () => handleAnswer(q, input.value, checkTextAnswer(q, input.value));
@@ -204,7 +205,7 @@ function renderReorder(q, area) {
   state.reorderPicked = [];
   const answerRow = document.createElement('div');
   answerRow.className = 'reorder-row reorder-answer';
-  answerRow.dataset.empty = 'Klicke die Bausteine in der richtigen Reihenfolge.';
+  answerRow.dataset.empty = 'Click the pieces in the right order.';
   const pool = document.createElement('div');
   pool.className = 'reorder-row reorder-pool';
   const rerender = () => {
@@ -251,7 +252,7 @@ function renderTextInput(q, area, placeholder) {
   area.appendChild(input);
   const tip = document.createElement('p');
   tip.className = 'q-hint';
-  tip.textContent = 'Umlaute darfst du als ae/oe/ue/ss schreiben.';
+  tip.textContent = 'You may write umlauts as ae/oe/ue/ss.';
   area.appendChild(tip);
   const submit = () => handleAnswer(q, input.value, checkTextAnswer(q, input.value));
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
@@ -263,10 +264,10 @@ function renderTextInput(q, area, placeholder) {
 function renderListenType(q, area) {
   const play = document.createElement('button');
   play.className = 'btn play-btn';
-  play.textContent = '▶ Anhören';
+  play.textContent = '▶ Play';
   play.addEventListener('click', () => speak(q.audioText));
   area.appendChild(play);
-  renderTextInput(q, area, 'Was hast du gehört?');
+  renderTextInput(q, area, 'What did you hear?');
   speak(q.audioText);
 }
 
@@ -301,7 +302,7 @@ function showFeedback(fb, isCorrect) {
   $('feedback-head').textContent = fb.head;
   $('feedback-note').textContent = fb.note;
   const btn = $('feedback-next');
-  btn.textContent = state.queue.length ? 'Weiter' : 'Abschließen';
+  btn.textContent = state.queue.length ? 'Next' : 'Finish';
   btn.onclick = renderNext;
   btn.focus();
 }
@@ -376,11 +377,11 @@ function updatedManifest(manifest, report) {
 
 function summaryLine(report) {
   const pct = report.firstTryCorrect / report.totalQuestions;
-  const n = `${report.firstTryCorrect} von ${report.totalQuestions} beim ersten Versuch`;
-  if (pct === 1) return `${n}. Fehlerfrei. Das ist der Standard, nicht die Ausnahme — morgen wieder.`;
-  if (pct >= 0.8) return `${n}. Ordentlich gearbeitet. Die Lücken (${report.weakCategories.join(', ') || 'wenige'}) kommen in die nächste Lektion.`;
-  if (pct >= 0.5) return `${n}. Das reicht noch nicht. ${report.weakCategories.join(' und ') || 'Die Fehler'} wiederholen wir, bis es sitzt.`;
-  return `${n}. Wir haben Arbeit vor uns. Kein neuer Stoff, bevor das hier sitzt — so verhindern wir, dass sich Fehler festsetzen.`;
+  const n = `${report.firstTryCorrect} of ${report.totalQuestions} on the first try`;
+  if (pct === 1) return `${n}. Faultless. That is the standard, not the exception — again tomorrow.`;
+  if (pct >= 0.8) return `${n}. Proper work. The gaps (${report.weakCategories.join(', ') || 'few'}) go into the next lesson.`;
+  if (pct >= 0.5) return `${n}. Not enough yet. ${report.weakCategories.join(' and ') || 'The misses'} we repeat until they sit.`;
+  return `${n}. We have work ahead of us. No new material before this sits — that is how errors are stopped from setting.`;
 }
 
 async function finish() {
@@ -398,25 +399,25 @@ async function finish() {
   $('question-area').innerHTML = '';
   $('feedback').hidden = true;
   $('progress-fill').style.width = '100%';
-  $('progress-label').textContent = 'Fertig.';
+  $('progress-label').textContent = 'Done.';
   const done = $('done-area');
   done.hidden = false;
   $('done-summary').textContent = summaryLine(report);
-  $('done-detail').textContent = `Dauer: ${Math.floor(report.durationSec / 60)} min ${report.durationSec % 60} s · Bericht ${report.id}`;
+  $('done-detail').textContent = `Duration: ${Math.floor(report.durationSec / 60)} min ${report.durationSec % 60} s · report ${report.id}`;
 
   const status = $('done-status');
   if (gh.isConfigured()) {
     try {
-      status.textContent = 'Verschlüsselter Bericht wird ins Repo geschrieben…';
+      status.textContent = 'Writing the encrypted report to the repo…';
       await gh.writeText(reportPath, reportEnc, `report ${report.id}: ${report.firstTryCorrect}/${report.totalQuestions} first-try`);
       await gh.writeText('data/manifest.json', manifestText, `manifest: record report ${report.id}`);
-      status.textContent = 'Bericht committet. Frau Richter liest ihn vor der nächsten Lektion.';
+      status.textContent = 'Report committed. Frau Richter reads it before your next lesson.';
     } catch (e) {
-      status.textContent = `Schreiben fehlgeschlagen (${e.message}). Lade die Dateien herunter und committe sie von Hand.`;
+      status.textContent = `Write failed (${e.message}). Download the files and commit them by hand.`;
       offerDownloads(report, reportEnc, manifestText);
     }
   } else {
-    status.textContent = 'Kein GitHub-Token hinterlegt — lade beide Dateien herunter und committe sie selbst.';
+    status.textContent = 'No GitHub token configured — download both files and commit them yourself.';
     offerDownloads(report, reportEnc, manifestText);
   }
 }
@@ -433,20 +434,21 @@ function offerDownloads(report, reportEnc, manifestText) {
     a.href = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
     wrap.appendChild(a);
   };
-  mk('⬇ Bericht (verschlüsselt)', `report-${report.id}.json.enc`, reportEnc);
-  mk('⬇ manifest.json (aktualisiert)', 'manifest.json', manifestText);
+  mk('⬇ Report (encrypted)', `report-${report.id}.json.enc`, reportEnc);
+  mk('⬇ manifest.json (updated)', 'manifest.json', manifestText);
   const p = document.createElement('p');
   p.className = 'q-hint';
-  p.textContent = 'Ziel: docs/data/reports/ bzw. docs/data/manifest.json — dann committen und pushen.';
+  p.textContent = 'Destination: docs/data/reports/ and docs/data/manifest.json — then commit and push.';
   wrap.appendChild(p);
 }
 
 // ---------- boot ----------
 
+initLockButton();
 initLock(async (manifest) => {
   try {
     await startQuiz(manifest);
   } catch (e) {
-    $('question-area').innerHTML = `<p class="lock-error">Hausaufgabe konnte nicht geladen werden: ${e.message}</p>`;
+    $('question-area').innerHTML = `<p class="lock-error">The homework could not be loaded: ${e.message}</p>`;
   }
 });

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Deutsch · Cockpit</title>
+  <title>German · Frau Richter</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -12,47 +12,56 @@
 
   <main hidden>
     <header class="topbar">
-      <span class="brand">Deutsch · Pushkar × Frau Richter</span>
+      <span class="brand"><img src="img/richter.svg" alt="" />German with Frau Richter</span>
       <nav>
-        <a href="index.html" class="active">Cockpit</a>
-        <a href="homework.html">Hausaufgabe</a>
-        <a href="settings.html">Einstellungen</a>
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="homework.html">Homework</a>
+        <a href="settings.html">Settings</a>
+        <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
       </nav>
     </header>
+
+    <section class="verdict">
+      <img src="img/richter.svg" alt="" />
+      <div>
+        <p class="verdict-label">Frau Richter's verdict</p>
+        <p class="verdict-text" id="verdict"></p>
+      </div>
+    </section>
 
     <section id="cta" class="cta"></section>
 
     <section class="stats-grid">
       <div class="stat-card">
         <span class="stat-value" id="stat-streak">–</span>
-        <span class="stat-label">Tage Serie</span>
+        <span class="stat-label">Day streak</span>
       </div>
       <div class="stat-card">
         <span class="stat-value" id="stat-lessons">–</span>
-        <span class="stat-label">Lektionen erledigt</span>
+        <span class="stat-label">Lessons done</span>
       </div>
       <div class="stat-card">
         <span class="stat-value" id="stat-accuracy">–</span>
-        <span class="stat-label">Trefferquote (1. Versuch)</span>
+        <span class="stat-label">First-try accuracy</span>
       </div>
       <div class="stat-card">
         <span class="stat-value" id="stat-last">–</span>
-        <span class="stat-label">Zuletzt geübt</span>
+        <span class="stat-label">Last practiced</span>
       </div>
     </section>
 
     <section class="panel">
-      <h2>Nach Kategorie</h2>
+      <h2>By category</h2>
       <div id="categories"></div>
     </section>
 
     <section class="panel">
-      <h2>Aktuelle Schwächen</h2>
+      <h2>Current weak spots</h2>
       <div id="weak-areas" class="chips"></div>
     </section>
 
     <section class="panel">
-      <h2>Letzte Sitzungen</h2>
+      <h2>Recent sessions</h2>
       <div id="recent"></div>
     </section>
   </main>

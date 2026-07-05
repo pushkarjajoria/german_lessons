@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Deutsch · Hausaufgabe</title>
+  <title>German · Homework</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -12,11 +12,12 @@
 
   <main hidden>
     <header class="topbar">
-      <span class="brand">Deutsch · Pushkar × Frau Richter</span>
+      <span class="brand"><img src="img/richter.svg" alt="" />German with Frau Richter</span>
       <nav>
-        <a href="index.html">Cockpit</a>
-        <a href="homework.html" class="active">Hausaufgabe</a>
-        <a href="settings.html">Einstellungen</a>
+        <a href="index.html">Dashboard</a>
+        <a href="homework.html" class="active">Homework</a>
+        <a href="settings.html">Settings</a>
+        <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
       </nav>
     </header>
 
@@ -32,16 +33,16 @@
       <div id="feedback" class="feedback" hidden>
         <p class="feedback-head" id="feedback-head"></p>
         <p class="feedback-note" id="feedback-note"></p>
-        <button class="btn btn-primary" id="feedback-next">Weiter</button>
+        <button class="btn btn-primary" id="feedback-next">Next</button>
       </div>
 
       <div id="done-area" hidden>
-        <h2>Sitzung beendet.</h2>
+        <h2>Session over.</h2>
         <p id="done-summary" class="done-summary"></p>
         <p id="done-detail" class="muted"></p>
         <p id="done-status" class="status status-ok"></p>
         <div id="done-downloads" class="downloads" hidden></div>
-        <a class="btn" href="index.html">← Zurück zum Cockpit</a>
+        <a class="btn" href="index.html">← Back to the dashboard</a>
       </div>
     </section>
   </main>
