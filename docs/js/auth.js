@@ -50,7 +50,6 @@ export function initLock(onUnlock) {
   const el = document.getElementById('lock');
   el.innerHTML = `
     <div class="lock-card">
-      <img src="img/richter.svg" alt="Frau Dr. Richter" />
       <p class="lock-kicker">German · Pushkar × Frau Dr. Richter</p>
       <h1 class="lock-title">Frau Richter is expecting you.</h1>
       <form id="lock-form" autocomplete="off">

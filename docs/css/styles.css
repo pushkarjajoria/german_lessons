@@ -82,7 +82,6 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
   padding: 2.25rem 2.25rem 1.75rem;
   text-align: center;
 }
-.lock-card img { height: 130px; margin-bottom: 0.75rem; opacity: 0.95; }
 .lock-kicker {
   color: var(--text-dim);
   font-size: 0.72rem;
@@ -251,6 +250,22 @@ label input {
   border: 1px solid var(--border);
 }
 .chip-weak { border-color: var(--ink); color: var(--ink); background: var(--ink-soft); }
+
+.notes-panel { border-top: 2px solid var(--ink); }
+.note-block {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.note-block:last-child { border-bottom: none; padding-bottom: 0; }
+.note-block:first-of-type { padding-top: 0; }
+.note-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 0.35rem;
+}
+.note-text { margin: 0; font-family: var(--serif); font-size: 1.02rem; line-height: 1.6; }
 
 .recent-row {
   display: grid;

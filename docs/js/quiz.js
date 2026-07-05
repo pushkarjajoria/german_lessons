@@ -341,6 +341,7 @@ function buildReport() {
     totalQuestions: hw.questions.length,
     firstTryCorrect,
     eventualCorrect: perQuestion.filter((p) => p.correct).length,
+    totalAttempts: perQuestion.reduce((sum, p) => sum + p.attempts, 0),
     perQuestion,
     categoryStats,
     weakCategories,
@@ -369,6 +370,8 @@ function updatedManifest(manifest, report) {
     durationSec: report.durationSec,
     totalQuestions: report.totalQuestions,
     firstTryCorrect: report.firstTryCorrect,
+    eventualCorrect: report.eventualCorrect,
+    totalAttempts: report.totalAttempts,
     categories: report.categoryStats,
     weakCategories: report.weakCategories,
   });

@@ -33,6 +33,27 @@ function aggregateCategories(history) {
   return agg;
 }
 
+// Gaps (in days) between consecutive practice days across the whole record —
+// the raw material for judging regularity, not just the current idle streak.
+function sessionGaps(history) {
+  const days = [...new Set(history.map((h) => h.date.slice(0, 10)))].sort();
+  const gaps = [];
+  for (let i = 1; i < days.length; i++) {
+    gaps.push(Math.round((new Date(days[i]) - new Date(days[i - 1])) / 86400000));
+  }
+  return gaps;
+}
+
+// A category that shows up weak across several recent sessions, not just once —
+// the fossilization signal the persona treats as categorically different from a slip.
+function recurringWeakCategories(history, lookback = 3) {
+  const counts = {};
+  for (const h of history.slice(-lookback)) {
+    for (const c of h.weakCategories || []) counts[c] = (counts[c] || 0) + 1;
+  }
+  return Object.entries(counts).filter(([, n]) => n >= 2).map(([c]) => c);
+}
+
 // Her opening line, per the persona's tier logic: acknowledgment is brief,
 // absence is named, recurring weakness is named, praise is rationed.
 function verdict(manifest, weak) {
@@ -60,6 +81,74 @@ function verdict(manifest, weak) {
     return `Last session: ${lastPct}% on first try. Acceptable. The remaining ${100 - lastPct}% is where we work today.`;
   }
   return `Last session: ${lastPct}% on first try. That is not where we stop. The misses come back until they sit.`;
+}
+
+// Her fuller notes: performance, regularity, effort/sincerity — three separate
+// judgments, because a good score earned by rushing and a mediocre score earned
+// by honest struggle are not the same thing to her, even if the number matches.
+function richterNotes(manifest) {
+  const { counters, history } = manifest;
+
+  if (!history.length) {
+    return {
+      performance: 'Nothing has been submitted. There is nothing yet to assess, and nothing to praise for merely arriving.',
+      regularity: 'No practice recorded. The streak begins at the first honest session, not before.',
+      effort: 'Effort is judged by work done, not by intentions stated. Begin, then we will have something to discuss.',
+    };
+  }
+
+  const last = history[history.length - 1];
+  const lastPct = pct(last.firstTryCorrect, last.totalQuestions);
+  const trend = history.slice(-3).map((h) => pct(h.firstTryCorrect, h.totalQuestions));
+  const recurring = recurringWeakCategories(history);
+
+  // Performance
+  let performance;
+  if (recurring.length) {
+    const verb = recurring.length > 1 ? 'keep' : 'keeps';
+    performance = `${recurring.join(', ')} ${verb} coming back weak across sessions, not just once. That is no longer a slip, it is a pattern setting — and I do not let those sit. It returns in the next lesson until it is gone, not until it is convenient.`;
+  } else if (trend.length >= 2 && trend[trend.length - 1] > trend[0]) {
+    performance = `${lastPct}% on the last homework, up from ${trend[0]}%. Improving. I will not make a ceremony of it — one good session is not yet a habit.`;
+  } else if (lastPct >= 90) {
+    performance = `${lastPct}% on first try. Clean. That is the standard I expect of you, not a reason to ease off it.`;
+  } else if (lastPct >= 70) {
+    performance = `${lastPct}% on first try. Adequate, nothing more. The remainder does not vanish — it is in your next lesson.`;
+  } else {
+    performance = `${lastPct}% on first try. That is not an acceptable resting point. We slow down and rebuild before anything new is added.`;
+  }
+
+  // Regularity
+  const idle = daysSince(counters.lastPracticed);
+  const gaps = sessionGaps(history);
+  const missedStretches = gaps.filter((g) => g >= 2).length;
+  let regularity;
+  if (idle >= 7) {
+    regularity = `${idle} days of silence, with no word from you in that time. If a busy week was the reason, the rule has always been simple: say so before you vanish, not after. Unannounced silence is what invites this conversation.`;
+  } else if (idle >= 3) {
+    regularity = `${idle} days since the last session. Not yet a pattern of neglect, but close enough that I am watching it. Today closes the gap.`;
+  } else if (counters.streakDays >= 5) {
+    regularity = `${counters.streakDays} days in a row. That is what regularity looks like. Do not treat it as a cushion that earns you a day off.`;
+  } else if (missedStretches >= 3) {
+    regularity = `You return, then lapse, then return again — ${missedStretches} gaps of two or more days across your record. Inconsistency is its own kind of fossilizing error. Choose a rhythm and hold it.`;
+  } else {
+    regularity = 'Reasonably steady. Nothing here to escalate, and nothing yet to applaud outright either.';
+  }
+
+  // Effort & sincerity — read from how the work was done, not just the score.
+  const attemptsRatio = last.totalAttempts && last.totalQuestions ? last.totalAttempts / last.totalQuestions : 1;
+  const avgSec = last.totalQuestions ? last.durationSec / last.totalQuestions : null;
+  let effort;
+  if (attemptsRatio <= 1.15) {
+    effort = 'A clean run — little to no rework needed. Whatever preparation produced that, keep doing it.';
+  } else if (attemptsRatio > 1.6 && avgSec !== null && avgSec < 8) {
+    effort = 'A lot of retries, answered quickly. That combination usually means guessing, not thinking — you are pattern-matching again, not working the answer out. Slow down before you answer, not after I tell you it is wrong.';
+  } else if (attemptsRatio > 1.3) {
+    effort = 'Several items needed more than one try, but you took real time on them. That reads as honest struggle, not carelessness — it earns patience, and the material simply repeats until it holds.';
+  } else {
+    effort = 'Ordinary effort. Nothing remarkable here, and nothing concerning either.';
+  }
+
+  return { performance, regularity, effort };
 }
 
 function render(manifest) {
@@ -100,6 +189,11 @@ function render(manifest) {
     : '<p class="muted">No flagged weaknesses — yet. The test comes with the data.</p>';
 
   $('verdict').textContent = verdict(manifest, weak);
+
+  const notes = richterNotes(manifest);
+  $('note-performance').textContent = notes.performance;
+  $('note-regularity').textContent = notes.regularity;
+  $('note-effort').textContent = notes.effort;
 
   // Recent sessions
   const recentWrap = $('recent');
