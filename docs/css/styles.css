@@ -431,9 +431,10 @@ label input {
 .reader-empty { text-align: center; padding: 2rem 1rem; }
 .reader-empty img { height: 150px; margin-bottom: 1rem; opacity: 0.95; }
 
-.portrait-photo { border-radius: var(--radius); object-fit: cover; }
-img.portrait-photo { height: auto; max-height: 190px; }
-.verdict img.portrait-photo { height: 84px; max-height: 84px; width: 64px; }
+/* Transparent-background cutout — no card/crop, just scale it to fit. */
+.portrait-photo { object-fit: contain; background: none; }
+img.portrait-photo { height: auto; width: auto; max-height: 190px; }
+.verdict img.portrait-photo { height: 84px; max-height: 84px; width: auto; }
 
 /* rendered lesson markdown */
 .md-content { font-size: 1.02rem; line-height: 1.7; }
