@@ -12,9 +12,9 @@
   "lessons": [
     {
       "id": "0002",
-      "title": "Ich möchte — höflich bestellen",
-      "section": "Phase 0 — Zündung",
-      "subsection": "Kaffee"
+      "title": "Ich möchte — Ordering Coffee Politely",
+      "section": "Phase 0 — Ignition",
+      "subsection": "Coffee"
     }
   ],
   "tests": [],
@@ -23,5 +23,12 @@
     "salt": "0gA2YkHEYWNRZA24a0MtXA==",
     "iv": "y8gqZ5y/0wwIZTfb",
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
+  },
+  "teacherNote": {
+    "date": "2026-07-06T14:45:00.000Z",
+    "text": "First entry. We start deliberately below your level — by design, not indulgence. This week: order politely with *möchte* (\"would like\"), not *ich liebe* (\"I love\"), and keep the verb in second position. Homework is in the app, plus one real coffee order in German before Wednesday — use a lifeline, don't switch to English. — I. R.",
+    "weakAreas": [
+      "Konjugation"
+    ]
   }
 }
