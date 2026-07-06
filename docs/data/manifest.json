@@ -2,13 +2,88 @@
   "currentLessonId": "0002",
   "currentHomeworkId": "0002",
   "counters": {
-    "lessonsCompleted": 0,
-    "totalQuestions": 0,
-    "totalCorrect": 0,
-    "streakDays": 0,
-    "lastPracticed": null
+    "lessonsCompleted": 1,
+    "totalQuestions": 10,
+    "totalCorrect": 5,
+    "streakDays": 1,
+    "lastPracticed": "2026-07-06T15:39:09.699Z"
   },
-  "history": [],
+  "history": [
+    {
+      "reportId": "0002",
+      "homeworkId": "0002",
+      "title": "Ich möchte — Ordering Coffee Politely",
+      "date": "2026-07-06T15:39:09.699Z",
+      "startedAt": "2026-07-06T15:34:30.267Z",
+      "durationSec": 279,
+      "totalQuestions": 10,
+      "firstTryCorrect": 5,
+      "eventualCorrect": 8,
+      "totalAttempts": 15,
+      "reworkRatio": 1.5,
+      "avgFirstAnswerLatencySec": 21,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 3,
+      "categoryAttempts": {
+        "Redemittel": {
+          "attempts": 7,
+          "count": 3
+        },
+        "Konjugation": {
+          "attempts": 1,
+          "count": 2
+        },
+        "Wortstellung": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Hörverstehen": {
+          "attempts": 5,
+          "count": 2
+        },
+        "Vokabular": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Produktion": {
+          "attempts": 0,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Redemittel": {
+          "correct": 1,
+          "total": 3
+        },
+        "Konjugation": {
+          "correct": 1,
+          "total": 2
+        },
+        "Wortstellung": {
+          "correct": 1,
+          "total": 1
+        },
+        "Hörverstehen": {
+          "correct": 1,
+          "total": 2
+        },
+        "Vokabular": {
+          "correct": 1,
+          "total": 1
+        },
+        "Produktion": {
+          "correct": 0,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Redemittel",
+        "Konjugation",
+        "Hörverstehen",
+        "Produktion"
+      ]
+    }
+  ],
   "lessons": [
     {
       "id": "0002",
