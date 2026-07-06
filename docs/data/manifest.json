@@ -14,5 +14,13 @@
     "salt": "0gA2YkHEYWNRZA24a0MtXA==",
     "iv": "y8gqZ5y/0wwIZTfb",
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
-  }
+  },
+  "lessons": [
+    {
+      "id": "0001",
+      "title": "Kaffee bestellen — dein Weg",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Kaffee"
+    }
+  ]
 }

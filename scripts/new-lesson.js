@@ -39,7 +39,16 @@ if (args.includes('--scaffold')) {
     console.error(`  ${lessonPath}\n  ${hwPath}`);
     process.exit(1);
   }
-  writeFileSync(lessonPath, `# Lektion ${nextId} — <Titel>\n\n**Zielt auf:** <weak areas from the latest report>\n\n---\n\n<teaching content, Frau Richter's register>\n`);
+  writeFileSync(lessonPath, `---
+title: <Titel>
+section: <Major section — e.g. "Phase 1 — Survival Deutsch">
+subsection: <Subsection — e.g. "Kaffee" (optional, delete line to place directly under the section)>
+---
+
+**Zielt auf:** <weak areas from the latest report>
+
+<teaching content, Frau Richter's register — start headings at ## level>
+`);
   writeFileSync(hwPath, JSON.stringify({
     id: nextId,
     lessonId: nextId,
@@ -62,6 +71,30 @@ if (!lessonFile || !hwFile) {
 
 const lessonText = readFileSync(lessonFile, 'utf8');
 const hwText = readFileSync(hwFile, 'utf8');
+
+// Lesson front matter drives the curriculum tree on the site's Lessons page.
+// Frau Richter decides section/subsection placement here, at her discretion.
+function parseFrontMatter(md) {
+  const meta = {};
+  if (!md.startsWith('---')) return meta;
+  const end = md.indexOf('\n---', 3);
+  if (end === -1) return meta;
+  for (const line of md.slice(3, end).split('\n')) {
+    const m = line.match(/^\s*([A-Za-z_][\w-]*)\s*:\s*(.+?)\s*$/);
+    if (m) meta[m[1]] = m[2];
+  }
+  return meta;
+}
+const lessonMeta = parseFrontMatter(lessonText);
+if (!lessonMeta.title || lessonMeta.title.startsWith('<')) {
+  console.error('Lesson needs front matter with at least a real "title:" (see SCHEMA.md §3). Found none.');
+  process.exit(1);
+}
+if (!lessonMeta.section || lessonMeta.section.startsWith('<')) {
+  console.error('Lesson front matter needs a real "section:" — that is where it appears in the curriculum tree.');
+  process.exit(1);
+}
+if (lessonMeta.subsection && lessonMeta.subsection.startsWith('<')) delete lessonMeta.subsection;
 
 // Validate homework JSON before it gets sealed
 const hw = JSON.parse(hwText);
@@ -99,6 +132,13 @@ writeFileSync(hwOut, JSON.stringify(encryptString(password, JSON.stringify(hw, n
 
 manifest.currentLessonId = nextId;
 manifest.currentHomeworkId = nextId;
+manifest.lessons ||= [];
+manifest.lessons.push({
+  id: nextId,
+  title: lessonMeta.title,
+  section: lessonMeta.section,
+  ...(lessonMeta.subsection ? { subsection: lessonMeta.subsection } : {}),
+});
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
 
 console.log(`Encrypted and staged lesson ${nextId}:`);

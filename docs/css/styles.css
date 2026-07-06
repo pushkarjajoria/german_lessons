@@ -383,6 +383,86 @@ label input {
 .done-summary { font-size: 1.15rem; font-family: var(--serif); border-left: 3px solid var(--ink); padding-left: 1rem; }
 .downloads { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
 
+/* ---------- lessons ---------- */
+
+.lessons-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.25rem; align-items: start; }
+@media (max-width: 760px) { .lessons-layout { grid-template-columns: 1fr; } }
+
+.lesson-tree-panel { position: sticky; top: 1rem; }
+.lesson-section { margin-bottom: 1.1rem; }
+.lesson-section-title {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin: 0 0 0.5rem;
+}
+.lesson-sub { margin: 0.15rem 0; }
+.lesson-sub summary {
+  cursor: pointer;
+  padding: 0.35rem 0.4rem;
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.lesson-sub summary:hover { background: var(--bg-inset); }
+.lesson-sub[open] > summary { color: var(--brass); }
+.lesson-leaf {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-left: 2px solid var(--border);
+  border-radius: 0;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  padding: 0.4rem 0.6rem;
+  margin-left: 0.55rem;
+  cursor: pointer;
+}
+.lesson-leaf:hover { color: var(--text); border-left-color: var(--text-dim); }
+.lesson-leaf.active { color: var(--text); border-left-color: var(--ink); background: var(--bg-inset); }
+.leaf-id { color: var(--brass); font-variant-numeric: tabular-nums; font-size: 0.8rem; margin-right: 0.3rem; }
+
+.lesson-reader { min-height: 320px; }
+.reader-empty { text-align: center; padding: 2rem 1rem; }
+.reader-empty img { height: 150px; margin-bottom: 1rem; opacity: 0.95; }
+
+.portrait-photo { border-radius: var(--radius); object-fit: cover; }
+img.portrait-photo { height: auto; max-height: 190px; }
+.verdict img.portrait-photo { height: 84px; max-height: 84px; width: 64px; }
+
+/* rendered lesson markdown */
+.md-content { font-size: 1.02rem; line-height: 1.7; }
+.md-content h1 { font-size: 1.5rem; font-weight: 500; margin: 0 0 1rem; }
+.md-content h2 { font-size: 1.18rem; font-weight: 600; margin: 1.6rem 0 0.6rem; color: var(--brass); }
+.md-content h3 { font-size: 1.05rem; margin: 1.2rem 0 0.5rem; }
+.md-content p { margin: 0.6rem 0; }
+.md-content strong { color: var(--text); }
+.md-content em { color: var(--text-dim); }
+.md-content table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.95rem; }
+.md-content th, .md-content td { border: 1px solid var(--border); padding: 0.45rem 0.7rem; text-align: left; }
+.md-content th { background: var(--bg-inset); font-weight: 600; }
+.md-content blockquote {
+  border-left: 3px solid var(--ink);
+  background: var(--bg-inset);
+  margin: 0.8rem 0;
+  padding: 0.6rem 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-family: var(--serif);
+}
+.md-content hr { border: none; border-top: 1px solid var(--rule); margin: 1.4rem 0; }
+.md-content ul, .md-content ol { padding-left: 1.4rem; margin: 0.6rem 0; }
+.md-content li { margin-bottom: 0.3rem; }
+.md-content pre { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.8rem; overflow-x: auto; }
+
+/* Frau Richter's hand-written note on the dashboard */
+.desk-note { background: var(--ink-soft); border-radius: var(--radius); padding: 0.85rem 1rem; }
+.desk-note .chips { margin-top: 0.5rem; }
+
 /* ---------- tests (Klausur mode) ---------- */
 
 .test-instructions { font-family: var(--serif); font-size: 1.05rem; }

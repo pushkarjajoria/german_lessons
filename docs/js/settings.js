@@ -101,7 +101,9 @@ function initReencrypt() {
       const manifest = await loadManifestFresh();
       await verifyOld(oldPw, manifest).catch(() => { throw new Error('The old password is wrong.'); });
       line('Old password confirmed. Collecting files…');
-      const dirs = ['data/lessons', 'data/homework', 'data/reports', 'data/tests'];
+      // 'data' itself covers top-level .enc files like the portrait;
+      // listDir returns files only and the loop skips non-.enc entries.
+      const dirs = ['data', 'data/lessons', 'data/homework', 'data/reports', 'data/tests'];
       for (const dir of dirs) {
         const files = await gh.listDir(dir);
         for (const f of files) {

@@ -79,8 +79,11 @@ commands without `--push`). GitHub Pages redeploys `docs/` automatically.
 
 Pushkar opens the site, enters the password (login **is** decryption — the password
 either opens the canary or nothing at all), and the dashboard shows streak, accuracy,
-per-category breakdown, and the "Start today's homework" button whenever
-`currentHomeworkId` has no matching entry in `manifest.history` yet. The quiz runner:
+per-category breakdown, Frau Richter's notes, and the "Start today's homework" button
+whenever `currentHomeworkId` has no matching entry in `manifest.history` yet. The
+**Lessons page** renders every published lesson (decrypted client-side) in a curriculum
+tree — sections and subsections chosen by Frau Richter in each lesson's front matter
+(SCHEMA.md §3). The quiz runner:
 
 - renders one question at a time, all five types (audio via browser SpeechSynthesis, `de-DE`);
 - checks answers case-insensitively, trims, normalizes umlauts (ä↔ae etc.), strips

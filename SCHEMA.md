@@ -169,9 +169,48 @@ lowercased, trimmed, trailing punctuation (`.!?,;:…`) stripped, umlauts folded
 
 ## 3. Creating homework (+ its lesson)
 
-Every homework pairs with a lesson markdown (the teaching text; encrypted for the
-record — the site does not display it, so anything the learner must see goes into the
-questions' `note`s or the session chat).
+Every homework pairs with a lesson markdown — the teaching text. **Lessons are
+displayed on the site**: the Lessons page renders each decrypted `.md` and organizes
+them into a curriculum tree (major sections → collapsible subsections → lesson leaves).
+Write the lesson as the primary teaching artifact; the questions' `note`s reinforce it.
+
+### 3.1 Lesson file format
+
+Plain markdown with **required front matter** — this is how you (and only you) decide
+where the lesson sits in the curriculum tree:
+
+```markdown
+---
+title: Im Supermarkt — Pfand & Karte
+section: Phase 1 — Survival Deutsch
+subsection: Supermarkt
+---
+
+**Zielt auf:** kein/nicht, Kasus-Akkusativ
+
+## Die Chunks — lerne sie als Ganzes
+…
+```
+
+- `title` (required) — shown in the tree and as the lesson heading.
+- `section` (required) — the major grouping. Reuse existing section names **verbatim**
+  to extend a group; a new name creates a new major section. Sections appear in the
+  order their first lesson was published. Suggested naming: align with Studienplan
+  phases (`Phase 1 — Survival Deutsch`, `Phase 2 — Alltag`, …).
+- `subsection` (optional) — the collapsible group inside a section (e.g. one per domain
+  pack: `Kaffee`, `Supermarkt`, `Friseur`). Omit the line to place the lesson directly
+  under the section. The newest subsection renders expanded by default.
+- Body: start headings at `##` (the title provides the `h1`). Supported markdown:
+  headings to `####`, paragraphs, `**bold**`, `*italic*`, `` `code` ``, links, bullet
+  and numbered lists, tables, `>` blockquotes, fenced code, `---` rules. Nothing else —
+  no HTML, no images.
+
+`new-lesson.js` refuses a lesson without a real `title:` and `section:`.
+
+### 3.2 Encryption & publishing
+
+`new-lesson.js` does the encryption — never commit a plaintext lesson, and never write
+the `.enc` yourself when publishing something new:
 
 ```bash
 node scripts/new-lesson.js --scaffold        # writes templates for the next id
@@ -180,7 +219,22 @@ node scripts/new-lesson.js --lesson scripts/templates/lesson-NNNN.md \
                            --homework scripts/templates/homework-NNNN.json --push
 ```
 
-Homework JSON:
+This encrypts both files into `docs/data/lessons/` and `docs/data/homework/`, bumps the
+manifest pointers, and appends `{id, title, section, subsection}` to `manifest.lessons`
+(the plaintext index the tree is built from — titles/sections are visible in the public
+repo, so name them like curriculum topics, nothing personal).
+
+**Fixing an already-published lesson** (typo, added paragraph): edit your plaintext
+source, re-encrypt it to the *same* filename, and commit — the index entry stays:
+
+```bash
+node scripts/encrypt.js scripts/templates/lesson-0004.md docs/data/lessons/lesson-0004.md.enc
+```
+
+To change a published lesson's tree placement, edit its entry in `manifest.lessons`
+directly and commit.
+
+### 3.3 Homework JSON
 
 ```jsonc
 {
@@ -200,8 +254,7 @@ score. Composition rule from the Studienplan: ~60% new material, ~40% spaced rev
 previously missed items, categories interleaved, anchored in his domains (coffee, gym,
 supermarket, films, football — see `Studienplan.md` §6).
 
-Publishing bumps `currentLessonId`/`currentHomeworkId` in the manifest; the dashboard
-offers the homework until a matching entry appears in `manifest.history`.
+The dashboard offers the homework until a matching entry appears in `manifest.history`.
 
 ## 4. Creating tests (Klausuren)
 
@@ -243,7 +296,33 @@ questionCount, createdAt}`) and reconciles any expired pending tests to `forfeit
 The dashboard shows pending tests with a countdown; lifecycle is
 `pending → submitted → graded` or `→ forfeited` (`abandoned` | `deadline`).
 
-## 5. Manifest quick reference (script-maintained — rarely hand-edit)
+## 5. Teacher notes — your standing remark on the dashboard
+
+The dashboard's "Notes from Frau Richter" panel is mostly *computed* (performance,
+regularity, effort — derived from history). On top of it sits **"From her desk"**: a
+remark you write yourself, in your voice, plus the weak areas you flag by hand. Your
+flagged areas also join the "Current weak spots" chips — a hand flag outranks the
+statistics.
+
+Update it in **every scheduled session** after reading the latest report/result, so the
+learner always faces a current assessment, not a stale one (it replaces the previous
+note — there is no note history):
+
+```bash
+node scripts/teacher-note.js \
+  --text "Kasus improved — 1/3 to 3/3. Wortstellung is the new front; the test on Friday will assume it." \
+  --weak "Wortstellung" --push
+node scripts/teacher-note.js --clear --push     # rare: nothing worth saying
+```
+
+Constraints: max 400 characters, and it lives in the **plaintext** manifest of a public
+repo — so keep it category-level and in your register (short, specific, never
+sycophantic). Never quote his answers or personal details; the full grading rationale
+and teaching belong in the encrypted lesson. Writing weekly-updated weak areas here is
+exactly what the learner asked for: your running judgment of where he stands, visible
+every time he logs in.
+
+## 6. Manifest quick reference (script-maintained — rarely hand-edit)
 
 ```jsonc
 {
@@ -252,12 +331,20 @@ The dashboard shows pending tests with a countdown; lifecycle is
                 "streakDays", "lastPracticed" },
   "history": [ /* per completed homework: report id, date, scores, reworkRatio,
                   latency, hints, replays, categoryStats/Attempts, weakCategories */ ],
+  "lessons": [ /* curriculum index: {id, title, section, subsection?} —
+                  appended by new-lesson.js from the lesson's front matter */ ],
   "tests":   [ /* per test: id, title, deadline, status, and per status:
                   answered/timedOut, score+comment, forfeitReason */ ],
+  "teacherNote": { /* {date, text, weakAreas[]} — set by teacher-note.js */ },
   "canary":  { /* encrypted login probe — rotate only via the settings page */ }
 }
 ```
 
-`history` and `tests` are what the dashboard's verdict and "Notes from Frau Richter"
-run on — publishing well-formed assignments through the scripts keeps them consistent;
-that is the entire reason to never bypass the scripts.
+`history`, `tests`, `lessons`, and `teacherNote` are what the dashboard and Lessons
+page run on — publishing through the scripts keeps them consistent; that is the entire
+reason to never bypass the scripts.
+
+Related, not in the manifest: `docs/data/portrait.jpg.enc` is Frau Richter's portrait
+(AES-GCM over the JPEG's base64, same password as everything else), decrypted after
+login for the dashboard and Lessons page. The settings page's "Re-encrypt everything"
+covers it along with all `data/` subdirectories.

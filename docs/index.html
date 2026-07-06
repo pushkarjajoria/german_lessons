@@ -15,6 +15,7 @@
       <span class="brand"><img src="img/richter.svg" alt="" />German with Frau Richter</span>
       <nav>
         <a href="index.html" class="active">Dashboard</a>
+        <a href="lessons.html">Lessons</a>
         <a href="homework.html">Homework</a>
         <a href="settings.html">Settings</a>
         <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
@@ -22,7 +23,7 @@
     </header>
 
     <section class="verdict">
-      <img src="img/richter.svg" alt="" />
+      <img src="img/richter.svg" alt="" id="verdict-portrait" />
       <div>
         <p class="verdict-label">Frau Richter's verdict</p>
         <p class="verdict-text" id="verdict"></p>
@@ -67,6 +68,11 @@
 
     <section class="panel notes-panel">
       <h2>Notes from Frau Richter</h2>
+      <div class="note-block desk-note" id="desk-note" hidden>
+        <p class="note-label" id="desk-note-label">From her desk</p>
+        <p class="note-text" id="desk-note-text"></p>
+        <div class="chips" id="desk-note-chips"></div>
+      </div>
       <div class="note-block">
         <p class="note-label">Performance</p>
         <p class="note-text" id="note-performance"></p>

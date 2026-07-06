@@ -5,6 +5,7 @@
 
 import { initLock, initLockButton, getPassword } from './auth.js';
 import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfeits } from './tests-common.js';
+import { loadPortrait } from './portrait.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -206,6 +207,8 @@ function render(manifest) {
   const weak = new Set(cats.filter(([, s]) => s.correct / s.total < 0.7).map(([c]) => c));
   const lastEntry = history[history.length - 1];
   (lastEntry?.weakCategories || []).forEach((w) => weak.add(w));
+  // Areas Frau Richter flagged by hand outrank the statistics.
+  (manifest.teacherNote?.weakAreas || []).forEach((w) => weak.add(w));
   const weakWrap = $('weak-areas');
   weakWrap.innerHTML = weak.size
     ? [...weak].map((w) => `<span class="chip chip-weak">${w}</span>`).join('')
@@ -219,6 +222,17 @@ function render(manifest) {
   $('note-performance').textContent = notes.performance;
   $('note-regularity').textContent = notes.regularity;
   $('note-effort').textContent = notes.effort;
+
+  // Her hand-written remark (scripts/teacher-note.js) — shown above the
+  // computed notes whenever she has left one.
+  const tn = manifest.teacherNote;
+  if (tn && tn.text) {
+    $('desk-note').hidden = false;
+    $('desk-note-label').textContent = `From her desk — ${fmtDate(tn.date)}`;
+    $('desk-note-text').textContent = tn.text;
+    $('desk-note-chips').innerHTML = (tn.weakAreas || [])
+      .map((w) => `<span class="chip chip-weak">${w}</span>`).join('');
+  }
 
   // Recent sessions
   const recentWrap = $('recent');
@@ -291,6 +305,7 @@ function renderTests(manifest) {
 initLockButton();
 initLock(async (manifest) => {
   render(manifest);
+  loadPortrait($('verdict-portrait'));
   // Persist any forfeits that are true but not yet written (expired deadlines,
   // abandoned in-progress markers), then re-render the panel with fresh state.
   const changed = await enforceForfeits(manifest, getPassword()).catch(() => false);

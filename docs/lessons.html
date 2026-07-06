@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>German · Lessons</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="lock"></div>
+
+  <main hidden>
+    <header class="topbar">
+      <span class="brand"><img src="img/richter.svg" alt="" />German with Frau Richter</span>
+      <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="lessons.html" class="active">Lessons</a>
+        <a href="homework.html">Homework</a>
+        <a href="settings.html">Settings</a>
+        <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
+      </nav>
+    </header>
+
+    <div class="lessons-layout">
+      <aside class="panel lesson-tree-panel">
+        <h2>Curriculum</h2>
+        <div id="lesson-tree"></div>
+      </aside>
+
+      <section class="panel lesson-reader" id="lesson-reader">
+        <div id="reader-empty" class="reader-empty">
+          <img id="reader-portrait" src="img/richter.svg" alt="Frau Dr. Richter" />
+          <p class="verdict-text">Pick a lesson from the curriculum. Read it properly —
+          the homework assumes you did.</p>
+        </div>
+        <article id="reader-content" class="md-content" hidden></article>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="js/lessons.js"></script>
+</body>
+</html>
