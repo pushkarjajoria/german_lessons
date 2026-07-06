@@ -22,3 +22,6 @@ node_modules/
 
 # Local tooling
 .claude/
+
+# Frau Richter's private memory — judgment carried across runs. Never commit.
+frau_richter/

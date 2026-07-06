@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0001",
-  "currentHomeworkId": "0001",
+  "currentLessonId": "0002",
+  "currentHomeworkId": "0002",
   "counters": {
     "lessonsCompleted": 0,
     "totalQuestions": 0,
@@ -9,7 +9,14 @@
     "lastPracticed": null
   },
   "history": [],
-  "lessons": [],
+  "lessons": [
+    {
+      "id": "0002",
+      "title": "Ich möchte — höflich bestellen",
+      "section": "Phase 0 — Zündung",
+      "subsection": "Kaffee"
+    }
+  ],
   "tests": [],
   "canary": {
     "v": 1,
