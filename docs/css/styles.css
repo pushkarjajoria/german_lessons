@@ -383,6 +383,61 @@ label input {
 .done-summary { font-size: 1.15rem; font-family: var(--serif); border-left: 3px solid var(--ink); padding-left: 1rem; }
 .downloads { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
 
+/* ---------- tests (Klausur mode) ---------- */
+
+.test-instructions { font-family: var(--serif); font-size: 1.05rem; }
+.test-rules {
+  border-left: 3px solid var(--ink);
+  background: var(--bg-inset);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1rem 1.3rem;
+  margin: 1.2rem 0;
+}
+.test-rules ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+.test-rules li { margin-bottom: 0.45rem; }
+
+.test-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.test-timer {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--brass);
+}
+.test-timer.timer-low { color: var(--ink); }
+
+.mc-option.mc-selected { border-color: var(--brass); background: var(--bg-raised); }
+
+.subjective-answer {
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1.02rem;
+  font-family: var(--sans);
+  line-height: 1.6;
+  padding: 0.75rem 0.9rem;
+  resize: vertical;
+}
+
+.test-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.test-row:last-child { border-bottom: none; }
+.test-name { font-family: var(--serif); font-size: 1.02rem; }
+.test-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end; }
+
 /* ---------- status / misc ---------- */
 
 .status { font-size: 0.92rem; margin-top: 0.75rem; }

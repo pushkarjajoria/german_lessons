@@ -3,7 +3,8 @@
 // report content stays encrypted. Frau Richter's verdict is computed from the
 // same numbers — earned, specific, never sycophantic.
 
-import { initLock, initLockButton } from './auth.js';
+import { initLock, initLockButton, getPassword } from './auth.js';
+import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfeits } from './tests-common.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -212,6 +213,8 @@ function render(manifest) {
 
   $('verdict').textContent = verdict(manifest, weak);
 
+  renderTests(manifest);
+
   const notes = richterNotes(manifest);
   $('note-performance').textContent = notes.performance;
   $('note-regularity').textContent = notes.regularity;
@@ -247,5 +250,49 @@ function render(manifest) {
   }
 }
 
+function renderTests(manifest) {
+  const tests = getTests(manifest);
+  const panel = $('tests-panel');
+  if (!tests.length) { panel.hidden = true; return; }
+  panel.hidden = false;
+  const list = $('tests-list');
+  list.innerHTML = '';
+  // Pending first (nearest deadline on top), then the record.
+  const order = { pending: 0, submitted: 1, graded: 2, forfeited: 3 };
+  const sorted = tests.slice().sort((a, b) => {
+    const s = order[deriveStatus(a)] - order[deriveStatus(b)];
+    return s !== 0 ? s : new Date(a.deadline) - new Date(b.deadline);
+  });
+  for (const t of sorted) {
+    const status = deriveStatus(t);
+    const row = document.createElement('div');
+    row.className = 'test-row';
+    let right;
+    if (status === 'pending') {
+      const d = fmtDeadline(t.deadline);
+      const urgent = new Date(t.deadline).getTime() - Date.now() < 86400000;
+      right = `<span class="chip ${urgent ? 'chip-weak' : ''}">${d}</span>
+               <a class="btn btn-primary" href="test.html?id=${t.id}">Take it</a>`;
+    } else if (status === 'submitted') {
+      right = '<span class="chip">submitted · awaiting the red pen</span>';
+    } else if (status === 'graded') {
+      right = `<span class="chip">graded: ${t.score ?? '—'}</span>`;
+    } else {
+      const reason = t.forfeitReason || deriveForfeitReason(t) || 'forfeited';
+      right = `<span class="chip chip-weak">forfeited (${reason}) · 0 points</span>`;
+    }
+    row.innerHTML = `
+      <span class="test-name">${t.title || 'Test ' + t.id}</span>
+      <span class="test-right">${right}</span>`;
+    list.appendChild(row);
+  }
+}
+
 initLockButton();
-initLock(async (manifest) => render(manifest));
+initLock(async (manifest) => {
+  render(manifest);
+  // Persist any forfeits that are true but not yet written (expired deadlines,
+  // abandoned in-progress markers), then re-render the panel with fresh state.
+  const changed = await enforceForfeits(manifest, getPassword()).catch(() => false);
+  if (changed) renderTests(manifest);
+});

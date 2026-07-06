@@ -110,6 +110,45 @@ report under the same password, and:
 `manifest.history` holds only non-sensitive aggregates (dates, scores, category numbers)
 so the dashboard works without decrypting old reports. All content stays encrypted.
 
+## Tests (Klausuren) — the second assessment channel
+
+Alongside homework, Frau Richter can assign **tests**. Same encryption, same repo,
+different rules — a test measures what actually sits, so the scaffolding homework
+provides is deliberately removed:
+
+- **Timed per question** (`timeLimitSec` per question or `defaultTimeLimitSec` for the
+  test). When the clock runs out, the question is recorded as unanswered and gone.
+- **One direction only** — no going back, no requeue, no hints.
+- **No feedback during or after submission.** Objective questions are auto-graded
+  *silently into the encrypted result*; the learner sees nothing until Frau Richter
+  grades it.
+- **Cannot be paused or stopped once started.** Leaving the page mid-test (the browser
+  shows one warning) forfeits it: an in-progress marker in localStorage plus no
+  submitted result = abandoned = a zero-point forfeit result is written on next visit.
+- **Deadline** (ISO timestamp in the test file and manifest entry): pending past the
+  deadline = forfeited with 0 points. The dashboard enforces this on login; the scripts
+  reconcile it on the next publish, so it holds even without a PAT.
+- **Subjective questions** (`type: "subjective"`, optional `minWords`) collect free
+  German prose for Frau Richter to grade by hand.
+- Tracking is test-grade too: per question — answer, time used, timed-out flag, audio
+  replays, and **window-blur count** (she notices tab-switching during a Klausur).
+
+**Lifecycle** (`manifest.tests[]`, plaintext aggregates only): `pending` → `submitted`
+→ `graded`, or → `forfeited` (abandoned/deadline). The dashboard shows pending tests
+with a deadline countdown and a "Take it" button, and the full record below.
+
+**Assistant-side commands:**
+
+```bash
+node scripts/new-test.js --scaffold                 # template for the next test id
+node scripts/new-test.js --test <file.json> --push  # validate, encrypt, deadline, publish
+node scripts/read-test.js --latest                  # decrypt test + result for grading
+node scripts/grade-test.js --id NNNN --score "12/15" --comment "…" --push
+```
+
+Files live in `docs/data/tests/` (`test-NNNN.json.enc`, `test-result-NNNN.json.enc`);
+the settings page's "Re-encrypt everything" covers that directory too.
+
 ## Step 5 — The circle closes
 
 Next session, `read-report.js` surfaces the new report and Frau Richter applies her §8

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>German · Test</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="lock"></div>
+
+  <main hidden>
+    <header class="topbar">
+      <span class="brand"><img src="img/richter.svg" alt="" />German with Frau Richter</span>
+      <nav id="test-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="homework.html">Homework</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </header>
+
+    <!-- Pre-start: rules, deadline, the one-way door -->
+    <section class="panel" id="pre-start" hidden>
+      <h1 id="test-title" class="hw-title">…</h1>
+      <p id="test-instructions" class="test-instructions"></p>
+      <div class="test-rules">
+        <p class="verdict-label">The rules — read them once, they will not be repeated</p>
+        <ul>
+          <li>Every question has a <strong>time limit</strong>. When it runs out, the question is gone — recorded as unanswered.</li>
+          <li><strong>No going back.</strong> One direction only.</li>
+          <li><strong>No feedback during the test.</strong> You see nothing until I have graded it.</li>
+          <li>Once started, the test <strong>cannot be paused or stopped</strong>.</li>
+          <li><strong>Leaving this page mid-test means forfeit.</strong> Zero points. The browser will warn you once; after that it is on you.</li>
+        </ul>
+      </div>
+      <p class="muted" id="test-meta"></p>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-big" id="start-btn">Begin the test</button>
+        <a class="btn" href="index.html">Not yet</a>
+      </div>
+    </section>
+
+    <!-- The test itself -->
+    <section class="panel quiz-panel" id="test-area" hidden>
+      <div class="test-header">
+        <span class="progress-label" id="test-progress"></span>
+        <span class="test-timer" id="test-timer"></span>
+      </div>
+      <div class="progress">
+        <div class="progress-track"><div class="progress-fill" id="timer-fill"></div></div>
+      </div>
+      <div id="question-area"></div>
+    </section>
+
+    <!-- Terminal states: submitted / forfeited / nothing to take -->
+    <section class="panel" id="end-area" hidden>
+      <h2 id="end-title"></h2>
+      <p id="end-text" class="done-summary"></p>
+      <p id="end-status" class="status status-ok"></p>
+      <div id="end-downloads" class="downloads" hidden></div>
+      <a class="btn" href="index.html">← Back to the dashboard</a>
+    </section>
+  </main>
+
+  <script type="module" src="js/test.js"></script>
+</body>
+</html>

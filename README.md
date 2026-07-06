@@ -95,6 +95,10 @@ three local pedagogy files, then run the commands above.
 Utility CLIs: `scripts/encrypt.js <file>` and `scripts/decrypt.js <file.enc>` (password
 prompted with hidden input, or `GL_PASSWORD` env var / `.env` — never stored elsewhere).
 
+**Tests (Klausuren):** timed, one-way, no-feedback assessments with subjective questions
+graded by Frau Richter, deadlines, and forfeit-on-abandonment — see the "Tests" section
+of `LEARNING_LOOP.md`. Assistant-side: `new-test.js`, `read-test.js`, `grade-test.js`.
+
 ## Local preview
 
 ```bash
