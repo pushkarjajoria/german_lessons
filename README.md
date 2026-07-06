@@ -109,8 +109,10 @@ python3 -m http.server 4173 -d docs    # then http://localhost:4173
 
 ```
 docs/               GitHub Pages site (vanilla ES modules, no build step)
-  data/manifest.json         pointers + non-sensitive counters/history + encrypted canary
-  data/lessons|homework|reports/*.enc    AES-GCM envelopes {v, salt, iv, ct}
-scripts/            Node helpers (built-ins only): lib-crypto, new-lesson, read-report, encrypt, decrypt
+  data/manifest.json         pointers + non-sensitive counters/history/tests + encrypted canary
+  data/lessons|homework|reports|tests/*.enc    AES-GCM envelopes {v, salt, iv, ct}
+scripts/            Node helpers (built-ins only): lib-crypto, new-lesson, new-test,
+                    read-report, read-test, grade-test, save-password, encrypt, decrypt
 LEARNING_LOOP.md    the full five-step loop, precisely
+SCHEMA.md           all data formats: reading reports, authoring homework and tests
 ```

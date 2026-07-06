@@ -2,9 +2,11 @@
 
 This file documents the full cycle that connects the Claude Code sessions (where Frau
 Richter writes lessons) to the website (where Pushkar does homework) and back. It is the
-operating manual for both sides. Companion files: `Deutsch_Sprachstand_Bericht.md` (level),
-`Frau_Richter_Persona.md` (teacher), `Studienplan.md` (curriculum) — these three are
-gitignored and live only on the local machine, since the repo itself is public.
+operating manual for both sides. Companion files: `SCHEMA.md` (every data format — how
+to read reports and author homework/tests; start there when producing content), plus the
+pedagogy: `Deutsch_Sprachstand_Bericht.md` (level), `Frau_Richter_Persona.md` (teacher),
+`Studienplan.md` (curriculum) — those three are gitignored and live only on the local
+machine, since the repo itself is public.
 
 ```
         ┌────────────────────────────────────────────────────────┐
