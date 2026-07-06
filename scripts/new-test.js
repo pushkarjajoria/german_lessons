@@ -118,6 +118,46 @@ try {
   process.exit(1);
 }
 
+// Novelty check: a test measures transfer, not memory. Same skill, NEW sentence
+// and context — copy-pasting homework prompts defeats the point, so exact
+// duplicates are refused (override with --allow-duplicates if truly intended)
+// and near-duplicates are flagged for judgment.
+const norm = (s) => String(s).toLowerCase().replace(/[^\wäöüß ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const tokens = (s) => new Set(norm(s).split(' ').filter(Boolean));
+const overlap = (a, b) => {
+  const A = tokens(a), B = tokens(b);
+  if (!A.size || !B.size) return 0;
+  let hit = 0;
+  for (const t of A) if (B.has(t)) hit += 1;
+  return hit / Math.min(A.size, B.size);
+};
+const hwDir = join(ROOT, 'docs', 'data', 'homework');
+const hwPrompts = [];
+try {
+  const { readdirSync } = await import('node:fs');
+  for (const f of readdirSync(hwDir).filter((f) => f.endsWith('.json.enc'))) {
+    try {
+      const hw = JSON.parse(decryptString(password, JSON.parse(readFileSync(join(hwDir, f), 'utf8'))));
+      for (const q of hw.questions || []) hwPrompts.push({ src: `${f} ${q.id}`, prompt: q.prompt });
+    } catch { /* different password era — skip */ }
+  }
+} catch { /* no homework dir yet */ }
+let exact = 0;
+for (const q of test.questions) {
+  for (const h of hwPrompts) {
+    if (norm(q.prompt) === norm(h.prompt)) {
+      console.error(`DUPLICATE: test ${q.id} is a copy of homework prompt (${h.src}): "${q.prompt}"`);
+      exact += 1;
+    } else if (overlap(q.prompt, h.prompt) > 0.8) {
+      console.warn(`Near-duplicate: test ${q.id} closely resembles ${h.src} — same skill must wear a new sentence.`);
+    }
+  }
+}
+if (exact && !args.includes('--allow-duplicates')) {
+  console.error(`\n${exact} exact duplicate(s). A test asks the same skill in a NEW context — rewrite them (or pass --allow-duplicates if this is truly intended).`);
+  process.exit(1);
+}
+
 mkdirSync(TESTS_DIR, { recursive: true });
 const outPath = join(TESTS_DIR, `test-${nextId}.json.enc`);
 writeFileSync(outPath, JSON.stringify(encryptString(password, JSON.stringify(test, null, 2)), null, 2));

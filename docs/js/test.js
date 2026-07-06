@@ -75,6 +75,13 @@ function endScreen(title, text, statusMsg = '', ok = true) {
 
 initLock(async (manifest) => {
   state.manifest = manifest;
+  // Course halted — tests are locked exactly like homework.
+  if (manifest.discipline?.active) {
+    endScreen('The course is halted.',
+      'No tests while the outstanding tasks sit undone. They are on the dashboard. Do them, and the course reopens.',
+      '', false);
+    return;
+  }
   const wanted = new URLSearchParams(location.search).get('id');
   const tests = getTests(manifest);
   const entry = wanted

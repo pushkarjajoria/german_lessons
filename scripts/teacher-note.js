@@ -5,8 +5,14 @@
 //
 // Usage:
 //   node scripts/teacher-note.js --text "One to three Richter sentences." \
-//        [--weak "Kasus,Wortstellung"] [--push]
+//        [--weak "Kasus,Wortstellung"] [--lang de|en] [--push]
+//   node scripts/teacher-note.js --lang de [--push]     # flip the language alone
 //   node scripts/teacher-note.js --clear [--push]
+//
+// --lang sets manifest.verdictLang: the language of the computed verdict and
+// notes on the dashboard. Keep 'en' until the learner can read simple German
+// remarks (her call, not a threshold); then flip to 'de' — and write the
+// --text note itself in German from that point on.
 //
 // NOTE: this lives in manifest.json, which is PLAINTEXT in a public repo.
 // Keep it short and category-level (like a grade comment), never quote the
@@ -28,6 +34,25 @@ const opt = (name) => {
 };
 
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+
+const lang = opt('--lang');
+if (lang) {
+  if (!['en', 'de'].includes(lang)) { console.error('--lang must be "en" or "de".'); process.exit(1); }
+  manifest.verdictLang = lang;
+  console.log(`Verdict language set to ${lang}.`);
+  if (!opt('--text') && !args.includes('--clear')) {
+    writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
+    const cmds = ['git add docs/data/manifest.json', `git commit -m "verdict language: ${lang}"`, 'git push'];
+    if (args.includes('--push')) {
+      const { execSync: run } = await import('node:child_process');
+      for (const cmd of cmds) { console.log(`$ ${cmd}`); run(cmd, { cwd: ROOT, stdio: 'inherit' }); }
+    } else {
+      console.log('To publish:');
+      for (const cmd of cmds) console.log(`  ${cmd}`);
+    }
+    process.exit(0);
+  }
+}
 
 if (args.includes('--clear')) {
   delete manifest.teacherNote;

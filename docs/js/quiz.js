@@ -486,6 +486,14 @@ function offerDownloads(report, reportEnc, manifestText) {
 
 initLockButton();
 initLock(async (manifest) => {
+  // Course halted (Nachweis tasks outstanding) — homework refuses to start.
+  if (manifest.discipline?.active) {
+    $('hw-title').textContent = 'The course is halted.';
+    $('question-area').innerHTML =
+      '<p class="lock-error">No homework until the outstanding tasks are done and cleared. ' +
+      'You will find them on the dashboard. This is not negotiable from this side of the desk.</p>';
+    return;
+  }
   try {
     await startQuiz(manifest);
   } catch (e) {

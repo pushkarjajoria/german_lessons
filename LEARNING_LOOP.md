@@ -154,6 +154,34 @@ node scripts/grade-test.js --id NNNN --score "12/15" --comment "…" --push
 Files live in `docs/data/tests/` (`test-NNNN.json.enc`, `test-result-NNNN.json.enc`);
 the settings page's "Re-encrypt everything" covers that directory too.
 
+**Novelty rule:** tests measure transfer, not memory — every test question asks an
+already-taught skill in a *new* sentence and context. `new-test.js` decrypts all
+published homework and refuses exact prompt duplicates (`--allow-duplicates` to
+override; near-duplicates get a warning).
+
+## Around the core loop — drills, ledger, language, discipline
+
+- **Practice page (site):** voluntary drills sampled from all published homework —
+  previous mistakes (from the reports), weak areas, tenses & forms, harder
+  production-only transforms (MC loses its options, reorder must be typed), mixed —
+  plus a **vocabulary gauntlet**: ~10 options per word from the encrypted bank
+  (`docs/data/vocab.json.enc`, maintained via `scripts/vocab-add.js`), distractors
+  drawn from declared confusers, same-category neighbours, and the learner's own past
+  wrong picks (tracked in localStorage, re-offered until they stop working). Drills
+  file no report but append `{date, mode, items, firstTry}` to `manifest.practiceLog`.
+- **Assignments page (site):** every assignment numbered and listed under its
+  section/subsection with a completion checkmark and score; the current pending
+  assignment is pinned on top — it must be completed to proceed.
+- **Verdict language:** the dashboard's computed verdict/notes exist in English and
+  German (`docs/js/richter-voice.js`); `manifest.verdictLang` decides which renders,
+  flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
+- **Discipline (course halt):** after long unexplained silence or consistent
+  complacency, `scripts/discipline.js --issue` publishes Nachweis tasks (recording /
+  handwriting sheet, each with anti-spoof requirements) and halts the course — the
+  dashboard shows a red panel and homework/tests refuse to start until the teacher
+  verifies the proof and runs `--clear`. The learner's "submit for review" button only
+  marks a task claimed; clearing is exclusively the teacher's act.
+
 ## Step 5 — The circle closes
 
 Next session, `read-report.js` surfaces the new report and Frau Richter applies her §8

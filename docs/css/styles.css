@@ -464,6 +464,89 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .desk-note { background: var(--ink-soft); border-radius: var(--radius); padding: 0.85rem 1rem; }
 .desk-note .chips { margin-top: 0.5rem; }
 
+/* ---------- discipline (course halted) ---------- */
+
+.discipline-panel {
+  border: 1px solid var(--ink);
+  border-left: 4px solid var(--ink);
+  background: var(--ink-soft);
+}
+.discipline-panel h2 { color: var(--ink); letter-spacing: 0.04em; }
+.discipline-reason { font-family: var(--serif); font-size: 1.05rem; }
+.discipline-task {
+  border-top: 1px solid var(--rule);
+  padding: 0.8rem 0;
+}
+.discipline-instructions { font-family: var(--serif); margin: 0 0 0.5rem; }
+.discipline-status { display: flex; justify-content: flex-end; }
+
+/* ---------- practice ---------- */
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.9rem;
+  margin: 1.2rem 0;
+}
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.mode-card:hover:not(:disabled) { border-color: var(--brass); }
+.mode-card:disabled { opacity: 0.45; cursor: default; }
+.mode-name { font-family: var(--serif); font-size: 1.08rem; }
+.mode-desc { color: var(--text-dim); font-size: 0.88rem; line-height: 1.45; }
+.mode-count { color: var(--brass); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.vocab-direction { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.vocab-direction label { color: var(--text-dim); font-size: 0.92rem; cursor: pointer; }
+
+.vocab-word { font-size: 2rem; text-align: center; margin: 1rem 0 1.4rem; }
+.vocab-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+.vocab-option { text-align: left; padding: 0.55rem 0.8rem; font-size: 0.95rem; }
+.confusion-row { font-size: 0.95rem; margin: 0.3rem 0; }
+
+/* ---------- assignments ledger ---------- */
+
+.pending-panel { border-left: 4px solid var(--brass); }
+.pending-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.pending-title { margin: 0.2rem 0; font-family: var(--serif); font-weight: 500; }
+
+.assignment-sub {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0.7rem 0 0.2rem;
+  padding-left: 0.1rem;
+  font-style: italic;
+}
+.assignment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--rule);
+}
+.assignment-row:last-child { border-bottom: none; }
+.assignment-name { font-size: 0.98rem; }
+.assignment-right { display: flex; align-items: center; gap: 0.7rem; }
+.assignment-done .assignment-name { color: var(--text-dim); }
+.assignment-check { color: #5a8a5a; font-weight: 700; font-size: 1.05rem; }
+.assignment-score { font-variant-numeric: tabular-nums; color: var(--text-dim); font-size: 0.9rem; }
+.assignment-pending { background: var(--bg-inset); border-radius: var(--radius); }
+
 /* ---------- tests (Klausur mode) ---------- */
 
 .test-instructions { font-family: var(--serif); font-size: 1.05rem; }
