@@ -113,6 +113,13 @@
       "items": 10,
       "firstTry": 9,
       "durationSec": 82
+    },
+    {
+      "date": "2026-07-06T22:01:24.316Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 9,
+      "durationSec": 104
     }
   ]
 }
