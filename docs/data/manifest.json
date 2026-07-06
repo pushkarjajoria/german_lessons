@@ -105,5 +105,14 @@
     "weakAreas": [
       "Konjugation"
     ]
-  }
+  },
+  "practiceLog": [
+    {
+      "date": "2026-07-06T21:29:23.657Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 9,
+      "durationSec": 82
+    }
+  ]
 }
