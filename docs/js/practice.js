@@ -15,6 +15,7 @@ import { decryptString } from './crypto.js';
 import { initLock, initLockButton, getPassword } from './auth.js';
 import * as gh from './github.js';
 import { checkTextAnswerDetailed } from './checking.js';
+import { getPolicy, attachModelRepeat, openCorrections, eligibleNow, nextEligibleAt } from './corrections.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -181,6 +182,9 @@ const run = {
   resolved: 0,
   records: new Map(), // key -> { attempts, firstTryCorrect }
   startedAt: null,
+  // Korrektur only: key -> 'passed' | 'missed', decided by the FIRST attempt
+  // in this sitting. Requeued reproductions after a miss don't earn credit.
+  korrektur: null,
 };
 
 function startDrill(mode) {
@@ -192,10 +196,86 @@ function startDrill(mode) {
   run.resolved = 0;
   run.records = new Map(items.map((it) => [it.key, { attempts: 0, firstTryCorrect: null }]));
   run.startedAt = Date.now();
+  run.korrektur = null;
   $('mode-select').hidden = true;
   $('summary-area').hidden = true;
   $('drill-area').hidden = false;
   renderNext();
+}
+
+// ---------- Korrektur (persona §2.5 — spaced, forced re-production) ----------
+
+function startKorrektur() {
+  const policy = getPolicy(archive.manifest);
+  const eligible = openCorrections(archive.manifest).filter((c) => eligibleNow(c, policy));
+  const items = [];
+  for (const c of eligible) {
+    const poolEntry = archive.pool.find((e) => e.key === c.key);
+    if (!poolEntry) { console.warn('Korrektur item unresolvable, skipping:', c.key); continue; }
+    // Always hardened: the correction is produced, never recognized.
+    items.push({ key: c.key, q: harden(poolEntry.q), entry: c });
+  }
+  if (!items.length) return;
+  run.mode = 'korrektur';
+  run.queue = shuffled(items);
+  run.totalUnique = items.length;
+  run.resolved = 0;
+  run.records = new Map(items.map((it) => [it.key, { attempts: 0, firstTryCorrect: null }]));
+  run.startedAt = Date.now();
+  run.korrektur = new Map();
+  $('mode-select').hidden = true;
+  $('summary-area').hidden = true;
+  $('drill-area').hidden = false;
+  renderNext();
+}
+
+// Apply this sitting's results to the manifest and file them (PAT), or offer
+// the updated manifest for a manual commit — Korrektur progress must persist.
+async function applyKorrekturResults() {
+  const policy = getPolicy(archive.manifest);
+  const now = new Date().toISOString();
+  const cleared = [];
+  const resets = [];
+  const apply = (manifest) => {
+    for (const [key, outcome] of run.korrektur) {
+      const entry = (manifest.corrections || []).find((c) => c.key === key);
+      if (!entry || entry.status !== 'open') continue;
+      if (outcome === 'passed') {
+        entry.doneCount = (entry.doneCount || 0) + 1;
+        entry.lastPassedAt = now;
+        if (entry.doneCount >= (entry.required || policy.requiredPasses)) {
+          entry.status = 'cleared';
+          entry.clearedAt = now;
+          cleared.push(entry);
+        }
+      } else if (policy.resetOnMiss) {
+        entry.doneCount = 0;
+        entry.lastPassedAt = null;
+        resets.push(entry);
+      }
+    }
+  };
+  apply(archive.manifest); // keep the local copy honest for re-render
+  if (gh.isConfigured()) {
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      apply(fresh);
+      fresh.practiceLog = (fresh.practiceLog || []).slice(-49);
+      fresh.practiceLog.push({
+        date: now,
+        mode: 'korrektur',
+        items: run.totalUnique,
+        firstTry: [...run.korrektur.values()].filter((v) => v === 'passed').length,
+        durationSec: Math.round((Date.now() - run.startedAt) / 1000),
+      });
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
+        `korrektur: ${[...run.korrektur.values()].filter((v) => v === 'passed').length}/${run.totalUnique} passed${cleared.length ? `, ${cleared.length} cleared` : ''}`);
+      return { filed: true, cleared, resets };
+    } catch (e) {
+      console.warn('Korrektur filing failed:', e.message);
+    }
+  }
+  return { filed: false, cleared, resets };
 }
 
 function renderNext() {
@@ -341,30 +421,59 @@ function handleAnswer(q, isCorrect) {
   const rec = run.records.get(item.key);
   rec.attempts += 1;
   if (rec.attempts === 1) rec.firstTryCorrect = isCorrect;
+  // Korrektur credit is decided by the first cold attempt only.
+  if (run.korrektur && rec.attempts === 1) {
+    run.korrektur.set(item.key, isCorrect ? 'passed' : 'missed');
+  }
   let head, note;
   if (isCorrect) {
     run.resolved += 1;
     head = rec.attempts === 1 ? 'Richtig.' : `Richtig — attempt ${rec.attempts}.`;
     note = q.note || '';
+    if (run.korrektur && rec.attempts > 1) note = `${note} No credit for this one today — the first answer decides.`.trim();
   } else {
     const at = Math.min(REQUEUE_GAP, run.queue.length);
     run.queue.splice(at, 0, item);
     head = 'Falsch.';
     note = `${correctDisplay(q)}${q.note ? ' — ' + q.note : ''} It returns shortly.`;
+    if (run.korrektur) note += ' The pass count for this item starts over.';
   }
   const el = $('feedback');
   el.hidden = false;
   el.className = `feedback ${isCorrect ? 'feedback-ok' : 'feedback-bad'}`;
   $('feedback-head').textContent = head;
   $('feedback-note').textContent = note;
+  el.querySelector('.model-repeat')?.remove();
   const btn = $('feedback-next');
+  btn.disabled = false;
   btn.textContent = run.queue.length ? 'Next' : 'Finish';
   btn.onclick = renderNext;
+  // Persona §2.5: the correction is typed back, not merely read.
+  const policy = getPolicy(archive.manifest);
+  if (!isCorrect && policy.enabled && policy.modelRepeat > 0) {
+    attachModelRepeat({ mount: el, nextBtn: btn, model: correctDisplay(q), times: policy.modelRepeat });
+    return;
+  }
   btn.focus();
 }
 
-function finishDrill() {
+async function finishDrill() {
   const firstTry = [...run.records.values()].filter((r) => r.firstTryCorrect).length;
+  if (run.korrektur) {
+    lastMode = 'korrektur';
+    const { filed, cleared, resets } = await applyKorrekturResults();
+    const policy = getPolicy(archive.manifest);
+    const stillOpen = openCorrections(archive.manifest).length;
+    const parts = [`${firstTry} of ${run.totalUnique} produced cold, first try.`];
+    if (cleared.length) parts.push(`${cleared.length} item(s) cleared for good — ${cleared.map((c) => c.category).join(', ')}. That is how an error dies.`);
+    if (resets.length) parts.push(`${resets.length} item(s) reset to zero. Not punishment — evidence. It had not sat.`);
+    if (stillOpen) parts.push(`${stillOpen} still open. The next pass counts after ${Math.round(policy.minGapMinutes / 60)}h — spacing is the point, not the obstacle.`);
+    else parts.push('The queue is empty. Keep it that way.');
+    if (!filed) parts.push('⚠ No GitHub token — this progress could NOT be saved. Configure one in Settings, or the queue forgets this sitting.');
+    showSummary({ title: 'Korrektur.', text: parts.join(' ') });
+    refreshKorrekturCard();
+    return;
+  }
   showSummary({
     title: 'Drill done.',
     text: `${firstTry} of ${run.totalUnique} on first try, everything eventually produced. ` +
@@ -494,9 +603,18 @@ function renderVocabNext() {
       $('feedback-note').textContent = ok
         ? (w.note || '')
         : `${asked} → ${target}. You picked "${opt}" — noted. It will be offered again.`;
+      el.querySelector('.model-repeat')?.remove();
       const btn = $('feedback-next');
+      btn.disabled = false;
       btn.textContent = vocabRun.index + 1 < vocabRun.items.length ? 'Next' : 'Finish';
       btn.onclick = () => { vocabRun.index += 1; renderVocabNext(); };
+      // Wrong pick with a German target → the German gets typed, not just seen
+      // (persona §2.5). DE→EN stays click-through: typing English drills nothing.
+      const policy = getPolicy(archive.manifest);
+      if (!ok && dir === 'en-de' && policy.enabled && policy.modelRepeat > 0) {
+        attachModelRepeat({ mount: el, nextBtn: btn, model: target, times: policy.modelRepeat });
+        return;
+      }
       btn.focus();
     });
     grid.appendChild(b);
@@ -554,16 +672,41 @@ async function logPractice(mode, items, firstTry) {
 
 // ---------- boot ----------
 
+function refreshKorrekturCard() {
+  const policy = getPolicy(archive.manifest);
+  const open = openCorrections(archive.manifest);
+  const block = $('korrektur-block');
+  if (!policy.enabled || !open.length) { block.hidden = true; return; }
+  block.hidden = false;
+  const eligible = open.filter((c) => eligibleNow(c, policy));
+  const card = $('korrektur-card');
+  if (eligible.length) {
+    $('count-korrektur').textContent = `${open.length} open · ${eligible.length} count(s) now`;
+    card.disabled = false;
+  } else {
+    const soonest = open
+      .map((c) => nextEligibleAt(c, policy))
+      .filter(Boolean)
+      .sort((a, b) => a - b)[0];
+    const mins = soonest ? Math.max(1, Math.ceil((soonest - Date.now()) / 60000)) : null;
+    $('count-korrektur').textContent = `${open.length} open · next pass counts in ${mins >= 60 ? Math.ceil(mins / 60) + 'h' : mins + 'm'}`;
+    card.disabled = true;
+  }
+}
+
 initLockButton();
 initLock(async (manifest) => {
   $('again-btn').addEventListener('click', () => {
     $('summary-area').hidden = true;
     if (lastMode === 'vocab') startVocab();
+    else if (lastMode === 'korrektur') { refreshKorrekturCard(); $('mode-select').hidden = false; }
     else if (lastMode) startDrill(lastMode);
     else $('mode-select').hidden = false;
   });
 
   await loadArchive(manifest);
+  refreshKorrekturCard();
+  $('korrektur-card').addEventListener('click', startKorrektur);
 
   const counts = {
     mistakes: poolFor('mistakes').length,

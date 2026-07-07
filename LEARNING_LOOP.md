@@ -175,6 +175,14 @@ override; near-duplicates get a warning).
 - **Verdict language:** the dashboard's computed verdict/notes exist in English and
   German (`docs/js/richter-voice.js`); `manifest.verdictLang` decides which renders,
   flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
+- **Korrektur (ASR model-repeat):** a wrong answer in homework/drills locks the Next
+  button until the correct model is typed back `policy.modelRepeat` times; every
+  first-try homework miss auto-enrolls in `manifest.corrections` and must be produced
+  correctly (hardened: typed, no options) `requiredPasses` times on occasions
+  ≥ `minGapMinutes` apart — a miss resets the count, and items open past `graceHours`
+  lock new homework. All hyperparameters live in `manifest.correctionPolicy`
+  (`scripts/correction-policy.js`); the dashboard shows the queue with pass-progress,
+  the Practice page hosts the runner, and sittings log to `practiceLog` as `korrektur`.
 - **Discipline (course halt):** after long unexplained silence or consistent
   complacency, `scripts/discipline.js --issue` publishes Nachweis tasks (recording /
   handwriting sheet, each with anti-spoof requirements) and halts the course — the

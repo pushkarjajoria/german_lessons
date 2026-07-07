@@ -5,6 +5,7 @@
 // is pinned on top — it must be completed to proceed.
 
 import { initLock, initLockButton } from './auth.js';
+import { homeworkGated } from './corrections.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -21,18 +22,22 @@ function render(manifest) {
 
   // Pinned pending assignment
   const pendingEntry = lessons.find((l) => l.id === manifest.currentHomeworkId && !byHw.has(l.id));
+  const gated = !halted && homeworkGated(manifest);
   const pin = $('pending-panel');
   if (pendingEntry) {
     pin.hidden = false;
     $('pending-title').textContent = `${pendingEntry.id} · ${pendingEntry.title}`;
     $('pending-sub').textContent = halted
       ? 'Locked. The course is halted — see the dashboard. The tasks there come first.'
-      : `${pendingEntry.section}${pendingEntry.subsection ? ' → ' + pendingEntry.subsection : ''} · everything after this waits until it is done.`;
+      : gated
+        ? 'Locked behind overdue corrections. Erst die Korrektur — the queue is on the Practice page.'
+        : `${pendingEntry.section}${pendingEntry.subsection ? ' → ' + pendingEntry.subsection : ''} · everything after this waits until it is done.`;
     const btn = $('pending-start');
-    if (halted) {
+    if (halted || gated) {
       btn.classList.remove('btn-primary');
       btn.removeAttribute('href');
       btn.textContent = 'Locked';
+      if (gated) { btn.setAttribute('href', 'practice.html'); btn.textContent = 'Korrektur →'; }
     }
   } else {
     pin.hidden = true;

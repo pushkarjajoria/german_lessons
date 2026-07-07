@@ -6,6 +6,7 @@ import { encryptString, decryptString } from './crypto.js';
 import { initLock, initLockButton, getPassword, getManifest } from './auth.js';
 import * as gh from './github.js';
 import { checkTextAnswerDetailed } from './checking.js';
+import { getPolicy, attachModelRepeat, enrollFromReport, homeworkGated } from './corrections.js';
 
 // ---------- feedback voice ----------
 
@@ -294,18 +295,29 @@ function handleAnswer(q, given, isCorrect, matchType = null) {
     state.queue.splice(at, 0, q);
     fb = feedbackWrong(q, rec.attempts, correctDisplay(q));
   }
-  showFeedback(fb, isCorrect);
+  showFeedback(fb, isCorrect, q);
 }
 
-function showFeedback(fb, isCorrect) {
+function showFeedback(fb, isCorrect, q) {
   const el = $('feedback');
   el.hidden = false;
   el.className = `feedback ${isCorrect ? 'feedback-ok' : 'feedback-bad'}`;
   $('feedback-head').textContent = fb.head;
   $('feedback-note').textContent = fb.note;
+  el.querySelector('.model-repeat')?.remove();
   const btn = $('feedback-next');
+  btn.disabled = false;
   btn.textContent = state.queue.length ? 'Next' : 'Finish';
   btn.onclick = renderNext;
+  // Persona §2.5, in code: a wrong answer is corrected by PRODUCING the
+  // correction, on the spot, as many times as she demands — before moving on.
+  if (!isCorrect && q) {
+    const times = getPolicy(getManifest()).modelRepeat;
+    if (getPolicy(getManifest()).enabled && times > 0) {
+      attachModelRepeat({ mount: el, nextBtn: btn, model: correctDisplay(q), times });
+      return;
+    }
+  }
   btn.focus();
 }
 
@@ -412,6 +424,9 @@ function updatedManifest(manifest, report) {
     categories: report.categoryStats,
     weakCategories: report.weakCategories,
   });
+  // Persona §2.5: first-try misses enter the Korrektur queue — to be produced
+  // correctly, spaced, until they sit (see corrections.js / SCHEMA.md).
+  enrollFromReport(m, report);
   return m;
 }
 
@@ -492,6 +507,15 @@ initLock(async (manifest) => {
     $('question-area').innerHTML =
       '<p class="lock-error">No homework until the outstanding tasks are done and cleared. ' +
       'You will find them on the dashboard. This is not negotiable from this side of the desk.</p>';
+    return;
+  }
+  // Overdue Korrektur gates new homework: nothing new until the old thing is right.
+  if (homeworkGated(manifest)) {
+    $('hw-title').textContent = 'Erst die Korrektur.';
+    $('question-area').innerHTML =
+      '<p class="lock-error">Corrections have been waiting longer than I allow. New homework stays locked ' +
+      'until they are produced correctly — <a href="practice.html">the Korrektur queue is on the Practice page</a>. ' +
+      'This is how errors are stopped from setting.</p>';
     return;
   }
   try {

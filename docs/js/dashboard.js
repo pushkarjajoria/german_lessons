@@ -8,6 +8,7 @@ import { initLock, initLockButton, getPassword } from './auth.js';
 import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfeits } from './tests-common.js';
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
+import { getPolicy, openCorrections, eligibleNow, nextEligibleAt, isOverdue, homeworkGated } from './corrections.js';
 import * as gh from './github.js';
 
 const $ = (id) => document.getElementById(id);
@@ -84,6 +85,42 @@ function renderDiscipline(manifest) {
   });
 }
 
+// ---------- Korrektur panel ----------
+// Open corrections, their pass progress, and when the next pass counts.
+// Overdue items are named — they are what locks new homework.
+
+function renderKorrektur(manifest) {
+  const policy = getPolicy(manifest);
+  const open = openCorrections(manifest);
+  const panel = $('korrektur-panel');
+  if (!policy.enabled || !open.length) { panel.hidden = true; return; }
+  panel.hidden = false;
+  const gated = homeworkGated(manifest);
+  $('korrektur-intro').textContent = gated
+    ? 'Corrections have waited past the grace period. New homework is locked until they are produced — that is the rule, not a mood.'
+    : `Each item must be produced correctly ${policy.requiredPasses}× on separate occasions (≥${Math.round(policy.minGapMinutes / 60)}h apart). A miss resets it. Left ${policy.graceHours}h, it locks new homework.`;
+  const list = $('korrektur-list');
+  list.innerHTML = '';
+  for (const c of open) {
+    const dots = Array.from({ length: c.required }, (_, i) =>
+      `<span class="k-dot ${i < c.doneCount ? 'k-dot-done' : ''}"></span>`).join('');
+    const overdue = isOverdue(c, policy);
+    let when;
+    if (eligibleNow(c, policy)) when = '<a class="btn btn-primary" href="practice.html">Produce it now</a>';
+    else {
+      const mins = Math.max(1, Math.ceil((nextEligibleAt(c, policy) - Date.now()) / 60000));
+      when = `<span class="chip">next pass counts in ${mins >= 60 ? Math.ceil(mins / 60) + 'h' : mins + 'm'}</span>`;
+    }
+    const row = document.createElement('div');
+    row.className = 'korrektur-row';
+    row.innerHTML = `
+      <span class="k-name">${c.category} <span class="muted">· from assignment ${c.hwId}${c.missedCount > 1 ? ` · missed ${c.missedCount}×` : ''}</span>
+        ${overdue ? '<span class="chip chip-weak">overdue — locking homework</span>' : ''}</span>
+      <span class="k-right"><span class="k-dots">${dots}</span>${when}</span>`;
+    list.appendChild(row);
+  }
+}
+
 // ---------- main render ----------
 
 function render(manifest) {
@@ -92,6 +129,7 @@ function render(manifest) {
   const S = STRINGS[LANG];
 
   renderDiscipline(manifest);
+  renderKorrektur(manifest);
 
   $('stat-streak').textContent = counters.streakDays || 0;
   $('stat-lessons').textContent = counters.lessonsCompleted || 0;
@@ -176,6 +214,10 @@ function render(manifest) {
         <p>${S.ctaDone(manifest.currentHomeworkId)}</p>
         <p class="muted">${S.ctaDoneSub}</p>
       </div>`;
+  } else if (homeworkGated(manifest)) {
+    cta.innerHTML = `
+      <a class="btn btn-primary btn-big" href="practice.html">Erst die Korrektur →</a>
+      <p class="muted cta-sub">Homework ${manifest.currentHomeworkId} stays locked while corrections sit overdue. The queue is below.</p>`;
   } else {
     cta.innerHTML = `
       <a class="btn btn-primary btn-big" href="homework.html">${S.ctaStart}</a>

@@ -28,6 +28,14 @@
       <h1 class="hw-title">Practice drills</h1>
       <p class="muted">Voluntary reps, sampled from everything already published. No report is filed —
       but the log notes that you drilled, and she reads the log.</p>
+      <div id="korrektur-block" hidden>
+        <button class="mode-card korrektur-card" data-mode="korrektur" id="korrektur-card">
+          <span class="mode-name">Korrektur</span>
+          <span class="mode-desc" id="korrektur-desc">Corrections owed. Each must be produced correctly, spaced —
+          typed, no options, no hints. A miss resets its count. They do not expire; they are cleared.</span>
+          <span class="mode-count" id="count-korrektur">…</span>
+        </button>
+      </div>
       <div class="mode-grid" id="mode-grid">
         <button class="mode-card" data-mode="mistakes" disabled>
           <span class="mode-name">Previous mistakes</span>

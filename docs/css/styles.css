@@ -480,6 +480,49 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .discipline-instructions { font-family: var(--serif); margin: 0 0 0.5rem; }
 .discipline-status { display: flex; justify-content: flex-end; }
 
+/* ---------- Korrektur (ASR model-repeat) ---------- */
+
+.korrektur-panel { border-left: 4px solid var(--ink); }
+.korrektur-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.korrektur-row:last-child { border-bottom: none; }
+.k-name { font-size: 0.96rem; }
+.k-right { display: flex; align-items: center; gap: 0.8rem; }
+.k-dots { display: inline-flex; gap: 0.25rem; }
+.k-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  display: inline-block;
+}
+.k-dot-done { background: var(--ink); }
+
+.korrektur-card {
+  width: 100%;
+  border-color: var(--ink) !important;
+  border-left-width: 4px !important;
+  background: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+.korrektur-card .mode-count { color: var(--ink); }
+
+.model-repeat {
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--border);
+}
+.model-repeat-label { font-family: var(--serif); margin: 0 0 0.4rem; }
+.model-repeat-input { width: 100%; }
+.model-repeat-status { color: var(--ink); font-size: 0.9rem; min-height: 1.2em; margin: 0.35rem 0 0; }
+.model-repeat-done .model-repeat-label { color: var(--text-dim); }
+
 /* ---------- practice ---------- */
 
 .mode-grid {
