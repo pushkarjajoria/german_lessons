@@ -120,6 +120,13 @@
       "items": 10,
       "firstTry": 9,
       "durationSec": 104
+    },
+    {
+      "date": "2026-07-07T11:42:52.600Z",
+      "mode": "weak",
+      "items": 8,
+      "firstTry": 7,
+      "durationSec": 169
     }
   ]
 }
