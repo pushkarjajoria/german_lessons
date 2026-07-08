@@ -136,7 +136,8 @@ initLock(async (manifest) => {
 
   $('pre-start').hidden = false;
   $('test-title').textContent = test.title;
-  $('test-instructions').textContent = test.instructions || '';
+  // Deliberately NOT the paper's instructions here — those are sealed until
+  // the learner is locked in. Only the shape is visible: count, time, deadline.
   const limits = [...new Set(test.questions.map((q) => q.timeLimitSec ?? test.defaultTimeLimitSec ?? 60))];
   $('test-meta').textContent =
     `${test.questions.length} questions · ${limits.length === 1 ? `${limits[0]}s each` : `${Math.min(...limits)}–${Math.max(...limits)}s per question`} · ${fmtDeadline(entry.deadline)}`;
@@ -144,6 +145,56 @@ initLock(async (manifest) => {
 });
 
 // ---------- run ----------
+
+const TYPE_LABELS = {
+  fill_blank: 'fill the blank',
+  multiple_choice: 'multiple choice (one answer)',
+  reorder: 'rebuild the sentence from pieces',
+  translate: 'translate / produce in German',
+  listen_type: 'listen and type',
+  subjective: 'free writing (she grades it by hand)',
+  multi_select: 'select ALL correct options — there may be one, several, or many',
+  click_mistake: 'click the mistaken word in the sentence',
+};
+
+// The paper's own briefing — visible only past the point of no return, before
+// the first clock starts. Reading time is free; the door behind is already shut.
+function showBriefing() {
+  const test = state.test;
+  $('pre-start').hidden = true;
+  $('briefing-area').hidden = false;
+  $('briefing-instructions').textContent = test.instructions || '';
+  const mech = $('briefing-mechanics');
+  mech.innerHTML = '';
+  const li = (html) => {
+    const el = document.createElement('li');
+    el.innerHTML = html;
+    mech.appendChild(el);
+  };
+  const counts = {};
+  for (const q of test.questions) counts[q.type] = (counts[q.type] || 0) + 1;
+  li(`<strong>Question types in this paper:</strong> ${Object.entries(counts)
+    .map(([t, n]) => `${TYPE_LABELS[t] || t} (×${n})`).join(' · ')}.`);
+  if (test.questions.some((q) => q.justify)) {
+    li('<strong>Some questions demand a Begründung</strong> — a typed one-line reason, inside the same time limit. It is graded.');
+  }
+  if (test.negativeMarking) {
+    li('<strong>Negative marking on option questions.</strong> A wrong pick costs 1/(number of options) of a point — with 10 options, −0.1. Guessing has a price; it is priced fairly, so a coin-flip gains you nothing.');
+  } else {
+    li('No negative marking on this paper.');
+  }
+  if (test.allowSkip !== false) {
+    li('<strong>Skipping is allowed.</strong> The “Unsure — skip” button records zero for that question, no penalty. Knowing that you do not know is worth more than a lucky guess — use it honestly.');
+  } else {
+    li('<strong>No skipping on this paper.</strong> Every question must be faced.');
+  }
+  li('The per-question clock starts at the first question, not on this page.');
+  $('begin-questions-btn').addEventListener('click', () => {
+    $('briefing-area').hidden = true;
+    $('test-area').hidden = false;
+    renderQuestion();
+  }, { once: true });
+}
 
 function start() {
   // Point of no return.
@@ -153,9 +204,7 @@ function start() {
   document.getElementById('test-nav').style.visibility = 'hidden'; // no exits offered mid-test
   state.startedAt = Date.now();
   state.running = true;
-  $('pre-start').hidden = true;
-  $('test-area').hidden = false;
-  renderQuestion();
+  showBriefing();
 }
 
 function renderQuestion() {
@@ -186,6 +235,8 @@ function renderQuestion() {
   else if (q.type === 'translate') getAnswer = renderText(q, area, 'In German…');
   else if (q.type === 'listen_type') getAnswer = renderListen(q, area);
   else if (q.type === 'subjective') getAnswer = renderSubjective(q, area);
+  else if (q.type === 'multi_select') getAnswer = renderMultiSelect(q, area);
+  else if (q.type === 'click_mistake') getAnswer = renderClickMistake(q, area);
   else { console.warn('Unknown type', q.type); record(null, false); return; }
 
   // Justify-your-answer: her flagged questions demand a one-line reason inside
@@ -211,6 +262,15 @@ function renderQuestion() {
   btn.textContent = state.index === state.test.questions.length - 1 ? 'Submit test' : 'Next →';
   btn.addEventListener('click', () => record(getAnswer(), false));
   bar.appendChild(btn);
+  // The honest way out: zero points, no penalty. Guessing is priced; admitting
+  // you don't know is free — that asymmetry is the point.
+  if (state.test.allowSkip !== false && q.type !== 'subjective') {
+    const skip = document.createElement('button');
+    skip.className = 'btn skip-btn';
+    skip.textContent = 'Unsure — skip (0 points, no penalty)';
+    skip.addEventListener('click', () => record(null, false, true));
+    bar.appendChild(skip);
+  }
   area.appendChild(bar);
 
   startTimer();
@@ -234,7 +294,7 @@ function stopTimer() {
   if (state.timerId) { clearInterval(state.timerId); state.timerId = null; }
 }
 
-function record(given, timedOut) {
+function record(given, timedOut, skipped = false) {
   stopTimer();
   const q = state.test.questions[state.index];
   state.perQuestion.push({
@@ -242,7 +302,8 @@ function record(given, timedOut) {
     index: state.index,
     type: q.type,
     category: q.category || 'Allgemein',
-    given: timedOut ? null : given,
+    given: timedOut || skipped ? null : given,
+    skipped,
     ...(q.justify ? { justification: state.justifyEl?.value.trim() || null } : {}),
     timedOut,
     timeUsedSec: Math.round((Date.now() - state.qShownAt) / 100) / 10,
@@ -361,6 +422,55 @@ function renderListen(q, area) {
   return getAnswer;
 }
 
+// Select ALL correct options — the count is not given. Toggling is free until
+// submit; the answer is the SET, graded as an exact match.
+function renderMultiSelect(q, area) {
+  const selected = new Set();
+  const list = document.createElement('div');
+  list.className = 'mc-options';
+  const tip = document.createElement('p');
+  tip.className = 'q-hint';
+  tip.textContent = 'Select every correct option — one, several, or many. The whole set must be right.';
+  area.appendChild(tip);
+  q.options.forEach((opt) => {
+    const b = document.createElement('button');
+    b.className = 'btn mc-option';
+    b.textContent = opt;
+    b.addEventListener('click', () => {
+      if (selected.has(opt)) { selected.delete(opt); b.classList.remove('mc-selected'); }
+      else { selected.add(opt); b.classList.add('mc-selected'); }
+    });
+    list.appendChild(b);
+  });
+  area.appendChild(list);
+  return () => (selected.size ? [...selected] : null);
+}
+
+// Click the mistaken word. Every token is clickable; the wrong-word count is
+// what prices a guess under negative marking.
+function renderClickMistake(q, area) {
+  let picked = null;
+  const tip = document.createElement('p');
+  tip.className = 'q-hint';
+  tip.textContent = 'One word in this sentence is wrong. Click it.';
+  area.appendChild(tip);
+  const row = document.createElement('div');
+  row.className = 'reorder-row cm-sentence';
+  q.tokens.forEach((tok, i) => {
+    const b = document.createElement('button');
+    b.className = 'btn token';
+    b.textContent = tok;
+    b.addEventListener('click', () => {
+      picked = i;
+      row.querySelectorAll('.token').forEach((x) => x.classList.remove('mc-selected'));
+      b.classList.add('mc-selected');
+    });
+    row.appendChild(b);
+  });
+  area.appendChild(row);
+  return () => picked;
+}
+
 function renderSubjective(q, area) {
   const ta = document.createElement('textarea');
   ta.className = 'subjective-answer';
@@ -389,8 +499,16 @@ async function finish() {
   document.getElementById('test-nav').style.visibility = '';
 
   // Silent objective grading — goes into the encrypted result, not the screen.
+  // With negativeMarking, a wrong answer on an option question costs 1/n of a
+  // point (n = option count): a fair price that makes blind guessing worthless
+  // in expectation. Skips and timeouts cost nothing — only guessing is priced.
+  const optionCount = (q) =>
+    q.type === 'multiple_choice' || q.type === 'multi_select' ? q.options.length
+    : q.type === 'click_mistake' ? q.tokens.length
+    : null;
   let autoCorrect = 0;
   let autoTotal = 0;
+  let autoPoints = 0;
   for (const p of state.perQuestion) {
     const q = state.test.questions[p.index];
     const g = gradeObjective(q, p.given);
@@ -398,9 +516,18 @@ async function finish() {
       autoTotal += 1;
       p.autoCorrect = g.correct;
       p.matchType = g.matchType;
-      if (g.correct) autoCorrect += 1;
+      if (g.correct) {
+        autoCorrect += 1;
+        autoPoints += 1;
+      } else if (state.test.negativeMarking && !p.skipped && !p.timedOut
+                 && p.given !== null && p.given !== undefined && p.given !== ''
+                 && optionCount(q)) {
+        p.penalty = Math.round((1 / optionCount(q)) * 100) / 100;
+        autoPoints -= p.penalty;
+      }
     }
   }
+  autoPoints = Math.round(autoPoints * 100) / 100;
 
   const result = {
     testId: state.entry.id,
@@ -409,20 +536,25 @@ async function finish() {
     date: new Date().toISOString(),
     durationSec: Math.round((Date.now() - state.startedAt) / 1000),
     totalQuestions: state.test.questions.length,
-    answered: state.perQuestion.filter((p) => !p.timedOut).length,
+    answered: state.perQuestion.filter((p) => !p.timedOut && !p.skipped).length,
+    skipped: state.perQuestion.filter((p) => p.skipped).length,
     timedOut: state.perQuestion.filter((p) => p.timedOut).length,
     subjectiveCount: state.perQuestion.filter((p) => p.type === 'subjective').length,
     totalBlurs: state.totalBlurs,
-    autoScore: { correct: autoCorrect, total: autoTotal }, // objective portion only, pending review
+    negativeMarking: Boolean(state.test.negativeMarking),
+    // objective portion only, pending review; points = correct minus guess penalties
+    autoScore: { correct: autoCorrect, total: autoTotal, points: autoPoints },
     perQuestion: state.perQuestion,
   };
 
   const pw = getPassword();
   const resultEnc = JSON.stringify(await encryptString(pw, JSON.stringify(result, null, 2)), null, 2);
 
-  const skippedNote = result.timedOut
+  const skippedNote = (result.timedOut
     ? ` The clock took ${result.timedOut} of them — speed is part of knowing.`
-    : '';
+    : '') + (result.skipped
+    ? ` You skipped ${result.skipped} — honestly declared, honestly zero.`
+    : '');
   endScreen('Submitted.',
     `${result.answered} of ${result.totalQuestions} questions answered.${skippedNote} You will see nothing until I have graded it. That is how tests work.`);
 

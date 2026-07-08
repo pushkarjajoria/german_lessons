@@ -69,8 +69,10 @@ if (args.includes('--scaffold')) {
     title: '<Titel>',
     createdAt: new Date().toISOString().slice(0, 10),
     deadline: inThreeDays.toISOString(),
-    instructions: '<one short paragraph — what this test covers>',
+    instructions: '<one short paragraph — shown only AFTER the learner is locked in>',
     defaultTimeLimitSec: 45,
+    negativeMarking: false, // true on Klausuren/finals: wrong option pick costs 1/n
+    allowSkip: true,        // "Unsure — skip": 0 points, no penalty
     questions: [],
   }, null, 2));
   console.log(`Scaffolded:\n  ${p}\nFill it in, then run:\n  node scripts/new-test.js --test ${p}`);
@@ -87,7 +89,9 @@ if (!testFile) {
 const test = JSON.parse(readFileSync(testFile, 'utf8'));
 
 // ---- validation ----
-const KNOWN_TYPES = new Set(['fill_blank', 'multiple_choice', 'reorder', 'translate', 'listen_type', 'subjective']);
+// multi_select and click_mistake are TEST-ONLY surprise types (SCHEMA §4.2) —
+// the homework publisher (new-lesson.js) deliberately refuses them.
+const KNOWN_TYPES = new Set(['fill_blank', 'multiple_choice', 'reorder', 'translate', 'listen_type', 'subjective', 'multi_select', 'click_mistake']);
 const fail = (msg) => { console.error(`Invalid test: ${msg}`); process.exit(1); };
 
 if (!test.title || test.title.startsWith('<')) fail('title missing.');
@@ -100,6 +104,19 @@ for (const q of test.questions) {
   const limit = q.timeLimitSec ?? test.defaultTimeLimitSec;
   if (!limit || limit < 5) fail(`question ${q.id} has no usable time limit (need timeLimitSec or defaultTimeLimitSec ≥ 5).`);
   if (q.type === 'multiple_choice' && !(Array.isArray(q.options) && Number.isInteger(q.answerIndex))) fail(`${q.id}: multiple_choice needs options + answerIndex.`);
+  if (q.type === 'multi_select') {
+    if (!(Array.isArray(q.options) && q.options.length >= 4)) fail(`${q.id}: multi_select needs options[] (≥4 — the point is a crowd).`);
+    if (!(Array.isArray(q.answerIndexes) && q.answerIndexes.length >= 1
+        && q.answerIndexes.every((i) => Number.isInteger(i) && i >= 0 && i < q.options.length))) {
+      fail(`${q.id}: multi_select needs answerIndexes[] (≥1, all valid indexes into options).`);
+    }
+  }
+  if (q.type === 'click_mistake') {
+    if (!(Array.isArray(q.tokens) && q.tokens.length >= 3)) fail(`${q.id}: click_mistake needs tokens[] (the sentence, ≥3 words).`);
+    if (!(Number.isInteger(q.mistakeIndex) && q.mistakeIndex >= 0 && q.mistakeIndex < q.tokens.length)) {
+      fail(`${q.id}: click_mistake needs mistakeIndex (valid index into tokens).`);
+    }
+  }
   if (q.type === 'reorder' && !(Array.isArray(q.tokens) && Array.isArray(q.answer))) fail(`${q.id}: reorder needs tokens + answer.`);
   if (['fill_blank', 'translate', 'listen_type'].includes(q.type) && !Array.isArray(q.answers)) fail(`${q.id}: needs answers[].`);
   if (q.type === 'listen_type' && !q.audioText) fail(`${q.id}: listen_type needs audioText.`);
@@ -121,6 +138,15 @@ const totalSec = test.questions.reduce((s, q) => s + (q.timeLimitSec ?? test.def
 const totalMin = Math.round(totalSec / 60);
 if (test.kind === 'quiz' && totalMin > 12) console.warn(`Warning: quiz runs ~${totalMin} min at full time — quizzes are ~10 min. Trim it.`);
 if (test.kind === 'final' && (totalMin < 15 || totalMin > 35)) console.warn(`Warning: final runs ~${totalMin} min at full time — the final should sit at 20–30 min.`);
+
+// Repertoire discipline (SCHEMA §4.2): the FULL arsenal — negative marking and
+// a crowd of surprise types — belongs to Klausuren and finals. Quizzes get a
+// taste, not the whole thing.
+const surpriseCount = test.questions.filter((q) => ['multi_select', 'click_mistake'].includes(q.type)).length;
+if (test.kind === 'quiz') {
+  if (test.negativeMarking) console.warn('Warning: negative marking on a QUIZ — the full repertoire is for Klausuren/finals. Allowed, but reconsider.');
+  if (surpriseCount > 2) console.warn(`Warning: ${surpriseCount} surprise-type questions on a quiz — a quiz carries a taste (1–2), not the full repertoire.`);
+}
 
 const password = await promptPassword('Password: ');
 if (!password) { console.error('Empty password refused.'); process.exit(1); }

@@ -175,6 +175,15 @@ override; near-duplicates get a warning).
 - **Verdict language:** the dashboard's computed verdict/notes exist in English and
   German (`docs/js/richter-voice.js`); `manifest.verdictLang` decides which renders,
   flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
+- **Surprise test repertoire:** two test-only question types — `multi_select`
+  (options[] + answerIndexes[], exact set match) and `click_mistake` (tokens[] +
+  mistakeIndex) — plus per-test `negativeMarking` (wrong option pick costs 1/n of a
+  point; typed answers, skips, and timeouts are never penalized) and `allowSkip`
+  (default true; records `skipped`, 0 points). The paper's `instructions` and
+  mechanics render on a briefing screen only after the learner is locked in
+  (forfeit armed), before the first per-question clock. Results carry
+  `autoScore.points` (correct − penalties). Quizzes are warned away from negative
+  marking and >2 surprise questions; the full repertoire belongs to Klausuren/finals.
 - **Semesters:** `manifest.semester` (scripts/semester.js) spans a run of lessons with
   short quizzes (`kind:"quiz"`, ~10 min) and one long final (`kind:"final"`, 20–30 min),
   weighted quizzes 40% / final 60% against a high pass bar. Fail once → retake final in

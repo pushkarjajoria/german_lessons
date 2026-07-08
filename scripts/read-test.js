@@ -75,8 +75,9 @@ if (result.status === 'forfeited') {
 }
 
 console.log(`- Taken: ${result.startedAt} → ${result.date} (${Math.floor(result.durationSec / 60)}m ${result.durationSec % 60}s)`);
-console.log(`- Answered: ${result.answered}/${result.totalQuestions} · timed out: ${result.timedOut} · window blurs during test: ${result.totalBlurs}`);
-console.log(`- Objective auto-score (verify before trusting): ${result.autoScore.correct}/${result.autoScore.total}`);
+console.log(`- Answered: ${result.answered}/${result.totalQuestions} · skipped: ${result.skipped ?? 0} · timed out: ${result.timedOut} · window blurs during test: ${result.totalBlurs}`);
+console.log(`- Objective auto-score (verify before trusting): ${result.autoScore.correct}/${result.autoScore.total}`
+  + (typeof result.autoScore.points === 'number' ? ` · points after guess penalties: ${result.autoScore.points}${result.negativeMarking ? ' (negative marking was ON)' : ''}` : ''));
 if (result.subjectiveCount) console.log(`- Subjective answers to grade: ${result.subjectiveCount}`);
 
 const qById = new Map((test?.questions || []).map((q) => [q.id, q]));
@@ -85,16 +86,22 @@ console.log('\n## Objective questions');
 for (const p of result.perQuestion.filter((x) => x.type !== 'subjective')) {
   const q = qById.get(p.qid) || {};
   const expected = q.type === 'multiple_choice' ? q.options?.[q.answerIndex]
+    : q.type === 'multi_select' ? q.answerIndexes?.map((i) => q.options[i]).join(' | ')
+    : q.type === 'click_mistake' ? `token #${q.mistakeIndex}: "${q.tokens?.[q.mistakeIndex]}"`
     : q.type === 'reorder' ? q.answer?.join(' ')
     : q.answers?.[0];
-  const mark = p.timedOut ? '⏱ TIMED OUT' : p.autoCorrect ? '✓' : '✗';
+  const mark = p.timedOut ? '⏱ TIMED OUT' : p.skipped ? '⤼ SKIPPED' : p.autoCorrect ? '✓' : '✗';
   const bits = [`${p.timeUsedSec}s`];
   if (p.replays) bits.push(`${p.replays} replay(s)`);
   if (p.blurCount) bits.push(`${p.blurCount} blur(s)`);
   if (p.matchType === 'fuzzy') bits.push('fuzzy match, not exact');
+  if (p.penalty) bits.push(`guess penalty −${p.penalty}`);
+  const given = Array.isArray(p.given) ? p.given.join(' | ')
+    : q.type === 'click_mistake' && p.given !== null && p.given !== undefined ? `token #${p.given}: "${q.tokens?.[p.given]}"`
+    : p.given;
   console.log(`- [${p.qid}] ${mark} (${p.category}) "${q.prompt ?? '?'}"`);
   console.log(`    expected: ${expected ?? '?'}`);
-  console.log(`    given:    ${p.given ?? '(nothing)'}  [${bits.join(', ')}]`);
+  console.log(`    given:    ${given ?? '(nothing)'}  [${bits.join(', ')}]`);
   if (q.justify) {
     // Her flagged question: judge the reasoning subjectively, not just the answer.
     console.log(`    justification (GRADE THIS): ${p.justification || '(none given — that is itself an answer)'}`);

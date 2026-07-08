@@ -523,6 +523,17 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .model-repeat-status { color: var(--ink); font-size: 0.9rem; min-height: 1.2em; margin: 0.35rem 0 0; }
 .model-repeat-done .model-repeat-label { color: var(--text-dim); }
 
+/* ---------- test surprise repertoire ---------- */
+
+.skip-btn { color: var(--text-dim); font-size: 0.88rem; }
+.skip-btn:hover { color: var(--text); }
+.cm-sentence { margin-top: 0.6rem; }
+.cm-sentence .token.mc-selected {
+  border-color: var(--ink);
+  color: var(--ink);
+  text-decoration: line-through;
+}
+
 /* ---------- justify-your-answer ---------- */
 
 .justify-block {

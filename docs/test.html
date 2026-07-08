@@ -22,24 +22,38 @@
       </nav>
     </header>
 
-    <!-- Pre-start: rules, deadline, the one-way door -->
+    <!-- Pre-start: the one-way door. The paper's own instructions stay sealed
+         until the learner is locked in — no scouting the mechanics for free. -->
     <section class="panel" id="pre-start" hidden>
       <h1 id="test-title" class="hw-title">…</h1>
-      <p id="test-instructions" class="test-instructions"></p>
       <div class="test-rules">
-        <p class="verdict-label">The rules — read them once, they will not be repeated</p>
+        <p class="verdict-label">The standing rules — the paper's own come after you commit</p>
         <ul>
           <li>Every question has a <strong>time limit</strong>. When it runs out, the question is gone — recorded as unanswered.</li>
           <li><strong>No going back.</strong> One direction only.</li>
           <li><strong>No feedback during the test.</strong> You see nothing until I have graded it.</li>
           <li>Once started, the test <strong>cannot be paused or stopped</strong>.</li>
           <li><strong>Leaving this page mid-test means forfeit.</strong> Zero points. The browser will warn you once; after that it is on you.</li>
+          <li><strong>This paper has its own instructions</strong> — question types, marking, whether skipping is allowed. You read them after the door closes, before the clock starts.</li>
         </ul>
       </div>
       <p class="muted" id="test-meta"></p>
       <div class="btn-row">
         <button class="btn btn-primary btn-big" id="start-btn">Begin the test</button>
         <a class="btn" href="index.html">Not yet</a>
+      </div>
+    </section>
+
+    <!-- Locked in: the paper's instructions, untimed. Leaving now already forfeits. -->
+    <section class="panel" id="briefing-area" hidden>
+      <h1 class="hw-title">Locked in. Read this — the clock starts when you say so.</h1>
+      <p id="briefing-instructions" class="test-instructions"></p>
+      <div class="test-rules">
+        <p class="verdict-label">This paper's mechanics</p>
+        <ul id="briefing-mechanics"></ul>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-big" id="begin-questions-btn">Begin the questions →</button>
       </div>
     </section>
 

@@ -52,6 +52,16 @@ export function gradeObjective(q, given) {
   if (q.type === 'multiple_choice') {
     return { gradable: true, correct: given === q.options[q.answerIndex], matchType: 'exact' };
   }
+  if (q.type === 'multi_select') {
+    // The answer is the SET — exact match, no partial credit. given: string[].
+    const want = new Set(q.answerIndexes.map((i) => q.options[i]));
+    const got = new Set(Array.isArray(given) ? given : []);
+    const ok = got.size === want.size && [...want].every((o) => got.has(o));
+    return { gradable: true, correct: ok, matchType: 'exact' };
+  }
+  if (q.type === 'click_mistake') {
+    return { gradable: true, correct: Number(given) === q.mistakeIndex, matchType: 'exact' };
+  }
   if (q.type === 'reorder') {
     return { gradable: true, correct: given === q.answer.join(' '), matchType: 'exact' };
   }
