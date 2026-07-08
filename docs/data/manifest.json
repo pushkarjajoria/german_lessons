@@ -150,6 +150,13 @@
       "items": 1,
       "firstTry": 0,
       "durationSec": 29
+    },
+    {
+      "date": "2026-07-08T09:49:15.883Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 1,
+      "durationSec": 4
     }
   ],
   "corrections": [
@@ -175,8 +182,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-08T09:32:59.381Z",
       "required": 3,
-      "doneCount": 0,
-      "lastPassedAt": null,
+      "doneCount": 1,
+      "lastPassedAt": "2026-07-08T09:49:15.883Z",
       "status": "open"
     }
   ]
