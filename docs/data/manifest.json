@@ -157,6 +157,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 4
+    },
+    {
+      "date": "2026-07-08T10:06:03.861Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 8,
+      "durationSec": 117
     }
   ],
   "corrections": [
