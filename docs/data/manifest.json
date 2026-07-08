@@ -136,6 +136,13 @@
       "items": 8,
       "firstTry": 7,
       "durationSec": 169
+    },
+    {
+      "date": "2026-07-08T09:46:34.195Z",
+      "mode": "korrektur",
+      "items": 2,
+      "firstTry": 1,
+      "durationSec": 48
     }
   ],
   "corrections": [
@@ -148,8 +155,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-08T09:32:59.345Z",
       "required": 4,
-      "doneCount": 0,
-      "lastPassedAt": null,
+      "doneCount": 1,
+      "lastPassedAt": "2026-07-08T09:46:34.195Z",
       "status": "open"
     },
     {
