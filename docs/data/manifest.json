@@ -143,6 +143,13 @@
       "items": 2,
       "firstTry": 1,
       "durationSec": 48
+    },
+    {
+      "date": "2026-07-08T09:49:04.873Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 0,
+      "durationSec": 29
     }
   ],
   "corrections": [
