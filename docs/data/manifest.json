@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0002",
-  "currentHomeworkId": "0002",
+  "currentLessonId": "0003",
+  "currentHomeworkId": "0003",
   "counters": {
     "lessonsCompleted": 1,
     "totalQuestions": 10,
@@ -90,6 +90,12 @@
       "title": "Ich möchte — Ordering Coffee Politely",
       "section": "Phase 0 — Ignition",
       "subsection": "Coffee"
+    },
+    {
+      "id": "0003",
+      "title": "Nachbesserung — The Coffee Order, Tightened",
+      "section": "Phase 0 — Ignition",
+      "subsection": "Coffee"
     }
   ],
   "tests": [],
@@ -100,10 +106,13 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-06T14:45:00.000Z",
-    "text": "First entry. We start deliberately below your level — by design, not indulgence. This week: order politely with *möchte* (\"would like\"), not *ich liebe* (\"I love\"), and keep the verb in second position. Homework is in the app, plus one real coffee order in German before Wednesday — use a lifeline, don't switch to English. — I. R.",
+    "date": "2026-07-08T09:32:59.307Z",
+    "text": "Report 0002: half right first try, the rest ground out — honest work, not laziness, and you drilled unprompted. Noted. But 'eventually correct' is no standard at a counter. Today rebuilds the four weak spots: möchtest (left blank), the lifelines (all German — no 'Slower, bitte'), prices by ear (15 is not 50), and building 'mit …' orders yourself. — I. R.",
     "weakAreas": [
-      "Konjugation"
+      "Konjugation",
+      "Redemittel",
+      "Hörverstehen",
+      "Produktion"
     ]
   },
   "practiceLog": [
@@ -127,6 +136,34 @@
       "items": 8,
       "firstTry": 7,
       "durationSec": 169
+    }
+  ],
+  "corrections": [
+    {
+      "key": "0002:q10",
+      "hwId": "0002",
+      "qid": "q10",
+      "category": "Redemittel",
+      "reason": "reverted to English (half-English lifeline)",
+      "missedCount": 1,
+      "addedAt": "2026-07-08T09:32:59.345Z",
+      "required": 4,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0002:q7",
+      "hwId": "0002",
+      "qid": "q7",
+      "category": "Konjugation",
+      "reason": "moechte conjugation left blank",
+      "missedCount": 1,
+      "addedAt": "2026-07-08T09:32:59.381Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ]
 }
