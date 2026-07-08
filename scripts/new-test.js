@@ -109,6 +109,19 @@ if (test.id !== nextId) {
   test.id = nextId;
 }
 
+// Semester wiring (SCHEMA §8): quizzes and the final are ordinary tests tagged
+// with kind + semester so semester.js can compute the weighted standing.
+if (test.kind && !['quiz', 'final'].includes(test.kind)) fail(`kind must be "quiz" or "final", got "${test.kind}".`);
+if (test.kind && !test.semester) fail('a quiz/final needs a "semester" id (e.g. "S1").');
+if (test.kind && manifest.semester && test.semester !== manifest.semester.id) {
+  console.warn(`Warning: test.semester "${test.semester}" ≠ active semester "${manifest.semester.id}".`);
+}
+// Duration guidance: quizzes are short checks, the final is the long sit.
+const totalSec = test.questions.reduce((s, q) => s + (q.timeLimitSec ?? test.defaultTimeLimitSec ?? 60), 0);
+const totalMin = Math.round(totalSec / 60);
+if (test.kind === 'quiz' && totalMin > 12) console.warn(`Warning: quiz runs ~${totalMin} min at full time — quizzes are ~10 min. Trim it.`);
+if (test.kind === 'final' && (totalMin < 15 || totalMin > 35)) console.warn(`Warning: final runs ~${totalMin} min at full time — the final should sit at 20–30 min.`);
+
 const password = await promptPassword('Password: ');
 if (!password) { console.error('Empty password refused.'); process.exit(1); }
 try {
@@ -169,6 +182,7 @@ manifest.tests.push({
   status: 'pending',
   createdAt: new Date().toISOString(),
   questionCount: test.questions.length,
+  ...(test.kind ? { kind: test.kind, semester: test.semester } : {}),
 });
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
 

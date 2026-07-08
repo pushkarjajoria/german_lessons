@@ -103,9 +103,9 @@ function initReencrypt() {
       line('Old password confirmed. Collecting files…');
       // 'data' itself covers top-level .enc files like the portrait;
       // listDir returns files only and the loop skips non-.enc entries.
-      const dirs = ['data', 'data/lessons', 'data/homework', 'data/reports', 'data/tests'];
+      const dirs = ['data', 'data/lessons', 'data/homework', 'data/reports', 'data/tests', 'data/uploads'];
       for (const dir of dirs) {
-        const files = await gh.listDir(dir);
+        const files = await gh.listDir(dir).catch(() => []); // dir may not exist yet (e.g. uploads)
         for (const f of files) {
           if (!f.name.endsWith('.enc')) continue;
           const path = `${dir}/${f.name}`;

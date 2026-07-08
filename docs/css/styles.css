@@ -523,6 +523,43 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .model-repeat-status { color: var(--ink); font-size: 0.9rem; min-height: 1.2em; margin: 0.35rem 0 0; }
 .model-repeat-done .model-repeat-label { color: var(--text-dim); }
 
+/* ---------- justify-your-answer ---------- */
+
+.justify-block {
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--border);
+}
+.justify-input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  margin: 0.3rem 0 0.5rem;
+  resize: vertical;
+}
+.justify-label { margin-top: 0.8rem; }
+
+/* ---------- semester ---------- */
+
+.semester-verdict {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  border-left: 3px solid var(--ink);
+  padding-left: 0.8rem;
+  margin: 0.6rem 0 0.9rem;
+}
+
+/* ---------- discipline uploads ---------- */
+
+.discipline-file { max-width: 100%; font-size: 0.85rem; color: var(--text-dim); }
+.discipline-status { display: flex; justify-content: flex-end; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+.discipline-msg { text-align: right; }
+
 /* ---------- practice ---------- */
 
 .mode-grid {

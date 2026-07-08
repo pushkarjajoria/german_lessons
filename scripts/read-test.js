@@ -95,6 +95,10 @@ for (const p of result.perQuestion.filter((x) => x.type !== 'subjective')) {
   console.log(`- [${p.qid}] ${mark} (${p.category}) "${q.prompt ?? '?'}"`);
   console.log(`    expected: ${expected ?? '?'}`);
   console.log(`    given:    ${p.given ?? '(nothing)'}  [${bits.join(', ')}]`);
+  if (q.justify) {
+    // Her flagged question: judge the reasoning subjectively, not just the answer.
+    console.log(`    justification (GRADE THIS): ${p.justification || '(none given — that is itself an answer)'}`);
+  }
 }
 
 const subj = result.perQuestion.filter((x) => x.type === 'subjective');

@@ -23,7 +23,22 @@
       </nav>
     </header>
 
-    <section class="panel quiz-panel">
+    <!-- Pre-start gate: nothing is tracked until Begin is pressed. Opening this
+         page by accident costs nothing; walking out after Begin is recorded. -->
+    <section class="panel" id="hw-prestart" hidden>
+      <h1 id="prestart-title" class="hw-title">…</h1>
+      <p id="prestart-abandon" class="lock-error" hidden></p>
+      <p class="test-instructions">One sitting. Once you begin, the clock and the record run —
+      leaving mid-homework is noted in the report and the attempt restarts from the beginning.
+      If now is a bad time, close this page; nothing has been counted yet.</p>
+      <p class="muted" id="prestart-meta"></p>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-big" id="hw-begin">Begin →</button>
+        <a class="btn" href="index.html">Not now</a>
+      </div>
+    </section>
+
+    <section class="panel quiz-panel" id="hw-panel" hidden>
       <h1 id="hw-title" class="hw-title">…</h1>
       <div class="progress">
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>

@@ -60,18 +60,59 @@ const state = {
   queue: [],          // question objects still to answer (misses re-inserted)
   totalUnique: 0,
   resolved: 0,
-  records: new Map(), // qid -> per-question tracking, see startQuiz for the full shape
+  records: new Map(), // qid -> per-question tracking, see beginQuiz for the full shape
   startedAt: null,
   reorderPicked: [],
+  restarts: 0,        // times a begun attempt was abandoned before this one
+  running: false,
 };
 
 const $ = (id) => document.getElementById(id);
 
-async function startQuiz(manifest) {
+const startedKey = (id) => `gl_hw_started_${id}`;
+const abandonsKey = (id) => `gl_hw_abandons_${id}`;
+
+function guard(e) {
+  e.preventDefault();
+  e.returnValue = ''; // Chrome requires this to show the leave-warning dialog
+}
+
+// Pre-start gate: decrypt and present, but count NOTHING until Begin. An
+// accidental open costs nothing; an abandoned begun attempt is on the record.
+async function prepareQuiz(manifest) {
   const hwId = manifest.currentHomeworkId;
   const { text } = await gh.readText(`data/homework/homework-${hwId}.json.enc`);
   const homework = JSON.parse(await decryptString(getPassword(), JSON.parse(text)));
   state.homework = homework;
+
+  // A leftover started-marker means the last begun attempt was walked out on.
+  if (localStorage.getItem(startedKey(hwId))) {
+    localStorage.removeItem(startedKey(hwId));
+    const n = (Number(localStorage.getItem(abandonsKey(hwId))) || 0) + 1;
+    localStorage.setItem(abandonsKey(hwId), String(n));
+  }
+  state.restarts = Number(localStorage.getItem(abandonsKey(hwId))) || 0;
+
+  $('hw-prestart').hidden = false;
+  $('prestart-title').textContent = homework.title;
+  $('prestart-meta').textContent = `${homework.questions.length} questions · misses return until they sit · the report is filed when you finish.`;
+  if (state.restarts > 0) {
+    const ab = $('prestart-abandon');
+    ab.hidden = false;
+    ab.textContent = state.restarts === 1
+      ? 'You began this homework once and walked out. It restarts from the beginning — and the report will say so.'
+      : `You have begun and abandoned this homework ${state.restarts} times. Each one is in the report. Begin when you mean it.`;
+  }
+  $('hw-begin').addEventListener('click', () => beginQuiz(hwId), { once: true });
+}
+
+function beginQuiz(hwId) {
+  localStorage.setItem(startedKey(hwId), new Date().toISOString());
+  window.addEventListener('beforeunload', guard);
+  state.running = true;
+  $('hw-prestart').hidden = true;
+  $('hw-panel').hidden = false;
+  const homework = state.homework;
   state.queue = homework.questions.slice();
   state.totalUnique = homework.questions.length;
   state.startedAt = Date.now();
@@ -90,6 +131,7 @@ async function startQuiz(manifest) {
       hintShown: false,
       replays: 0,             // listen_type: manual replay clicks
       reorderMoves: 0,        // reorder: token add/remove clicks
+      justification: null,    // q.justify: his typed one-line reason, for her red pen
     });
   }
   $('hw-title').textContent = homework.title;
@@ -298,6 +340,42 @@ function handleAnswer(q, given, isCorrect, matchType = null) {
   showFeedback(fb, isCorrect, q);
 }
 
+// Justify-your-answer: for questions she flags (q.justify), one typed line of
+// reasoning is owed on the first attempt — right or wrong. It goes in the
+// report verbatim for her subjective red pen; a correct answer with a wrong
+// reason is exactly the pattern-matching she is hunting.
+function attachJustify(mount, nextBtn, rec) {
+  nextBtn.disabled = true;
+  const wrap = document.createElement('div');
+  wrap.className = 'justify-block';
+  const label = document.createElement('p');
+  label.className = 'model-repeat-label';
+  label.textContent = 'Begründung — one line: why is that the answer? She reads it.';
+  const ta = document.createElement('textarea');
+  ta.className = 'justify-input';
+  ta.rows = 2;
+  ta.placeholder = 'Because…';
+  const status = document.createElement('p');
+  status.className = 'model-repeat-status';
+  const submit = document.createElement('button');
+  submit.className = 'btn';
+  submit.textContent = 'Submit reason';
+  submit.addEventListener('click', () => {
+    const v = ta.value.trim();
+    if (v.length < 8) { status.textContent = 'One honest line. Not a word.'; ta.focus(); return; }
+    rec.justification = v;
+    ta.disabled = true;
+    submit.disabled = true;
+    label.textContent = 'Noted. She will judge the reasoning, not just the answer.';
+    status.textContent = '';
+    nextBtn.disabled = false;
+    nextBtn.focus();
+  });
+  wrap.append(label, ta, submit, status);
+  mount.appendChild(wrap);
+  ta.focus();
+}
+
 function showFeedback(fb, isCorrect, q) {
   const el = $('feedback');
   el.hidden = false;
@@ -305,18 +383,29 @@ function showFeedback(fb, isCorrect, q) {
   $('feedback-head').textContent = fb.head;
   $('feedback-note').textContent = fb.note;
   el.querySelector('.model-repeat')?.remove();
+  el.querySelector('.justify-block')?.remove();
   const btn = $('feedback-next');
   btn.disabled = false;
   btn.textContent = state.queue.length ? 'Next' : 'Finish';
   btn.onclick = renderNext;
+  const rec = q ? state.records.get(q.id) : null;
+  const needsJustify = Boolean(q?.justify && rec && rec.attempts === 1 && !rec.justification);
   // Persona §2.5, in code: a wrong answer is corrected by PRODUCING the
   // correction, on the spot, as many times as she demands — before moving on.
+  // If a justification is also owed, it queues up behind the correction.
   if (!isCorrect && q) {
-    const times = getPolicy(getManifest()).modelRepeat;
-    if (getPolicy(getManifest()).enabled && times > 0) {
-      attachModelRepeat({ mount: el, nextBtn: btn, model: correctDisplay(q), times });
+    const policy = getPolicy(getManifest());
+    if (policy.enabled && policy.modelRepeat > 0) {
+      attachModelRepeat({
+        mount: el, nextBtn: btn, model: correctDisplay(q), times: policy.modelRepeat,
+        onDone: needsJustify ? () => attachJustify(el, btn, rec) : undefined,
+      });
       return;
     }
+  }
+  if (needsJustify) {
+    attachJustify(el, btn, rec);
+    return;
   }
   btn.focus();
 }
@@ -346,6 +435,8 @@ function buildReport() {
       replays: r.replays,
       reorderMoves: r.reorderMoves,
       timeToFirstAnswerSec: r.timeToFirstAnswerSec,
+      ...(q.justify ? { justification: r.justification } : {}),
+      ...(q.interleaved ? { interleaved: q.interleaved } : {}), // buried old question — her trap, marked for her eyes
     });
     const c = (categoryStats[r.category] ||= { correct: 0, total: 0 });
     c.total += 1;
@@ -384,6 +475,7 @@ function buildReport() {
     avgFirstAnswerLatencySec,
     hintsUsedCount: perQuestion.filter((p) => p.hintShown).length,
     audioReplaysTotal: perQuestion.reduce((sum, p) => sum + (p.replays || 0), 0),
+    restarts: state.restarts, // begun-and-abandoned attempts before this completed one
     categoryAttempts,
     perQuestion,
     categoryStats,
@@ -440,6 +532,12 @@ function summaryLine(report) {
 }
 
 async function finish() {
+  // Answers are locked in — lift the abandon trap before any network I/O so a
+  // failed upload can no longer look like walking out.
+  state.running = false;
+  window.removeEventListener('beforeunload', guard);
+  localStorage.removeItem(startedKey(state.homework.id));
+  localStorage.removeItem(abandonsKey(state.homework.id));
   const report = buildReport();
   const pw = getPassword();
   const reportEnc = JSON.stringify(await encryptString(pw, JSON.stringify(report, null, 2)), null, 2);
@@ -503,6 +601,7 @@ initLockButton();
 initLock(async (manifest) => {
   // Course halted (Nachweis tasks outstanding) — homework refuses to start.
   if (manifest.discipline?.active) {
+    $('hw-panel').hidden = false;
     $('hw-title').textContent = 'The course is halted.';
     $('question-area').innerHTML =
       '<p class="lock-error">No homework until the outstanding tasks are done and cleared. ' +
@@ -511,6 +610,7 @@ initLock(async (manifest) => {
   }
   // Overdue Korrektur gates new homework: nothing new until the old thing is right.
   if (homeworkGated(manifest)) {
+    $('hw-panel').hidden = false;
     $('hw-title').textContent = 'Erst die Korrektur.';
     $('question-area').innerHTML =
       '<p class="lock-error">Corrections have been waiting longer than I allow. New homework stays locked ' +
@@ -519,8 +619,9 @@ initLock(async (manifest) => {
     return;
   }
   try {
-    await startQuiz(manifest);
+    await prepareQuiz(manifest);
   } catch (e) {
+    $('hw-panel').hidden = false;
     $('question-area').innerHTML = `<p class="lock-error">The homework could not be loaded: ${e.message}</p>`;
   }
 });

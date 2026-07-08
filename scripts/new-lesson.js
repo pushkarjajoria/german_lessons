@@ -3,8 +3,15 @@
 // Run by the assistant (or you) after writing the teaching markdown and quiz JSON.
 //
 // Usage:
-//   node scripts/new-lesson.js --lesson path/to/lesson.md --homework path/to/homework.json [--push]
+//   node scripts/new-lesson.js --lesson path/to/lesson.md --homework path/to/homework.json \
+//        [--interleave 0002:q7,0002:q3] [--push]
 //   node scripts/new-lesson.js --scaffold          # create empty templates for the next id
+//
+// --interleave buries copies of old questions in today's homework at random
+// positions (marked `interleaved` in the report, invisible to the learner) —
+// the "you thought this was settled" trap.
+// Question fields: any question may set "justify": true to demand a typed
+// one-line reason on the first attempt (stored in the report for her red pen).
 //
 // What it does:
 //   1. Reads docs/data/manifest.json, computes the next 4-digit id.
@@ -123,6 +130,35 @@ try {
 } catch {
   console.error('This password does not match the manifest canary — the site would never be able to open these files. Aborting.');
   process.exit(1);
+}
+
+// Buried interleaving: --interleave 0002:q7,0002:q3 copies old questions into
+// today's homework at random positions, outside the normal spaced-review flow —
+// a deliberate "you thought this was settled" trap. The copies are marked
+// `interleaved` so the report shows her how the trap went; the learner sees
+// nothing special.
+const interleave = opt('--interleave');
+if (interleave) {
+  const srcCache = new Map();
+  let xn = 1;
+  for (const ref of interleave.split(',').map((s) => s.trim()).filter(Boolean)) {
+    const m = ref.match(/^(\d{4}):(\S+)$/);
+    if (!m) { console.error(`--interleave expects hwId:qid refs, got "${ref}".`); process.exit(1); }
+    const [, srcId, qid] = m;
+    if (!srcCache.has(srcId)) {
+      const p = join(ROOT, 'docs', 'data', 'homework', `homework-${srcId}.json.enc`);
+      if (!existsSync(p)) { console.error(`No homework ${srcId} to interleave from.`); process.exit(1); }
+      srcCache.set(srcId, JSON.parse(decryptString(password, JSON.parse(readFileSync(p, 'utf8')))));
+    }
+    const src = srcCache.get(srcId).questions.find((x) => x.id === qid);
+    if (!src) { console.error(`No question ${qid} in homework ${srcId}.`); process.exit(1); }
+    const copy = structuredClone(src);
+    copy.interleaved = ref;
+    copy.id = `x${xn++}`; // fresh id — no collision with today's q1..qN
+    const pos = 1 + Math.floor(Math.random() * hw.questions.length); // buried, never first
+    hw.questions.splice(pos, 0, copy);
+    console.log(`Buried ${ref} (${copy.category}) at position ${pos + 1} as ${copy.id}.`);
+  }
 }
 
 const lessonOut = join(ROOT, 'docs', 'data', 'lessons', `lesson-${nextId}.md.enc`);

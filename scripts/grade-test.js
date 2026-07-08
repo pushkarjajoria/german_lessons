@@ -38,6 +38,10 @@ entry.gradedAt = new Date().toISOString();
 if (opt('--comment')) entry.comment = opt('--comment');
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
 console.log(`Test ${id} graded: ${score}${entry.comment ? ` — "${entry.comment}"` : ''}`);
+if (entry.kind && entry.semester) {
+  console.log(`This was a semester ${entry.semester} ${entry.kind} — check the standing: node scripts/semester.js --status`);
+  if (entry.kind === 'final') console.log('Final graded → run: node scripts/semester.js --evaluate --push');
+}
 
 const gitCmds = [
   'git add docs/data/manifest.json',

@@ -48,6 +48,7 @@ const state = {
   blurs: 0,
   totalBlurs: 0,
   running: false,
+  justifyEl: null,   // q.justify: textarea whose value rides along with the answer
 };
 
 function guard(e) {
@@ -187,6 +188,22 @@ function renderQuestion() {
   else if (q.type === 'subjective') getAnswer = renderSubjective(q, area);
   else { console.warn('Unknown type', q.type); record(null, false); return; }
 
+  // Justify-your-answer: her flagged questions demand a one-line reason inside
+  // the same time limit. It is graded subjectively with the rest — an answer
+  // with no reasoning behind it is worth less to her than a reasoned miss.
+  state.justifyEl = null;
+  if (q.justify) {
+    const jl = document.createElement('p');
+    jl.className = 'q-hint justify-label';
+    jl.textContent = 'Begründung (required): why is that the answer? Same clock.';
+    const ta = document.createElement('textarea');
+    ta.className = 'justify-input';
+    ta.rows = 2;
+    ta.placeholder = 'Because…';
+    area.append(jl, ta);
+    state.justifyEl = ta;
+  }
+
   const bar = document.createElement('div');
   bar.className = 'submit-bar';
   const btn = document.createElement('button');
@@ -226,6 +243,7 @@ function record(given, timedOut) {
     type: q.type,
     category: q.category || 'Allgemein',
     given: timedOut ? null : given,
+    ...(q.justify ? { justification: state.justifyEl?.value.trim() || null } : {}),
     timedOut,
     timeUsedSec: Math.round((Date.now() - state.qShownAt) / 100) / 10,
     replays: state.replays,

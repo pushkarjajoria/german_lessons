@@ -5,6 +5,7 @@
 // decided the learner can handle (manifest.verdictLang, see richter-voice.js).
 
 import { initLock, initLockButton, getPassword } from './auth.js';
+import { encryptString } from './crypto.js';
 import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfeits } from './tests-common.js';
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
@@ -52,34 +53,73 @@ function renderDiscipline(manifest) {
     row.className = 'discipline-task';
     const kind = t.type === 'recording' ? '🎙' : '✍';
     const status = t.status === 'claimed'
-      ? `<span class="chip">${S.disciplineClaimed}</span>`
-      : `<button class="btn discipline-claim" data-i="${i}">${S.disciplineClaim}</button>`;
+      ? `<span class="chip">${S.disciplineClaimed}${t.upload ? ' · proof attached' : ''}</span>`
+      : `<input type="file" id="dfile-${i}" class="discipline-file" ${t.type === 'recording' ? 'accept="audio/*"' : 'accept="image/*"'} />
+         <button class="btn btn-primary discipline-upload" data-i="${i}">Attach proof &amp; ${S.disciplineClaim}</button>
+         <button class="btn discipline-claim" data-i="${i}" title="Only if she said no file is needed">${S.disciplineClaim} (no file)</button>`;
     row.innerHTML = `
       <p class="discipline-instructions">${kind} ${t.instructions}</p>
-      <div class="discipline-status">${status}</div>`;
+      <div class="discipline-status">${status}</div>
+      <p class="model-repeat-status discipline-msg" id="dmsg-${i}"></p>`;
     list.appendChild(row);
   });
   $('discipline-foot').textContent = S.disciplineFoot;
 
+  // Claiming — with or without an encrypted proof upload. The upload is
+  // AES-GCM under the same password and lands in data/uploads/; only she can
+  // open it (scripts/read-upload.js), and only she clears the block.
+  const claimTask = async (i, uploadPath) => {
+    const { data: fresh } = await gh.readJson('data/manifest.json');
+    const task = fresh.discipline?.tasks?.[i];
+    if (task) {
+      task.status = 'claimed';
+      task.claimedAt = new Date().toISOString();
+      if (uploadPath) task.upload = uploadPath;
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
+        `discipline: task ${i + 1} claimed${uploadPath ? ' with proof' : ''}`);
+      manifest.discipline = fresh.discipline;
+    }
+    renderDiscipline(manifest);
+  };
+
+  list.querySelectorAll('.discipline-upload').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const i = Number(btn.dataset.i);
+      const msg = $(`dmsg-${i}`);
+      const file = $(`dfile-${i}`).files[0];
+      if (!file) { msg.textContent = 'Choose the file first. The proof is the point.'; return; }
+      if (file.size > 15 * 1024 * 1024) { msg.textContent = 'Over 15 MB — compress it (shorter clip, smaller photo) and try again.'; return; }
+      btn.disabled = true;
+      msg.textContent = 'Encrypting and filing…';
+      try {
+        if (!gh.isConfigured()) throw new Error('No GitHub token configured (Settings)');
+        const buf = await file.arrayBuffer();
+        let bin = '';
+        const bytes = new Uint8Array(buf);
+        for (let o = 0; o < bytes.length; o += 0x8000) {
+          bin += String.fromCharCode(...bytes.subarray(o, o + 0x8000));
+        }
+        const payload = JSON.stringify({ filename: file.name, mime: file.type, dataB64: btoa(bin) });
+        const envelope = JSON.stringify(await encryptString(getPassword(), payload), null, 2);
+        const path = `data/uploads/nachweis-task${i + 1}-${Date.now()}.enc`;
+        await gh.writeText(path, envelope, `nachweis: proof for task ${i + 1}`);
+        await claimTask(i, path);
+      } catch (e) {
+        btn.disabled = false;
+        msg.textContent = `Failed: ${e.message}`;
+      }
+    });
+  });
   list.querySelectorAll('.discipline-claim').forEach((btn) => {
     btn.addEventListener('click', async () => {
       btn.disabled = true;
-      btn.textContent = '…';
+      const i = Number(btn.dataset.i);
       try {
         if (!gh.isConfigured()) throw new Error('No GitHub token configured (Settings) — tell her directly in the next session instead.');
-        const { data: fresh } = await gh.readJson('data/manifest.json');
-        const task = fresh.discipline?.tasks?.[Number(btn.dataset.i)];
-        if (task) {
-          task.status = 'claimed';
-          task.claimedAt = new Date().toISOString();
-          await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
-            `discipline: task ${Number(btn.dataset.i) + 1} claimed`);
-          manifest.discipline = fresh.discipline;
-        }
-        renderDiscipline(manifest);
+        await claimTask(i, null);
       } catch (e) {
         btn.disabled = false;
-        btn.textContent = `${STRINGS[LANG].disciplineClaim} (${e.message})`;
+        $(`dmsg-${i}`).textContent = e.message;
       }
     });
   });
@@ -121,6 +161,74 @@ function renderKorrektur(manifest) {
   }
 }
 
+// ---------- semester panel ----------
+// Quizzes (40%) + one long final (60%), her weights. Standing shown as it
+// accumulates; a failed final shows the retake countdown; a second failure
+// shows the repeat verdict. Forfeited semester tests count as 0%.
+
+function renderSemester(manifest) {
+  const sem = manifest.semester;
+  const panel = $('semester-panel');
+  if (!sem) { panel.hidden = true; return; }
+  panel.hidden = false;
+
+  const pctOf = (score) => {
+    const m = String(score ?? '').match(/^\s*([\d.]+)\s*\/\s*([\d.]+)\s*$/);
+    return m && Number(m[2]) > 0 ? (Number(m[1]) / Number(m[2])) * 100 : null;
+  };
+  const semTests = (manifest.tests || []).filter((t) => t.semester === sem.id);
+  const quizzes = semTests.filter((t) => t.kind === 'quiz');
+  const finals = semTests.filter((t) => t.kind === 'final');
+
+  $('semester-title').textContent = `${sem.title} · ${sem.id}`;
+  $('semester-meta').textContent =
+    `Quizzes ${sem.weights.quizzes}% + final ${sem.weights.final}% · pass at ${sem.passPct}%` +
+    (sem.attempt > 1 ? ` · attempt ${sem.attempt}` : '') +
+    (sem.repeatCount ? ` · repeat round ${sem.repeatCount}` : '');
+
+  const verdictEl = $('semester-verdict');
+  verdictEl.hidden = true;
+  if (sem.status === 'retake') {
+    const days = Math.max(0, Math.ceil((new Date(sem.retakeDeadline) - Date.now()) / 86400000));
+    verdictEl.hidden = false;
+    verdictEl.textContent = `Failed. The retake is in ${days} day(s) — until then, intensive training: drills, Korrektur, no shortcuts. The retake asks the same skills in new clothes.`;
+  } else if (sem.status === 'repeat') {
+    verdictEl.hidden = false;
+    verdictEl.textContent = 'Failed twice. The course repeats from the top — every assignment, every quiz, the final. Not a punishment: evidence that the foundation was not there. This time it will be.';
+  } else if (sem.status === 'passed') {
+    const last = (sem.evaluations || [])[sem.evaluations.length - 1];
+    verdictEl.hidden = false;
+    verdictEl.textContent = `Passed at ${last?.totalPct ?? '—'}%. Noted. The next semester will assume everything this one taught.`;
+  }
+
+  const list = $('semester-list');
+  list.innerHTML = '';
+  const row = (label, t) => {
+    const div = document.createElement('div');
+    div.className = 'test-row';
+    let right;
+    if (!t) right = '<span class="muted">not yet assigned</span>';
+    else if (t.status === 'graded') right = `<span class="chip">${t.score} · ${Math.round(pctOf(t.score) ?? 0)}%</span>`;
+    else if (t.status === 'forfeited') right = '<span class="chip chip-weak">forfeited · 0%</span>';
+    else if (t.status === 'submitted') right = '<span class="chip">submitted · awaiting the red pen</span>';
+    else right = `<span class="chip">pending · ${fmtDeadline(t.deadline)}</span>`;
+    div.innerHTML = `<span class="test-name">${label}</span><span class="test-right">${right}</span>`;
+    list.appendChild(div);
+  };
+  quizzes.forEach((t, i) => row(`Quiz ${i + 1} — ${t.title}`, t));
+  if (finals.length) finals.forEach((t) => row(`★ Final — ${t.title}`, t));
+  else row('★ Final', null);
+
+  const quizPcts = quizzes
+    .filter((t) => t.status === 'graded' || t.status === 'forfeited')
+    .map((t) => (t.status === 'forfeited' ? 0 : pctOf(t.score)))
+    .filter((v) => v !== null);
+  const quizAvg = quizPcts.length ? quizPcts.reduce((a, b) => a + b, 0) / quizPcts.length : null;
+  $('semester-standing').textContent = quizAvg === null
+    ? 'No graded quizzes yet. The standing starts with the first one.'
+    : `Quiz average so far: ${Math.round(quizAvg)}% (worth ${sem.weights.quizzes}% of the total). The final decides the remaining ${sem.weights.final}% — and the bar is ${sem.passPct}%.`;
+}
+
 // ---------- main render ----------
 
 function render(manifest) {
@@ -130,6 +238,7 @@ function render(manifest) {
 
   renderDiscipline(manifest);
   renderKorrektur(manifest);
+  renderSemester(manifest);
 
   $('stat-streak').textContent = counters.streakDays || 0;
   $('stat-lessons').textContent = counters.lessonsCompleted || 0;

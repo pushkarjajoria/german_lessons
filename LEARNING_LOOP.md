@@ -175,6 +175,23 @@ override; near-duplicates get a warning).
 - **Verdict language:** the dashboard's computed verdict/notes exist in English and
   German (`docs/js/richter-voice.js`); `manifest.verdictLang` decides which renders,
   flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
+- **Semesters:** `manifest.semester` (scripts/semester.js) spans a run of lessons with
+  short quizzes (`kind:"quiz"`, ~10 min) and one long final (`kind:"final"`, 20–30 min),
+  weighted quizzes 40% / final 60% against a high pass bar. Fail once → retake final in
+  a week (new + jumbled questions); fail twice → the course repeats as a new round
+  (`S1-R1`) with republished assignments. The dashboard shows the standing.
+- **Homework start-gate:** opening the page records nothing; the attempt begins at an
+  explicit Begin behind a one-sitting warning. Abandoning after Begin restarts the
+  attempt and is counted in the report (`restarts`).
+- **Justify-your-answer:** questions flagged `justify: true` demand a typed one-line
+  reason — in homework before continuing, in tests inside the same time limit — stored
+  verbatim (`justification`) for subjective grading.
+- **Buried interleaving:** `new-lesson.js --interleave 0002:q7` copies old questions
+  into today's homework at random positions, unmarked for the learner, marked
+  (`interleaved`) in the report.
+- **Nachweis uploads:** discipline tasks accept a proof file on the dashboard — encrypted
+  client-side and committed to `docs/data/uploads/`, opened only by the teacher
+  (`scripts/read-upload.js`); clearing the block remains a manual teacher act.
 - **Korrektur (ASR model-repeat):** a wrong answer in homework/drills locks the Next
   button until the correct model is typed back `policy.modelRepeat` times; every
   first-try homework miss auto-enrolls in `manifest.corrections` and must be produced
