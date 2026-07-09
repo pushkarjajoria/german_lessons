@@ -6,6 +6,7 @@
 
 import { decryptString } from './crypto.js';
 import { readJson } from './github.js';
+import { conductScore, conductTier } from './conduct.js';
 
 export const CANARY_VALUE = 'german-lessons-canary-v1';
 const SESSION_KEY = 'gl_session_pw';
@@ -72,6 +73,10 @@ export function initLock(onUnlock) {
   const succeed = async (manifest) => {
     el.hidden = true;
     document.querySelector('main').hidden = false;
+    // The room wears the rank (styles.css, body[data-tier]): gold is earned
+    // light, silver a cool polish, black the austere baseline — and the Kegel
+    // der Schande drains every page and writes the lines into the walls.
+    document.body.dataset.tier = conductTier(conductScore(manifest));
     await onUnlock(manifest);
   };
 

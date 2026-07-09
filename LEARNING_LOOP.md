@@ -177,7 +177,13 @@ override; near-duplicates get a warning).
   flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
 - **Betragen (star ladder):** `manifest.conduct` — a 0–100 conduct score starting at
   65, adjusted only by scripts/conduct.js (one ruling per session, reason logged).
-  Dashboard renders the ladder: gold 100 / silver 95+ / black 88+ / cone below.
+  Dashboard shows only the rank currently held (gold 100 / silver 95+ / black 88+ /
+  cone below) plus the next rung's threshold; auth.js stamps `body[data-tier]`
+  sitewide and the CSS gives each tier its own atmosphere — gold: warmed palette +
+  glinting star + soft gold vignette; silver: cool polished palette; black:
+  baseline; cone: drained ashen palette, greyed portrait, a breathing red vignette,
+  and an SVG watermark of punishment lines (SCHANDE / nicht genug / Ich muss besser
+  werden.) tiled across every page (animations respect prefers-reduced-motion).
   Below 60 every page locks; the learner files an apology in German (encrypted
   inline, one per calendar day, chain restarts on a missed day) — three consecutive
   days earn review eligibility on the next lecture day (Mon/Wed 10:00), where the

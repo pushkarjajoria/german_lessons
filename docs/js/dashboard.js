@@ -174,22 +174,17 @@ function fmtLecture(d) {
 function renderConduct(manifest) {
   const score = conductScore(manifest);
   const tier = conductTier(score);
-  const ladder = $('conduct-ladder');
-  ladder.innerHTML = '';
-  for (const t of TIERS) {
-    const row = document.createElement('div');
-    row.className = `ladder-rung ${t.cls} ${t.key === tier ? 'ladder-current' : ''}`;
-    row.innerHTML = `<span class="ladder-glyph">${t.glyph}</span>
-      <span class="ladder-name">${t.label}</span>
-      <span class="ladder-rule">${t.rule}</span>
-      ${t.key === tier ? '<span class="ladder-you">← you</span>' : ''}`;
-    ladder.appendChild(row);
-  }
+  // Only the rank held is displayed — the ones above are earned into view.
+  const info = TIERS.find((t) => t.key === tier);
+  const panel = $('conduct-panel');
+  panel.className = `panel conduct-panel conduct-${tier}`;
+  const glyph = $('rank-glyph');
+  glyph.textContent = info.glyph;
+  glyph.className = `rank-glyph ${info.cls}`;
+  $('rank-name').textContent = info.label;
+  const nextUp = { cone: 'Schwarzer Stern begins at 88.', black: 'Silberner Stern begins at 95.', silver: 'Goldener Stern is 100 — held, not visited.', gold: 'There is nothing above. Hold it.' };
+  $('rank-next').textContent = nextUp[tier];
   $('conduct-score').textContent = score;
-  const tierNames = { gold: 'Goldener Stern', silver: 'Silberner Stern', black: 'Schwarzer Stern', cone: 'Kegel der Schande' };
-  const tierEl = $('conduct-tier');
-  tierEl.textContent = tierNames[tier];
-  tierEl.className = `conduct-tier tier-${tier}`;
   const log = manifest.conduct?.log || [];
   const last = log[log.length - 1];
   $('conduct-last').textContent = last

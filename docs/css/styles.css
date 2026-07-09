@@ -523,46 +523,130 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .model-repeat-status { color: var(--ink); font-size: 0.9rem; min-height: 1.2em; margin: 0.35rem 0 0; }
 .model-repeat-done .model-repeat-label { color: var(--text-dim); }
 
-/* ---------- Betragen: the star ladder ---------- */
+/* ---------- Betragen: the rank held ---------- */
 
-.conduct-layout { display: flex; gap: 1.4rem; align-items: stretch; flex-wrap: wrap; }
-.conduct-ladder {
+.conduct-layout { display: flex; gap: 1.6rem; align-items: center; flex-wrap: wrap; }
+.conduct-rank {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  min-width: 240px;
-  border-right: 1px solid var(--rule);
-  padding-right: 1.2rem;
-}
-.ladder-rung {
-  display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.45rem 0.5rem;
-  border-radius: var(--radius);
-  opacity: 0.45;
+  gap: 0.3rem;
+  min-width: 200px;
+  padding: 0.8rem 1.2rem;
+  border-right: 1px solid var(--rule);
 }
-.ladder-current { opacity: 1; background: var(--bg-inset); outline: 1px solid var(--border); }
-.ladder-glyph { font-size: 1.25rem; line-height: 1; }
-.star-gold .ladder-glyph { color: #d4af37; text-shadow: 0 0 6px rgba(212, 175, 55, 0.45); }
-.star-silver .ladder-glyph { color: #b9bcc4; }
-.star-black .ladder-glyph { color: var(--text); }
-.star-cone .ladder-glyph { color: var(--ink); transform: rotate(180deg); display: inline-block; }
-.ladder-name { font-family: var(--serif); font-size: 0.95rem; }
-.ladder-rule { margin-left: auto; color: var(--text-dim); font-size: 0.78rem; }
-.ladder-you { color: var(--ink); font-size: 0.8rem; white-space: nowrap; }
+.rank-glyph { font-size: 3.4rem; line-height: 1; }
+.rank-glyph.star-gold { color: #d4af37; text-shadow: 0 0 14px rgba(212, 175, 55, 0.5); }
+.rank-glyph.star-silver { color: #b9bcc4; text-shadow: 0 0 8px rgba(185, 188, 196, 0.35); }
+.rank-glyph.star-black { color: var(--text); }
+.rank-glyph.star-cone { color: var(--ink); transform: rotate(180deg); }
+.rank-name { font-family: var(--serif); font-size: 1.15rem; text-align: center; }
+.conduct-gold .rank-name { color: #d4af37; }
+.conduct-silver .rank-name { color: #b9bcc4; }
+.conduct-cone .rank-name { color: var(--ink); }
+.rank-next { font-size: 0.8rem; text-align: center; }
+.conduct-cone { border-left: 4px solid var(--ink); }
 
 .conduct-main { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 0.5rem; }
 .conduct-head { display: flex; gap: 0.9rem; align-items: center; }
 .conduct-head img { width: 64px; height: 80px; object-fit: contain; }
 .conduct-score { font-size: 2.1rem; font-family: var(--serif); margin: 0.1rem 0 0; line-height: 1; }
 .conduct-outof { font-size: 1rem; color: var(--text-dim); }
-.conduct-tier { margin: 0.15rem 0 0; font-size: 0.95rem; letter-spacing: 0.03em; }
-.tier-gold { color: #d4af37; }
-.tier-silver { color: #b9bcc4; }
-.tier-black { color: var(--text); }
-.tier-cone { color: var(--ink); }
 .conduct-last { color: var(--text-dim); font-size: 0.88rem; margin: 0; }
+
+/* ---------- the room wears the rank (body[data-tier], set by auth.js) ----------
+   Black star is the baseline slate above — respectable, unremarkable. The other
+   three tiers are deliberately extreme: the room itself should tell a visitor
+   at a glance whether its student is excelling or in disgrace. */
+
+/* Goldener Stern: earned light. Warmth in the walls, a living star. */
+body[data-tier="gold"] {
+  --bg: #181510;
+  --bg-raised: #201c14;
+  --bg-inset: #2a2418;
+  --border: #4d4128;
+  --rule: #382f1e;
+  --text: #f2ead2;
+  --text-dim: #b3a887;
+  --brass: #e2bc4a;
+  background-image: linear-gradient(rgba(212, 175, 55, 0.035) 1px, transparent 1px);
+}
+body[data-tier="gold"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  box-shadow: inset 0 0 180px 10px rgba(212, 175, 55, 0.10);
+}
+body[data-tier="gold"] .rank-glyph.star-gold { animation: gold-glint 3.5s ease-in-out infinite; }
+@keyframes gold-glint {
+  0%, 100% { text-shadow: 0 0 14px rgba(212, 175, 55, 0.5); }
+  50% { text-shadow: 0 0 30px rgba(212, 175, 55, 0.95), 0 0 60px rgba(212, 175, 55, 0.35); }
+}
+
+/* Silberner Stern: cool polish. Brighter, cleaner, no celebration yet. */
+body[data-tier="silver"] {
+  --bg: #171a20;
+  --bg-raised: #1f232b;
+  --bg-inset: #272c36;
+  --border: #414a5a;
+  --rule: #303743;
+  --text: #eceef2;
+  --text-dim: #a9aeb9;
+  --brass: #c3c7d1;
+  background-image: linear-gradient(rgba(200, 205, 215, 0.03) 1px, transparent 1px);
+}
+
+/* Kegel der Schande: the extreme end. The ivory drains, the brass tarnishes,
+   a red vignette breathes at the edges, and the lines he should be writing
+   are written INTO the walls — SCHANDE, nicht genug, Ich muss besser werden.
+   Only her red pen keeps its color. Climbing out at 88 removes all of it. */
+body[data-tier="cone"] {
+  --bg: #100f0d;
+  --bg-raised: #171512;
+  --bg-inset: #1d1a16;
+  --border: #383129;
+  --rule: #2a2521;
+  --text: #b3a996;
+  --text-dim: #6e675c;
+  --ink: #c23e33;
+  --ink-soft: rgba(194, 62, 51, 0.16);
+  --approve: #6b7d63;
+  --brass: #837553;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='340'%3E%3Cg transform='rotate(-16 230 170)' font-family='Georgia,serif'%3E%3Ctext x='18' y='120' font-size='58' font-weight='bold' fill='rgba(194,62,51,0.055)'%3ESCHANDE%3C/text%3E%3Ctext x='150' y='190' font-size='26' font-style='italic' fill='rgba(179,169,150,0.05)'%3Enicht genug%3C/text%3E%3Ctext x='36' y='268' font-size='24' font-style='italic' fill='rgba(179,169,150,0.045)'%3EIch muss besser werden.%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(rgba(179, 169, 150, 0.018) 1px, transparent 1px);
+  background-size: 460px 340px, 100% 34px;
+}
+body[data-tier="cone"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  box-shadow: inset 0 0 140px 24px rgba(150, 25, 12, 0.22);
+  animation: shame-breathe 7s ease-in-out infinite;
+}
+@keyframes shame-breathe {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+body[data-tier="cone"] .brand img,
+body[data-tier="cone"] #verdict-portrait,
+body[data-tier="cone"] #reader-portrait {
+  filter: grayscale(0.65) brightness(0.85); /* she does not look at you warmly */
+}
+body[data-tier="cone"] .rank-glyph.star-cone { animation: cone-throb 2.8s ease-in-out infinite; }
+@keyframes cone-throb {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+body[data-tier="cone"] h1, body[data-tier="cone"] h2 { color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-tier="cone"]::after, .rank-glyph { animation: none !important; }
+}
 
 /* ---------- Anträge ---------- */
 
