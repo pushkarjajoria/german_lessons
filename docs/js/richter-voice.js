@@ -220,6 +220,7 @@ export const STRINGS = {
     disciplineClaim: 'I have done this — submit for her review',
     disciplineClaimed: 'Submitted for review. She decides, not the button.',
     disciplineFoot: 'Homework and tests stay locked until Frau Richter clears this. Completing the tasks is how you reopen the course.',
+    coneVerdict: 'I am disappointed — not angry, disappointed, which is worse. This is not who you are when you actually work. Climb out before you mistake the cone for your ceiling.',
   },
   de: {
     deskNote: (date) => `Von ihrem Schreibtisch — ${date}`,
@@ -231,5 +232,6 @@ export const STRINGS = {
     disciplineClaim: 'Erledigt — zur Kontrolle einreichen',
     disciplineClaimed: 'Zur Kontrolle eingereicht. Sie entscheidet, nicht der Knopf.',
     disciplineFoot: 'Hausaufgaben und Tests bleiben gesperrt, bis Frau Richter das hier aufhebt. Die Aufgaben zu erledigen ist der einzige Weg zurück.',
+    coneVerdict: 'Ich bin enttäuscht — nicht wütend, enttäuscht, was schlimmer ist. So bist du nicht, wenn du wirklich arbeitest. Steig heraus, bevor du den Kegel für deine Decke hältst.',
   },
 };

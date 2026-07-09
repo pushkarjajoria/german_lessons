@@ -554,6 +554,18 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .conduct-outof { font-size: 1rem; color: var(--text-dim); }
 .conduct-last { color: var(--text-dim); font-size: 0.88rem; margin: 0; }
 
+/* Her disappointment, stated plainly at the top of the verdict — cone tier only. */
+.cone-verdict-header {
+  margin: 0 0 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--ink);
+  background: var(--ink-soft);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.02rem;
+}
+
 /* ---------- the room wears the rank (body[data-tier], set by auth.js) ----------
    Black star is the baseline slate above — respectable, unremarkable. The other
    three tiers are deliberately extreme: the room itself should tell a visitor
@@ -600,8 +612,10 @@ body[data-tier="silver"] {
 
 /* Kegel der Schande: the extreme end. The ivory drains, the brass tarnishes,
    a red vignette breathes at the edges, and the lines he should be writing
-   are written INTO the walls — SCHANDE, nicht genug, Ich muss besser werden.
-   Only her red pen keeps its color. Climbing out at 88 removes all of it. */
+   are written INTO the walls — SCHANDE, her own disappointment stated
+   plainly, nicht genug, Ich muss besser werden. Legible on purpose now: this
+   is meant to be read, not merely sensed. Only her red pen keeps its color.
+   Climbing out at 88 removes all of it. */
 body[data-tier="cone"] {
   --bg: #100f0d;
   --bg-raised: #171512;
@@ -615,9 +629,9 @@ body[data-tier="cone"] {
   --approve: #6b7d63;
   --brass: #837553;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='340'%3E%3Cg transform='rotate(-16 230 170)' font-family='Georgia,serif'%3E%3Ctext x='18' y='120' font-size='58' font-weight='bold' fill='rgba(194,62,51,0.055)'%3ESCHANDE%3C/text%3E%3Ctext x='150' y='190' font-size='26' font-style='italic' fill='rgba(179,169,150,0.05)'%3Enicht genug%3C/text%3E%3Ctext x='36' y='268' font-size='24' font-style='italic' fill='rgba(179,169,150,0.045)'%3EIch muss besser werden.%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='420'%3E%3Cg transform='rotate(-16 280 210)' font-family='Georgia,serif'%3E%3Ctext x='10' y='110' font-size='64' font-weight='bold' fill='rgba(194,62,51,0.30)'%3ESCHANDE%3C/text%3E%3Ctext x='26' y='170' font-size='30' font-style='italic' font-weight='bold' fill='rgba(194,62,51,0.26)'%3EIch bin entt%C3%A4uscht.%3C/text%3E%3Ctext x='148' y='232' font-size='28' font-style='italic' fill='rgba(217,208,190,0.24)'%3Enicht genug%3C/text%3E%3Ctext x='20' y='312' font-size='26' font-style='italic' fill='rgba(217,208,190,0.22)'%3EIch muss besser werden.%3C/text%3E%3C/g%3E%3C/svg%3E"),
     linear-gradient(rgba(179, 169, 150, 0.018) 1px, transparent 1px);
-  background-size: 460px 340px, 100% 34px;
+  background-size: 560px 420px, 100% 34px;
 }
 body[data-tier="cone"]::after {
   content: '';

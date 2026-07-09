@@ -416,6 +416,12 @@ function render(manifest) {
     : '<p class="muted">No flagged weaknesses — yet. The test comes with the data.</p>';
 
   $('verdict').textContent = verdict(manifest, weak, LANG);
+  // Kegel der Schande: her disappointment is stated in words, at the top of
+  // the verdict, not just implied by the room's color.
+  const coneHeader = $('cone-verdict-header');
+  const inCone = conductTier(conductScore(manifest)) === 'cone';
+  coneHeader.hidden = !inCone;
+  if (inCone) coneHeader.textContent = STRINGS[LANG].coneVerdict;
 
   renderTests(manifest);
 
