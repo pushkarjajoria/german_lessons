@@ -2,11 +2,11 @@
   "currentLessonId": "0003",
   "currentHomeworkId": "0003",
   "counters": {
-    "lessonsCompleted": 1,
-    "totalQuestions": 10,
-    "totalCorrect": 5,
+    "lessonsCompleted": 2,
+    "totalQuestions": 21,
+    "totalCorrect": 15,
     "streakDays": 1,
-    "lastPracticed": "2026-07-06T15:39:09.699Z"
+    "lastPracticed": "2026-07-09T09:56:37.324Z"
   },
   "history": [
     {
@@ -81,6 +81,77 @@
         "Konjugation",
         "Hörverstehen",
         "Produktion"
+      ]
+    },
+    {
+      "reportId": "0003",
+      "homeworkId": "0003",
+      "title": "Nachbesserung — The Coffee Order, Tightened",
+      "date": "2026-07-09T09:56:37.324Z",
+      "startedAt": "2026-07-09T09:54:37.160Z",
+      "durationSec": 120,
+      "totalQuestions": 11,
+      "firstTryCorrect": 10,
+      "eventualCorrect": 11,
+      "totalAttempts": 12,
+      "reworkRatio": 1.09,
+      "avgFirstAnswerLatencySec": 9.2,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 0,
+      "categoryAttempts": {
+        "Konjugation": {
+          "attempts": 3,
+          "count": 2
+        },
+        "Redemittel": {
+          "attempts": 3,
+          "count": 3
+        },
+        "Produktion": {
+          "attempts": 2,
+          "count": 2
+        },
+        "Hörverstehen": {
+          "attempts": 2,
+          "count": 2
+        },
+        "Wortstellung": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Vokabular": {
+          "attempts": 1,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Konjugation": {
+          "correct": 1,
+          "total": 2
+        },
+        "Redemittel": {
+          "correct": 3,
+          "total": 3
+        },
+        "Produktion": {
+          "correct": 2,
+          "total": 2
+        },
+        "Hörverstehen": {
+          "correct": 2,
+          "total": 2
+        },
+        "Wortstellung": {
+          "correct": 1,
+          "total": 1
+        },
+        "Vokabular": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Konjugation"
       ]
     }
   ],
@@ -207,6 +278,19 @@
       "lastPassedAt": "2026-07-09T08:02:38.636Z",
       "status": "cleared",
       "clearedAt": "2026-07-09T08:02:38.636Z"
+    },
+    {
+      "key": "0003:q1",
+      "hwId": "0003",
+      "qid": "q1",
+      "category": "Konjugation",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-09T09:56:37.324Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ]
 }
