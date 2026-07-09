@@ -5,7 +5,8 @@
 // decided the learner can handle (manifest.verdictLang, see richter-voice.js).
 
 import { initLock, initLockButton, getPassword } from './auth.js';
-import { encryptString } from './crypto.js';
+import { encryptString, decryptString } from './crypto.js';
+import { conductScore, conductTier, conductLocked, TIERS, apologyStatus, localDate, nextLecture } from './conduct.js';
 import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfeits } from './tests-common.js';
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
@@ -161,6 +162,147 @@ function renderKorrektur(manifest) {
   }
 }
 
+// ---------- Betragen: the star ladder ----------
+// Only her hand moves the score (scripts/conduct.js). The site renders the
+// ladder, and below 60 it closes the course until the apologies are written
+// and she has ruled on them.
+
+function fmtLecture(d) {
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }) + ', 10:00';
+}
+
+function renderConduct(manifest) {
+  const score = conductScore(manifest);
+  const tier = conductTier(score);
+  const ladder = $('conduct-ladder');
+  ladder.innerHTML = '';
+  for (const t of TIERS) {
+    const row = document.createElement('div');
+    row.className = `ladder-rung ${t.cls} ${t.key === tier ? 'ladder-current' : ''}`;
+    row.innerHTML = `<span class="ladder-glyph">${t.glyph}</span>
+      <span class="ladder-name">${t.label}</span>
+      <span class="ladder-rule">${t.rule}</span>
+      ${t.key === tier ? '<span class="ladder-you">← you</span>' : ''}`;
+    ladder.appendChild(row);
+  }
+  $('conduct-score').textContent = score;
+  const tierNames = { gold: 'Goldener Stern', silver: 'Silberner Stern', black: 'Schwarzer Stern', cone: 'Kegel der Schande' };
+  const tierEl = $('conduct-tier');
+  tierEl.textContent = tierNames[tier];
+  tierEl.className = `conduct-tier tier-${tier}`;
+  const log = manifest.conduct?.log || [];
+  const last = log[log.length - 1];
+  $('conduct-last').textContent = last
+    ? `Last ruling: ${last.delta > 0 ? '+' : ''}${last.delta} — ${last.reason} (${fmtDate(last.date)})`
+    : 'No rulings yet. The score starts at 65 — everything above it is earned, nothing is given.';
+
+  // Lock panel + apology machinery
+  const lockPanel = $('conduct-lock-panel');
+  if (!conductLocked(manifest)) { lockPanel.hidden = true; return; }
+  lockPanel.hidden = false;
+  const st = apologyStatus(manifest);
+  $('lock-reason').textContent =
+    `Betragen ${score}/100. The course is closed. The way back: a written apology, in German, in full sentences, ` +
+    `on three consecutive days. Then I review it on the next lecture day — Monday or Wednesday, 10:00. Not before.`;
+  if (st.extraTasks) {
+    const ex = $('apology-extra');
+    ex.hidden = false;
+    ex.textContent = `Her last rejection carried conditions: ${st.extraTasks}`;
+  }
+  const prog = $('apology-progress');
+  if (st.complete) {
+    prog.textContent = `Apologies ${st.chain.length}/3 — complete. Eligible for review: ${fmtLecture(st.eligibleAt)}. She decides then.`;
+    $('apology-text').disabled = false; // further apologies are permitted, not required
+  } else if (st.doneToday) {
+    prog.textContent = `Apology ${st.chain.length}/3 recorded for today. Tomorrow the next one — a missed day starts the count over.`;
+    $('apology-text').disabled = true;
+    $('apology-submit').disabled = true;
+  } else {
+    prog.textContent = st.chain.length
+      ? `Apologies: ${st.chain.length}/3. Today's is due.`
+      : 'Apologies: 0/3. Begin today — a missed day starts the count over.';
+  }
+
+  $('apology-submit').onclick = async () => {
+    const msg = $('apology-msg');
+    const text = $('apology-text').value.trim();
+    if (text.length < 100) { msg.textContent = 'Too short for an apology that means anything. Full sentences, auf Deutsch.'; return; }
+    if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the apology cannot be filed.'; return; }
+    $('apology-submit').disabled = true;
+    msg.textContent = 'Filing…';
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.conduct ||= { score, log: [] };
+      fresh.conduct.lock ||= { active: true, since: new Date().toISOString(), apologies: [] };
+      const lock = fresh.conduct.lock;
+      const today = localDate();
+      if (lock.apologies.some((a) => a.date === today)) throw new Error('Already filed today. Tomorrow.');
+      lock.apologies.push({ date: today, enc: await encryptString(getPassword(), text) });
+      const chainNow = apologyStatus(fresh).chain;
+      if (chainNow.length >= 3 && !lock.eligibleAt) lock.eligibleAt = nextLecture().toISOString();
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
+        `conduct: apology ${Math.min(chainNow.length, 3)}/3 filed`);
+      manifest.conduct = fresh.conduct;
+      $('apology-text').value = '';
+      renderConduct(manifest);
+    } catch (e) {
+      $('apology-submit').disabled = false;
+      msg.textContent = e.message;
+    }
+  };
+}
+
+// ---------- Anträge: formal requests ----------
+// Written politely, encrypted at rest (public repo), ruled on at her desk
+// (scripts/requests.js). Tone counts toward Betragen — the docs say so.
+
+async function renderRequests(manifest) {
+  const list = $('requests-list');
+  list.innerHTML = '';
+  const items = (manifest.requests || []).slice(-6).reverse();
+  for (const r of items) {
+    let text = '';
+    try { text = await decryptString(getPassword(), r.enc); } catch { text = '(unreadable)'; }
+    const row = document.createElement('div');
+    row.className = 'request-row';
+    const chip = r.status === 'granted' ? '<span class="chip">granted</span>'
+      : r.status === 'declined' ? '<span class="chip chip-weak">declined</span>'
+      : '<span class="chip">pending — awaits her desk</span>';
+    row.innerHTML = `
+      <p class="request-text">„${text.slice(0, 160)}${text.length > 160 ? '…' : ''}“ <span class="muted">(${fmtDate(r.date)})</span></p>
+      <p class="request-ruling">${chip}${r.response ? ` <span class="request-response">— ${r.response}</span>` : ''}</p>`;
+    list.appendChild(row);
+  }
+
+  $('request-submit').onclick = async () => {
+    const msg = $('request-msg');
+    const text = $('request-text').value.trim();
+    if (text.length < 20) { msg.textContent = 'A formal request has substance and courtesy. Write it properly.'; return; }
+    if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the request cannot be filed.'; return; }
+    $('request-submit').disabled = true;
+    msg.textContent = 'Filing…';
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.requests ||= [];
+      fresh.requests.push({
+        id: `r${Date.now()}`,
+        date: new Date().toISOString(),
+        enc: await encryptString(getPassword(), text),
+        status: 'pending',
+      });
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'antrag: formal request filed');
+      manifest.requests = fresh.requests;
+      $('request-text').value = '';
+      msg.textContent = 'Filed. She rules on it at her desk — next session at the latest.';
+      $('request-submit').disabled = false;
+      renderRequests(manifest);
+    } catch (e) {
+      $('request-submit').disabled = false;
+      msg.textContent = e.message;
+    }
+  };
+}
+
 // ---------- semester panel ----------
 // Quizzes (40%) + one long final (60%), her weights. Standing shown as it
 // accumulates; a failed final shows the retake countdown; a second failure
@@ -237,8 +379,10 @@ function render(manifest) {
   const S = STRINGS[LANG];
 
   renderDiscipline(manifest);
+  renderConduct(manifest);
   renderKorrektur(manifest);
   renderSemester(manifest);
+  renderRequests(manifest);
 
   $('stat-streak').textContent = counters.streakDays || 0;
   $('stat-lessons').textContent = counters.lessonsCompleted || 0;
@@ -310,9 +454,10 @@ function render(manifest) {
     recentWrap.appendChild(li);
   }
 
-  // CTA vs. empty state — suppressed entirely while the course is halted.
+  // CTA vs. empty state — suppressed entirely while the course is halted or
+  // conduct-locked (the apology panel above is the only way forward).
   const cta = $('cta');
-  if (manifest.discipline?.active) {
+  if (manifest.discipline?.active || conductLocked(manifest)) {
     cta.innerHTML = '';
     return;
   }

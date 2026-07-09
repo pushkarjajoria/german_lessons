@@ -8,6 +8,7 @@ import { initLock, initLockButton, getPassword } from './auth.js';
 import * as gh from './github.js';
 import { renderMarkdown, parseFrontMatter } from './markdown.js';
 import { loadPortrait } from './portrait.js';
+import { conductLocked, conductScore } from './conduct.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -105,6 +106,13 @@ function renderTree(manifest) {
 
 initLockButton();
 initLock(async (manifest) => {
+  // Conduct lock: below 60 the whole site closes — reading included.
+  if (conductLocked(manifest)) {
+    $('lesson-tree').innerHTML =
+      `<p class="lock-error">Gesperrt. Betragen ${conductScore(manifest)}/100 — the course is closed until the apologies are written and reviewed (dashboard).</p>`;
+    loadPortrait($('reader-portrait'));
+    return;
+  }
   renderTree(manifest);
   loadPortrait($('reader-portrait'));
 });

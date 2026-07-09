@@ -8,6 +8,7 @@ import { initLock, getPassword } from './auth.js';
 import * as gh from './github.js';
 import { gradeObjective } from './checking.js';
 import { getTests, markerKey, deriveStatus, deriveForfeitReason, commitForfeit, fmtDeadline } from './tests-common.js';
+import { conductLocked, conductScore } from './conduct.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -76,6 +77,13 @@ function endScreen(title, text, statusMsg = '', ok = true) {
 
 initLock(async (manifest) => {
   state.manifest = manifest;
+  // Conduct lock: Betragen below 60 closes everything, tests included.
+  if (conductLocked(manifest)) {
+    endScreen('Gesperrt.',
+      `Betragen ${conductScore(manifest)}/100. No tests while the course is closed. The apologies come first — dashboard, one per day, three days.`,
+      '', false);
+    return;
+  }
   // Course halted — tests are locked exactly like homework.
   if (manifest.discipline?.active) {
     endScreen('The course is halted.',

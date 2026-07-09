@@ -16,6 +16,7 @@ import { initLock, initLockButton, getPassword } from './auth.js';
 import * as gh from './github.js';
 import { checkTextAnswerDetailed } from './checking.js';
 import { getPolicy, attachModelRepeat, openCorrections, eligibleNow, nextEligibleAt } from './corrections.js';
+import { conductLocked, conductScore } from './conduct.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -696,6 +697,14 @@ function refreshKorrekturCard() {
 
 initLockButton();
 initLock(async (manifest) => {
+  // Conduct lock: below 60 even the drills close — the apologies come first.
+  if (conductLocked(manifest)) {
+    $('mode-select').innerHTML =
+      `<h1 class="hw-title">Gesperrt.</h1>
+       <p class="lock-error">Betragen ${conductScore(manifest)}/100. The course is closed, drills included.
+       The apology panel is on the dashboard — one per day, three days in a row. Then I review.</p>`;
+    return;
+  }
   $('again-btn').addEventListener('click', () => {
     $('summary-area').hidden = true;
     if (lastMode === 'vocab') startVocab();

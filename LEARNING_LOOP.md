@@ -175,6 +175,18 @@ override; near-duplicates get a warning).
 - **Verdict language:** the dashboard's computed verdict/notes exist in English and
   German (`docs/js/richter-voice.js`); `manifest.verdictLang` decides which renders,
   flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
+- **Betragen (star ladder):** `manifest.conduct` — a 0–100 conduct score starting at
+  65, adjusted only by scripts/conduct.js (one ruling per session, reason logged).
+  Dashboard renders the ladder: gold 100 / silver 95+ / black 88+ / cone below.
+  Below 60 every page locks; the learner files an apology in German (encrypted
+  inline, one per calendar day, chain restarts on a missed day) — three consecutive
+  days earn review eligibility on the next lecture day (Mon/Wed 10:00), where the
+  teacher accepts (score → 65, unlock) or rejects with conditions (count restarts).
+- **Anträge (formal requests):** dashboard form → `manifest.requests[]` (text
+  encrypted inline, status/response plaintext); scripts/requests.js decrypts and
+  records grant/decline with a one-sentence ruling. Persona: lecture hours Mon/Wed
+  10:00–12:00 CEST; off-hours questions are redirected to the form; tone feeds the
+  conduct score.
 - **Surprise test repertoire:** two test-only question types — `multi_select`
   (options[] + answerIndexes[], exact set match) and `click_mistake` (tokens[] +
   mistakeIndex) — plus per-test `negativeMarking` (wrong option pick costs 1/n of a

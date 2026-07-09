@@ -523,6 +523,55 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .model-repeat-status { color: var(--ink); font-size: 0.9rem; min-height: 1.2em; margin: 0.35rem 0 0; }
 .model-repeat-done .model-repeat-label { color: var(--text-dim); }
 
+/* ---------- Betragen: the star ladder ---------- */
+
+.conduct-layout { display: flex; gap: 1.4rem; align-items: stretch; flex-wrap: wrap; }
+.conduct-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 240px;
+  border-right: 1px solid var(--rule);
+  padding-right: 1.2rem;
+}
+.ladder-rung {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: var(--radius);
+  opacity: 0.45;
+}
+.ladder-current { opacity: 1; background: var(--bg-inset); outline: 1px solid var(--border); }
+.ladder-glyph { font-size: 1.25rem; line-height: 1; }
+.star-gold .ladder-glyph { color: #d4af37; text-shadow: 0 0 6px rgba(212, 175, 55, 0.45); }
+.star-silver .ladder-glyph { color: #b9bcc4; }
+.star-black .ladder-glyph { color: var(--text); }
+.star-cone .ladder-glyph { color: var(--ink); transform: rotate(180deg); display: inline-block; }
+.ladder-name { font-family: var(--serif); font-size: 0.95rem; }
+.ladder-rule { margin-left: auto; color: var(--text-dim); font-size: 0.78rem; }
+.ladder-you { color: var(--ink); font-size: 0.8rem; white-space: nowrap; }
+
+.conduct-main { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 0.5rem; }
+.conduct-head { display: flex; gap: 0.9rem; align-items: center; }
+.conduct-head img { width: 64px; height: 80px; object-fit: contain; }
+.conduct-score { font-size: 2.1rem; font-family: var(--serif); margin: 0.1rem 0 0; line-height: 1; }
+.conduct-outof { font-size: 1rem; color: var(--text-dim); }
+.conduct-tier { margin: 0.15rem 0 0; font-size: 0.95rem; letter-spacing: 0.03em; }
+.tier-gold { color: #d4af37; }
+.tier-silver { color: #b9bcc4; }
+.tier-black { color: var(--text); }
+.tier-cone { color: var(--ink); }
+.conduct-last { color: var(--text-dim); font-size: 0.88rem; margin: 0; }
+
+/* ---------- Anträge ---------- */
+
+.request-row { border-bottom: 1px solid var(--rule); padding: 0.55rem 0; }
+.request-row:last-child { border-bottom: none; }
+.request-text { margin: 0 0 0.3rem; font-size: 0.95rem; }
+.request-ruling { margin: 0; font-size: 0.9rem; }
+.request-response { font-family: var(--serif); }
+
 /* ---------- test surprise repertoire ---------- */
 
 .skip-btn { color: var(--text-dim); font-size: 0.88rem; }

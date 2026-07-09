@@ -30,11 +30,40 @@
       <p class="muted" id="discipline-foot"></p>
     </section>
 
-    <section class="verdict">
-      <img src="img/richter.svg" alt="" id="verdict-portrait" />
-      <div>
-        <p class="verdict-label">Frau Richter's verdict</p>
-        <p class="verdict-text" id="verdict"></p>
+    <!-- The star ladder: Betragen (conduct), 0–100, moved only by her hand.
+         The golden star sits at the top of the page for a reason. -->
+    <section class="panel conduct-panel" id="conduct-panel">
+      <div class="conduct-layout">
+        <div class="conduct-ladder" id="conduct-ladder"></div>
+        <div class="conduct-main">
+          <div class="conduct-head">
+            <img src="img/richter.svg" alt="" id="verdict-portrait" />
+            <div>
+              <p class="verdict-label" id="conduct-label">Betragen</p>
+              <p class="conduct-score"><span id="conduct-score">–</span><span class="conduct-outof">/100</span></p>
+              <p class="conduct-tier" id="conduct-tier"></p>
+            </div>
+          </div>
+          <p class="verdict-text" id="verdict"></p>
+          <p class="conduct-last" id="conduct-last"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Conduct lock: below 60 the site closes. Three consecutive days of a
+         written apology in German buy a review on the next lecture day. -->
+    <section class="panel discipline-panel" id="conduct-lock-panel" hidden>
+      <h2>Gesperrt. Betragen unter 60.</h2>
+      <p class="discipline-reason" id="lock-reason"></p>
+      <div id="apology-area">
+        <p class="note-label" id="apology-progress"></p>
+        <p class="muted" id="apology-extra" hidden></p>
+        <textarea id="apology-text" class="justify-input" rows="5"
+          placeholder="Sehr geehrte Frau Richter, es tut mir leid, dass …  (auf Deutsch, in ganzen Sätzen)"></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="apology-submit">Submit today's apology</button>
+        </div>
+        <p class="model-repeat-status" id="apology-msg"></p>
       </div>
     </section>
 
@@ -112,6 +141,22 @@
     <section class="panel">
       <h2>Recent sessions</h2>
       <div id="recent"></div>
+    </section>
+
+    <!-- Anträge: formal written requests, processed at her desk. Off-hours
+         questions belong here or in the lecture (Mon & Wed 10:00–12:00). -->
+    <section class="panel" id="requests-panel">
+      <h2>Anträge — formal requests</h2>
+      <p class="muted">Frau Richter holds lecture Monday and Wednesday, 10:00–12:00. Outside those hours she
+      does not entertain questions — submit a formal, polite request here and she rules on it at her desk.
+      Tone counts toward Betragen.</p>
+      <div id="requests-list"></div>
+      <textarea id="request-text" class="justify-input" rows="3"
+        placeholder="Sehr geehrte Frau Richter, ich möchte höflich darum bitten, dass …"></textarea>
+      <div class="btn-row">
+        <button class="btn" id="request-submit">Submit request</button>
+      </div>
+      <p class="model-repeat-status" id="request-msg"></p>
     </section>
   </main>
 
