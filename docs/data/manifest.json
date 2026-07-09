@@ -249,6 +249,13 @@
       "items": 2,
       "firstTry": 2,
       "durationSec": 11
+    },
+    {
+      "date": "2026-07-09T09:57:23.662Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 0,
+      "durationSec": 24
     }
   ],
   "corrections": [
