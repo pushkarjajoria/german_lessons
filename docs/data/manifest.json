@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0003",
-  "currentHomeworkId": "0003",
+  "currentLessonId": "0004",
+  "currentHomeworkId": "0004",
   "counters": {
     "lessonsCompleted": 2,
     "totalQuestions": 21,
@@ -167,6 +167,12 @@
       "title": "Nachbesserung — The Coffee Order, Tightened",
       "section": "Phase 0 — Ignition",
       "subsection": "Coffee"
+    },
+    {
+      "id": "0004",
+      "title": "Im Supermarkt — Finding Things & Paying",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Supermarkt"
     }
   ],
   "tests": [],
@@ -177,13 +183,11 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-08T09:32:59.307Z",
-    "text": "Report 0002: half right first try, the rest ground out — honest work, not laziness, and you drilled unprompted. Noted. But 'eventually correct' is no standard at a counter. Today rebuilds the four weak spots: möchtest (left blank), the lifelines (all German — no 'Slower, bitte'), prices by ear (15 is not 50), and building 'mit …' orders yourself. — I. R.",
+    "date": "2026-07-10T10:48:25.189Z",
+    "text": "Report 0003: 10/11 first-try, fast, no hints — a real jump from 5/10, and the English-fallback reflex stayed away. One slip: the du-form (möchtest → möchte), now in your Korrektur queue until you produce it cold. New room: Supermarkt, and a first look at der→den. Konjugation and Kasus are the front. Order at the till in German — I will ask how it went.",
     "weakAreas": [
       "Konjugation",
-      "Redemittel",
-      "Hörverstehen",
-      "Produktion"
+      "Kasus"
     ]
   },
   "practiceLog": [
@@ -329,5 +333,17 @@
       "status": "cleared",
       "clearedAt": "2026-07-10T07:49:31.774Z"
     }
-  ]
+  ],
+  "conduct": {
+    "score": 68,
+    "log": [
+      {
+        "date": "2026-07-10T10:47:58.358Z",
+        "delta": 3,
+        "score": 68,
+        "reason": "Report 0003: 5/10 to 10/11 first-try, no hints, English-fallback reflex broken; unprompted drilling continued. +3 only — the du-form still slid and the real-world deed is unreported."
+      }
+    ],
+    "updatedAt": "2026-07-10T10:47:58.358Z"
+  }
 }
