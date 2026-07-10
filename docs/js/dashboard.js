@@ -182,7 +182,7 @@ function renderConduct(manifest) {
   glyph.textContent = info.glyph;
   glyph.className = `rank-glyph ${info.cls}`;
   $('rank-name').textContent = info.label;
-  const nextUp = { cone: 'Schwarzer Stern begins at 88.', black: 'Silberner Stern begins at 95.', silver: 'Goldener Stern is 100 — held, not visited.', gold: 'There is nothing above. Hold it.' };
+  const nextUp = { cone: 'Schwarzer Stern begins at 65.', black: 'Silberner Stern begins at 80.', silver: 'Goldener Stern begins at 95.', gold: 'There is nothing above. Hold it.' };
   $('rank-next').textContent = nextUp[tier];
   $('conduct-score').textContent = score;
   const log = manifest.conduct?.log || [];

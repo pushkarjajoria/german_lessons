@@ -3,8 +3,8 @@
 // The site renders it as the star ladder and closes below 60; only this
 // script moves the number.
 //
-//   100     Goldener Stern      95+  Silberner Stern
-//   88+     Schwarzer Stern     <88  Kegel der Schande
+//   95-100  Goldener Stern      80+  Silberner Stern
+//   65+     Schwarzer Stern     <65  Kegel der Schande
 //   <60     site locked — 3 consecutive daily apologies (German) buy a
 //           review on the next lecture day; accept → 65, reject → conditions.
 //
@@ -39,7 +39,7 @@ const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 manifest.conduct ||= { score: 65, log: [] };
 const c = manifest.conduct;
 
-const tierOf = (s) => (s >= 100 ? 'Goldener Stern' : s >= 95 ? 'Silberner Stern' : s >= 88 ? 'Schwarzer Stern' : 'Kegel der Schande');
+const tierOf = (s) => (s >= 95 ? 'Goldener Stern' : s >= 80 ? 'Silberner Stern' : s >= 65 ? 'Schwarzer Stern' : 'Kegel der Schande');
 
 if (args.includes('--show')) {
   console.log(`Betragen: ${c.score}/100 — ${tierOf(c.score)}${c.score < 60 ? ' — SITE LOCKED' : ''}`);

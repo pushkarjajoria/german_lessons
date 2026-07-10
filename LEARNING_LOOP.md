@@ -177,8 +177,8 @@ override; near-duplicates get a warning).
   flipped by `scripts/teacher-note.js --lang de|en` at the teacher's discretion.
 - **Betragen (star ladder):** `manifest.conduct` — a 0–100 conduct score starting at
   65, adjusted only by scripts/conduct.js (one ruling per session, reason logged).
-  Dashboard shows only the rank currently held (gold 100 / silver 95+ / black 88+ /
-  cone below) plus the next rung's threshold; auth.js stamps `body[data-tier]`
+  Dashboard shows only the rank currently held (gold 95–100 / silver 80–94 /
+  black 65–79 / cone below 65) plus the next rung's threshold; auth.js stamps `body[data-tier]`
   sitewide and the CSS gives each tier its own atmosphere — gold: warmed palette +
   glinting star + soft gold vignette; silver: cool polished palette; black:
   baseline; cone: drained ashen palette, greyed portrait, a breathing red vignette,

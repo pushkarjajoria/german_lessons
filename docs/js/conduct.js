@@ -2,10 +2,10 @@
 // moves (scripts/conduct.js), rendered as the star ladder at the top of the
 // dashboard. It starts at 65 and is earned upward slowly:
 //
-//   100        Goldener Stern   — perfection held, not visited
-//   95–99      Silberner Stern
-//   88–94      Schwarzer Stern
-//   below 88   Kegel der Schande — with comments on behaviour and performance
+//   95–100     Goldener Stern
+//   80–94      Silberner Stern
+//   65–79      Schwarzer Stern
+//   below 65   Kegel der Schande — with comments on behaviour and performance
 //   below 60   the site LOCKS: three consecutive days of a written apology in
 //              German buy eligibility for review on the next lecture day;
 //              she accepts (score back to 65) or rejects with extra tasks.
@@ -22,17 +22,17 @@ export function conductScore(manifest) {
 }
 
 export function conductTier(score) {
-  if (score >= 100) return 'gold';
-  if (score >= 95) return 'silver';
-  if (score >= 88) return 'black';
+  if (score >= 95) return 'gold';
+  if (score >= 80) return 'silver';
+  if (score >= 65) return 'black';
   return 'cone';
 }
 
 export const TIERS = [
-  { key: 'gold', label: 'Goldener Stern', rule: '100', glyph: '★', cls: 'star-gold' },
-  { key: 'silver', label: 'Silberner Stern', rule: '95+', glyph: '★', cls: 'star-silver' },
-  { key: 'black', label: 'Schwarzer Stern', rule: '88+', glyph: '★', cls: 'star-black' },
-  { key: 'cone', label: 'Kegel der Schande', rule: 'below 88', glyph: '▲', cls: 'star-cone' },
+  { key: 'gold', label: 'Goldener Stern', rule: '95–100', glyph: '★', cls: 'star-gold' },
+  { key: 'silver', label: 'Silberner Stern', rule: '80–94', glyph: '★', cls: 'star-silver' },
+  { key: 'black', label: 'Schwarzer Stern', rule: '65–79', glyph: '★', cls: 'star-black' },
+  { key: 'cone', label: 'Kegel der Schande', rule: 'below 65', glyph: '▲', cls: 'star-cone' },
 ];
 
 export function conductLocked(manifest) {
