@@ -277,6 +277,13 @@
       "items": 2,
       "firstTry": 2,
       "durationSec": 20
+    },
+    {
+      "date": "2026-07-10T07:51:04.295Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 10,
+      "durationSec": 70
     }
   ],
   "corrections": [
