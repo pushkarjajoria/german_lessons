@@ -263,6 +263,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 4
+    },
+    {
+      "date": "2026-07-10T07:49:30.300Z",
+      "mode": "korrektur",
+      "items": 2,
+      "firstTry": 2,
+      "durationSec": 18
     }
   ],
   "corrections": [
@@ -275,9 +282,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-08T09:32:59.345Z",
       "required": 4,
-      "doneCount": 3,
-      "lastPassedAt": "2026-07-09T08:02:38.636Z",
-      "status": "open"
+      "doneCount": 4,
+      "lastPassedAt": "2026-07-10T07:49:30.300Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-10T07:49:30.300Z"
     },
     {
       "key": "0002:q7",
@@ -302,8 +310,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-09T09:56:37.324Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-09T09:57:32.067Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-10T07:49:30.300Z",
       "status": "open"
     }
   ]
