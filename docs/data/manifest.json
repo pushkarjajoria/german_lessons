@@ -270,6 +270,13 @@
       "items": 2,
       "firstTry": 2,
       "durationSec": 18
+    },
+    {
+      "date": "2026-07-10T07:49:31.774Z",
+      "mode": "korrektur",
+      "items": 2,
+      "firstTry": 2,
+      "durationSec": 20
     }
   ],
   "corrections": [
@@ -310,9 +317,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-09T09:56:37.324Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-10T07:49:30.300Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-10T07:49:31.774Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-10T07:49:31.774Z"
     }
   ]
 }
