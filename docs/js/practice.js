@@ -15,7 +15,7 @@ import { decryptString } from './crypto.js';
 import { initLock, initLockButton, getPassword } from './auth.js';
 import * as gh from './github.js';
 import { checkTextAnswerDetailed } from './checking.js';
-import { getPolicy, attachModelRepeat, openCorrections, eligibleNow, nextEligibleAt } from './corrections.js';
+import { getPolicy, attachModelRepeat, openCorrections, eligibleNow, nextEligibleAt, freezeQuestionArea } from './corrections.js';
 import { conductLocked, conductScore } from './conduct.js';
 
 const $ = (id) => document.getElementById(id);
@@ -418,6 +418,8 @@ function correctDisplay(q) {
 }
 
 function handleAnswer(q, isCorrect) {
+  // One check per showing — the original answer can't be edited into a pass.
+  freezeQuestionArea();
   const item = run.queue.shift();
   const rec = run.records.get(item.key);
   rec.attempts += 1;
@@ -590,6 +592,9 @@ function renderVocabNext() {
     b.className = 'btn vocab-option';
     b.textContent = opt;
     b.addEventListener('click', () => {
+      // First pick decides — the other options die so a wrong pick can't be
+      // "fixed" by clicking the right one afterwards (it would skip the repeat).
+      freezeQuestionArea();
       const ok = opt === target;
       if (ok && !grid.dataset.missed) vocabRun.firstTry += 1;
       if (!ok) {

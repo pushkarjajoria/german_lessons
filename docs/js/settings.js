@@ -3,7 +3,7 @@
 // touching encrypted content asks for the password(s) right where it's needed.
 
 import { encryptString, decryptString } from './crypto.js';
-import { CANARY_VALUE } from './auth.js';
+import { CANARY_VALUE, initLockButton } from './auth.js';
 import * as gh from './github.js';
 import * as store from './storage.js';
 
@@ -131,3 +131,4 @@ function initReencrypt() {
 initGithub();
 initPassword();
 initReencrypt();
+initLockButton();

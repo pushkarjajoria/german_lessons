@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>German · Messages</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="lock"></div>
+
+  <main hidden>
+    <header class="topbar">
+      <span class="brand"><img src="img/richter.svg" alt="" />German with Frau Richter</span>
+      <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="lessons.html">Lessons</a>
+        <a href="assignments.html">Assignments</a>
+        <a href="practice.html">Practice</a>
+        <a href="messages.html" class="active">Messages</a>
+        <details class="nav-more">
+          <summary title="More">&#8943;</summary>
+          <div class="nav-more-menu">
+            <a href="settings.html">Settings</a>
+            <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
+          </div>
+        </details>
+      </nav>
+    </header>
+
+    <section class="panel">
+      <h1 class="hw-title">Nachrichten &amp; Anträge</h1>
+      <p class="muted">Frau Richter holds lecture Monday and Wednesday, 10:00–12:00. Outside those
+      hours this desk is the channel: ordinary messages for what she has asked of you, a formal
+      <strong>Antrag</strong> when you want something from her. She answers at her desk — and the
+      tone of everything here counts toward Betragen.</p>
+
+      <div id="thread" class="msg-thread"></div>
+
+      <!-- The composer: one box, two registers. -->
+      <div class="composer">
+        <textarea id="compose-text" class="justify-input" rows="3"
+          placeholder="Sehr geehrte Frau Richter, …"></textarea>
+        <div class="btn-row composer-row">
+          <label class="composer-kind"><input type="radio" name="msg-kind" value="message" checked /> Nachricht — a reply or note</label>
+          <label class="composer-kind"><input type="radio" name="msg-kind" value="antrag" /> Antrag — a formal request (she rules on it)</label>
+          <button class="btn btn-primary" id="compose-send">Send</button>
+        </div>
+        <p class="model-repeat-status" id="compose-msg"></p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/messages.js"></script>
+</body>
+</html>

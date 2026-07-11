@@ -18,8 +18,14 @@
         <a href="lessons.html">Lessons</a>
         <a href="assignments.html">Assignments</a>
         <a href="practice.html">Practice</a>
-        <a href="settings.html">Settings</a>
-        <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
+        <a href="messages.html">Messages</a>
+        <details class="nav-more">
+          <summary title="More">&#8943;</summary>
+          <div class="nav-more-menu">
+            <a href="settings.html">Settings</a>
+            <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
+          </div>
+        </details>
       </nav>
     </header>
 
@@ -148,21 +154,6 @@
       <div id="recent"></div>
     </section>
 
-    <!-- Anträge: formal written requests, processed at her desk. Off-hours
-         questions belong here or in the lecture (Mon & Wed 10:00–12:00). -->
-    <section class="panel" id="requests-panel">
-      <h2>Anträge — formal requests</h2>
-      <p class="muted">Frau Richter holds lecture Monday and Wednesday, 10:00–12:00. Outside those hours she
-      does not entertain questions — submit a formal, polite request here and she rules on it at her desk.
-      Tone counts toward Betragen.</p>
-      <div id="requests-list"></div>
-      <textarea id="request-text" class="justify-input" rows="3"
-        placeholder="Sehr geehrte Frau Richter, ich möchte höflich darum bitten, dass …"></textarea>
-      <div class="btn-row">
-        <button class="btn" id="request-submit">Submit request</button>
-      </div>
-      <p class="model-repeat-status" id="request-msg"></p>
-    </section>
   </main>
 
   <script type="module" src="js/dashboard.js"></script>

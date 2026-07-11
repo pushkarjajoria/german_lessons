@@ -6,7 +6,7 @@ import { encryptString, decryptString } from './crypto.js';
 import { initLock, initLockButton, getPassword, getManifest } from './auth.js';
 import * as gh from './github.js';
 import { checkTextAnswerDetailed } from './checking.js';
-import { getPolicy, attachModelRepeat, enrollFromReport, homeworkGated } from './corrections.js';
+import { getPolicy, attachModelRepeat, enrollFromReport, homeworkGated, freezeQuestionArea } from './corrections.js';
 import { conductLocked, conductScore } from './conduct.js';
 
 // ---------- feedback voice ----------
@@ -317,6 +317,9 @@ function renderListenType(q, area) {
 // ---------- answer handling / requeue ----------
 
 function handleAnswer(q, given, isCorrect, matchType = null) {
+  // The answer is checked once. Wrong means the correction is typed back —
+  // not the original answer quietly edited and re-checked.
+  freezeQuestionArea();
   const rec = state.records.get(q.id);
   rec.attempts += 1;
   rec.allGiven.push(given);

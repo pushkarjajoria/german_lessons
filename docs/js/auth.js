@@ -7,6 +7,7 @@
 import { decryptString } from './crypto.js';
 import { readJson } from './github.js';
 import { conductScore, conductTier } from './conduct.js';
+import { navBadge } from './inbox.js';
 
 export const CANARY_VALUE = 'german-lessons-canary-v1';
 const SESSION_KEY = 'gl_session_pw';
@@ -58,7 +59,7 @@ export function initLock(onUnlock) {
         <button type="submit" class="btn btn-primary">Unlock</button>
       </form>
       <label class="lock-remember">
-        <input type="checkbox" id="lock-remember" />
+        <input type="checkbox" id="lock-remember" checked />
         Stay unlocked while this tab is open
       </label>
       <p class="lock-error" id="lock-error" hidden></p>
@@ -77,6 +78,7 @@ export function initLock(onUnlock) {
     // light, silver a cool polish, black the austere baseline — and the Kegel
     // der Schande drains every page and writes the lines into the walls.
     document.body.dataset.tier = conductTier(conductScore(manifest));
+    navBadge(manifest); // unread messages/rulings, on every page's nav
     await onUnlock(manifest);
   };
 

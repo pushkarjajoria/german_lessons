@@ -171,6 +171,29 @@ function fmtLecture(d) {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }) + ', 10:00';
 }
 
+// The learner's own photo, next to hers, while he sits in the cone — the
+// shame has a face, and it is not hers. Encrypted at rest (data/img/
+// learner.enc, AES under the same password); decrypted only after unlock,
+// shown only in cone standing.
+let shamePhotoUrl = null;
+async function showShamePhoto() {
+  const head = document.querySelector('.conduct-head');
+  if (!head || head.querySelector('.shame-photo')) return;
+  try {
+    if (!shamePhotoUrl) {
+      const res = await fetch('data/img/learner.enc');
+      if (!res.ok) return;
+      const payload = JSON.parse(await decryptString(getPassword(), await res.json()));
+      shamePhotoUrl = `data:${payload.mime};base64,${payload.dataB64}`;
+    }
+    const fig = document.createElement('figure');
+    fig.className = 'shame-photo';
+    fig.innerHTML = '<img alt="The student, in the cone" /><figcaption>Der Schüler.</figcaption>';
+    fig.querySelector('img').src = shamePhotoUrl;
+    head.insertBefore(fig, head.firstElementChild.nextElementSibling);
+  } catch { /* wrong password or missing asset — the cone stands on its own */ }
+}
+
 function renderConduct(manifest) {
   const score = conductScore(manifest);
   const tier = conductTier(score);
@@ -185,6 +208,8 @@ function renderConduct(manifest) {
   const nextUp = { cone: 'Schwarzer Stern begins at 65.', black: 'Silberner Stern begins at 80.', silver: 'Goldener Stern begins at 95.', gold: 'There is nothing above. Hold it.' };
   $('rank-next').textContent = nextUp[tier];
   $('conduct-score').textContent = score;
+  if (tier === 'cone') showShamePhoto();
+  else document.querySelector('.conduct-head .shame-photo')?.remove();
   const log = manifest.conduct?.log || [];
   const last = log[log.length - 1];
   $('conduct-last').textContent = last
@@ -247,56 +272,8 @@ function renderConduct(manifest) {
   };
 }
 
-// ---------- Anträge: formal requests ----------
-// Written politely, encrypted at rest (public repo), ruled on at her desk
-// (scripts/requests.js). Tone counts toward Betragen — the docs say so.
-
-async function renderRequests(manifest) {
-  const list = $('requests-list');
-  list.innerHTML = '';
-  const items = (manifest.requests || []).slice(-6).reverse();
-  for (const r of items) {
-    let text = '';
-    try { text = await decryptString(getPassword(), r.enc); } catch { text = '(unreadable)'; }
-    const row = document.createElement('div');
-    row.className = 'request-row';
-    const chip = r.status === 'granted' ? '<span class="chip">granted</span>'
-      : r.status === 'declined' ? '<span class="chip chip-weak">declined</span>'
-      : '<span class="chip">pending — awaits her desk</span>';
-    row.innerHTML = `
-      <p class="request-text">„${text.slice(0, 160)}${text.length > 160 ? '…' : ''}“ <span class="muted">(${fmtDate(r.date)})</span></p>
-      <p class="request-ruling">${chip}${r.response ? ` <span class="request-response">— ${r.response}</span>` : ''}</p>`;
-    list.appendChild(row);
-  }
-
-  $('request-submit').onclick = async () => {
-    const msg = $('request-msg');
-    const text = $('request-text').value.trim();
-    if (text.length < 20) { msg.textContent = 'A formal request has substance and courtesy. Write it properly.'; return; }
-    if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the request cannot be filed.'; return; }
-    $('request-submit').disabled = true;
-    msg.textContent = 'Filing…';
-    try {
-      const { data: fresh } = await gh.readJson('data/manifest.json');
-      fresh.requests ||= [];
-      fresh.requests.push({
-        id: `r${Date.now()}`,
-        date: new Date().toISOString(),
-        enc: await encryptString(getPassword(), text),
-        status: 'pending',
-      });
-      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'antrag: formal request filed');
-      manifest.requests = fresh.requests;
-      $('request-text').value = '';
-      msg.textContent = 'Filed. She rules on it at her desk — next session at the latest.';
-      $('request-submit').disabled = false;
-      renderRequests(manifest);
-    } catch (e) {
-      $('request-submit').disabled = false;
-      msg.textContent = e.message;
-    }
-  };
-}
+// Anträge live on the Messages page now (messages.html), in the same thread
+// as her Nachrichten — the dashboard stopped hosting the form.
 
 // ---------- semester panel ----------
 // Quizzes (40%) + one long final (60%), her weights. Standing shown as it
@@ -377,7 +354,6 @@ function render(manifest) {
   renderConduct(manifest);
   renderKorrektur(manifest);
   renderSemester(manifest);
-  renderRequests(manifest);
 
   $('stat-streak').textContent = counters.streakDays || 0;
   $('stat-lessons').textContent = counters.lessonsCompleted || 0;

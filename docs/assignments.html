@@ -18,8 +18,14 @@
         <a href="lessons.html">Lessons</a>
         <a href="assignments.html" class="active">Assignments</a>
         <a href="practice.html">Practice</a>
-        <a href="settings.html">Settings</a>
-        <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
+        <a href="messages.html">Messages</a>
+        <details class="nav-more">
+          <summary title="More">&#8943;</summary>
+          <div class="nav-more-menu">
+            <a href="settings.html">Settings</a>
+            <button class="lock-link" id="lock-now" title="Forget the password in this tab">Lock</button>
+          </div>
+        </details>
       </nav>
     </header>
 
@@ -38,7 +44,9 @@
     <section class="panel">
       <h1 class="hw-title">Assignments</h1>
       <p class="muted" id="assignments-intro">Every assignment, in the order she gave them.
-      A checkmark is earned by completion, not by opening the page.</p>
+      A checkmark is earned by completion, not by opening the page — and every completed
+      assignment owes its <strong>Bericht</strong> (the written report the lesson asked for).
+      Missing reports stay flagged, and she reads the flags before she reads anything else.</p>
       <div id="assignments-tree"></div>
     </section>
   </main>

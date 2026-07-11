@@ -97,6 +97,14 @@ export function enrollFromReport(manifest, report) {
   }
 }
 
+// Freeze the question after it has been answered: every input, option and
+// Check button in #question-area goes dead. Without this the model-repeat
+// could be bypassed by editing the original answer and checking again.
+export function freezeQuestionArea() {
+  document.querySelectorAll('#question-area input, #question-area button, #question-area textarea')
+    .forEach((el) => { el.disabled = true; });
+}
+
 // ---------- the model-repeat UI ----------
 // Injected into a feedback panel after a wrong answer: an input that must
 // receive the correct model N times before `nextBtn` unlocks. Checking uses

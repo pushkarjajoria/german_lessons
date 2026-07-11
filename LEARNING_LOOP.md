@@ -182,17 +182,25 @@ override; near-duplicates get a warning).
   sitewide and the CSS gives each tier its own atmosphere — gold: warmed palette +
   glinting star + soft gold vignette; silver: cool polished palette; black:
   baseline; cone: drained ashen palette, greyed portrait, a breathing red vignette,
-  and an SVG watermark of punishment lines (SCHANDE / nicht genug / Ich muss besser
-  werden.) tiled across every page (animations respect prefers-reduced-motion).
+  an SVG watermark of punishment lines (SCHANDE / nicht genug / Ich muss besser
+  werden.) tiled across every page (animations respect prefers-reduced-motion), and
+  the learner's own photo (docs/data/img/learner.enc, encrypted) beside her portrait
+  on the conduct panel, captioned "Der Schüler."
   Below 60 every page locks; the learner files an apology in German (encrypted
   inline, one per calendar day, chain restarts on a missed day) — three consecutive
   days earn review eligibility on the next lecture day (Mon/Wed 10:00), where the
   teacher accepts (score → 65, unlock) or rejects with conditions (count restarts).
-- **Anträge (formal requests):** dashboard form → `manifest.requests[]` (text
-  encrypted inline, status/response plaintext); scripts/requests.js decrypts and
-  records grant/decline with a one-sentence ruling. Persona: lecture hours Mon/Wed
-  10:00–12:00 CEST; off-hours questions are redirected to the form; tone feeds the
-  conduct score.
+- **Messages page (Nachrichten & Anträge):** one encrypted thread on messages.html.
+  Anträge (`manifest.requests[]`, scripts/requests.js rules grant/decline — the
+  ruling renders as her reply) and two-way notes (`manifest.messages[]`,
+  scripts/messages.js: --send [--needs-reply], --list with read receipts; opening
+  the page stamps readByLearner). Unread items badge the nav on every page
+  (docs/js/inbox.js via auth.js). Persona: lecture hours Mon/Wed 10:00–12:00 CEST;
+  off-hours questions are redirected here; tone feeds the conduct score.
+- **Berichte (assignment reports):** every completed assignment owes a written
+  report, filed once on the Assignments page → `manifest.assignmentReports[lessonId]
+  = {date, enc}`; missing ones are flagged on the ledger and listed by
+  scripts/messages.js --reports — she names them at session start.
 - **Surprise test repertoire:** two test-only question types — `multi_select`
   (options[] + answerIndexes[], exact set match) and `click_mistake` (tokens[] +
   mistakeIndex) — plus per-test `negativeMarking` (wrong option pick costs 1/n of a

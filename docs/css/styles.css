@@ -63,6 +63,54 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
 .lock-link { font-size: 0.85rem; color: var(--text-dim); background: none; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.25rem 0.6rem; cursor: pointer; font-family: var(--sans); }
 .lock-link:hover { border-color: var(--ink); color: var(--text); }
 
+/* Overflow menu — Settings and Lock live here now; rarely used, so they no
+   longer occupy prime topbar space. */
+.nav-more { position: relative; }
+.nav-more summary {
+  list-style: none;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius);
+  user-select: none;
+}
+.nav-more summary::-webkit-details-marker { display: none; }
+.nav-more summary:hover, .nav-more[open] summary { color: var(--text); background: var(--bg-inset); }
+.nav-more-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 130px;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+.nav-more-menu a { padding: 0.1rem 0; }
+.nav-more-menu .lock-link { text-align: center; }
+
+/* Unread-messages badge on the nav link (set by auth.js after unlock). */
+.nav-badge {
+  display: inline-block;
+  min-width: 1.15rem;
+  margin-left: 0.3rem;
+  padding: 0 0.3rem;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.15rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  vertical-align: text-top;
+}
+
 /* ---------- lock screen ---------- */
 
 #lock:not([hidden]) {
@@ -550,6 +598,19 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .conduct-main { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 0.5rem; }
 .conduct-head { display: flex; gap: 0.9rem; align-items: center; }
 .conduct-head img { width: 64px; height: 80px; object-fit: contain; }
+
+/* The student's photo, beside hers, while the cone is worn. Clearly visible —
+   that is the point — but cold: drained color, her red pen for a frame. */
+.shame-photo { margin: 0; text-align: center; }
+.shame-photo img {
+  width: 84px !important;
+  height: 106px !important;
+  object-fit: cover !important;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  filter: grayscale(0.8) contrast(1.05) brightness(0.9);
+}
+.shame-photo figcaption { font-size: 0.7rem; color: var(--ink); font-style: italic; margin-top: 0.15rem; }
 .conduct-score { font-size: 2.1rem; font-family: var(--serif); margin: 0.1rem 0 0; line-height: 1; }
 .conduct-outof { font-size: 1rem; color: var(--text-dim); }
 .conduct-last { color: var(--text-dim); font-size: 0.88rem; margin: 0; }
@@ -662,13 +723,40 @@ body[data-tier="cone"] h1, body[data-tier="cone"] h2 { color: var(--text); }
   body[data-tier="cone"]::after, .rank-glyph { animation: none !important; }
 }
 
-/* ---------- Anträge ---------- */
+/* ---------- Messages: the correspondence desk ---------- */
 
-.request-row { border-bottom: 1px solid var(--rule); padding: 0.55rem 0; }
-.request-row:last-child { border-bottom: none; }
-.request-text { margin: 0 0 0.3rem; font-size: 0.95rem; }
-.request-ruling { margin: 0; font-size: 0.9rem; }
-.request-response { font-family: var(--serif); }
+.msg-thread { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.2rem 0 1.5rem; }
+.msg-row { display: flex; }
+.msg-her { justify-content: flex-start; }
+.msg-mine { justify-content: flex-end; }
+.msg-bubble {
+  max-width: 78%;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+}
+.msg-her .msg-bubble { border-left: 3px solid var(--ink); }
+.msg-mine .msg-bubble { background: var(--bg-raised); border-right: 3px solid var(--brass); }
+.msg-meta { margin: 0 0 0.25rem; font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.03em; }
+.msg-text { margin: 0; font-size: 0.95rem; white-space: pre-wrap; }
+.msg-ruling .msg-text { font-family: var(--serif); }
+.msg-antrag { outline: 1px dashed var(--border); }
+.msg-flag { margin: 0.35rem 0 0; font-size: 0.8rem; color: var(--ink); }
+.composer-row { align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+.composer-kind { font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.35rem; }
+
+/* ---------- Berichte on the assignments ledger ---------- */
+
+.report-details { margin: -0.1rem 0 0.5rem 1.2rem; }
+.report-sum { cursor: pointer; font-size: 0.82rem; color: var(--text-dim); list-style: none; user-select: none; }
+.report-sum::-webkit-details-marker { display: none; }
+.report-sum-due { color: var(--ink); }
+.report-sum:hover { text-decoration: underline; }
+.report-body { padding: 0.5rem 0 0.3rem; max-width: 640px; }
+.report-body textarea { margin: 0.4rem 0; }
+.report-text { font-size: 0.92rem; white-space: pre-wrap; border-left: 2px solid var(--rule); padding-left: 0.7rem; }
+.report-chip-ok { border-color: var(--approve); color: var(--approve); }
 
 /* ---------- test surprise repertoire ---------- */
 
