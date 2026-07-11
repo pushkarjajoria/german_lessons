@@ -25,3 +25,6 @@ node_modules/
 
 # Frau Richter's private memory — judgment carried across runs. Never commit.
 frau_richter/
+
+# Her feature-request drawer — read and implemented by the development sessions.
+feature requests.md

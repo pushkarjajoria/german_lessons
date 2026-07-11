@@ -236,6 +236,11 @@ override; near-duplicates get a warning).
   lock new homework. All hyperparameters live in `manifest.correctionPolicy`
   (`scripts/correction-policy.js`); the dashboard shows the queue with pass-progress,
   the Practice page hosts the runner, and sittings log to `practiceLog` as `korrektur`.
+- **Feature requests (`feature requests.md`, repo root, gitignored):** Frau
+  Richter's drawer for site capabilities she wants but doesn't have. Her sessions
+  write entries (FR-NNN, date, status, request, pedagogy); the development sessions
+  read the file on every task and implement pending entries, flipping status to
+  `built` with a date and one line on what shipped.
 - **Discipline (course halt):** after long unexplained silence or consistent
   complacency, `scripts/discipline.js --issue` publishes Nachweis tasks (recording /
   handwriting sheet, each with anti-spoof requirements) and halts the course — the

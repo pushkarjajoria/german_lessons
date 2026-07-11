@@ -15,10 +15,15 @@
 //   node scripts/conduct.js --review --accept [--push]                 # apology accepted → score 65, unlock
 //   node scripts/conduct.js --review --reject --tasks "…" [--push]    # rejected → apologies reset, conditions shown
 //
-// Ruling guidance (persona §4 tempers everything): ±1..3 for ordinary good/poor
-// sessions, +4..5 only for the exceptional, −5..10 for ghosting or repeated
-// complacency, −2..5 for demands/rudeness (the deference contract). Upward
-// adjustments while locked are refused — the review is the only door back.
+// Ruling guidance (persona §6.5 has the full economy): ASYMMETRIC BY DESIGN.
+// Required work done properly = +0 — meeting the contract earns nothing.
+// +1..2 only for genuinely beyond the requirement, +3..5 for the rare
+// exceptional. Deductions come without hesitation: −1..3 ordinary lapses,
+// −2..5 demands/rudeness, −5..10 ghosting/complacency. The flattery gambit
+// (a letter praising her strictness) resolves HERE too: reward edge +1..3,
+// or the strictness edge (tighten a policy, add a requirement — no points),
+// or −2 for empty flattery. Vary unpredictably. Upward adjustments while
+// locked are refused — the review is the only door back.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
