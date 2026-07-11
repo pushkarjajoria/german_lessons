@@ -2,11 +2,11 @@
   "currentLessonId": "0004",
   "currentHomeworkId": "0004",
   "counters": {
-    "lessonsCompleted": 2,
-    "totalQuestions": 21,
-    "totalCorrect": 15,
+    "lessonsCompleted": 3,
+    "totalQuestions": 32,
+    "totalCorrect": 25,
     "streakDays": 1,
-    "lastPracticed": "2026-07-09T09:56:37.324Z"
+    "lastPracticed": "2026-07-11T09:52:11.014Z"
   },
   "history": [
     {
@@ -153,6 +153,83 @@
       "weakCategories": [
         "Konjugation"
       ]
+    },
+    {
+      "reportId": "0004",
+      "homeworkId": "0004",
+      "title": "Im Supermarkt — Finding Things & Paying",
+      "date": "2026-07-11T09:52:11.014Z",
+      "startedAt": "2026-07-11T09:45:55.262Z",
+      "durationSec": 376,
+      "totalQuestions": 11,
+      "firstTryCorrect": 10,
+      "eventualCorrect": 11,
+      "totalAttempts": 12,
+      "reworkRatio": 1.09,
+      "avgFirstAnswerLatencySec": 15.8,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 0,
+      "categoryAttempts": {
+        "Redemittel": {
+          "attempts": 5,
+          "count": 4
+        },
+        "Kasus": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Konjugation": {
+          "attempts": 2,
+          "count": 2
+        },
+        "Hörverstehen": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Produktion": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Vokabular": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Wortstellung": {
+          "attempts": 1,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Redemittel": {
+          "correct": 3,
+          "total": 4
+        },
+        "Kasus": {
+          "correct": 1,
+          "total": 1
+        },
+        "Konjugation": {
+          "correct": 2,
+          "total": 2
+        },
+        "Hörverstehen": {
+          "correct": 1,
+          "total": 1
+        },
+        "Produktion": {
+          "correct": 1,
+          "total": 1
+        },
+        "Vokabular": {
+          "correct": 1,
+          "total": 1
+        },
+        "Wortstellung": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "weakCategories": []
     }
   ],
   "lessons": [
@@ -332,6 +409,19 @@
       "lastPassedAt": "2026-07-10T07:49:31.774Z",
       "status": "cleared",
       "clearedAt": "2026-07-10T07:49:31.774Z"
+    },
+    {
+      "key": "0004:q1",
+      "hwId": "0004",
+      "qid": "q1",
+      "category": "Redemittel",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-11T09:52:11.014Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ],
   "conduct": {
