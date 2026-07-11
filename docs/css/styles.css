@@ -168,6 +168,21 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
 .lock-note { color: var(--text-dim); font-size: 0.82rem; margin-top: 1.4rem; text-align: left; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
 .lock-note strong { color: var(--text); }
 
+/* Silent-unlock state: the tab already holds the password, so no login form —
+   just a quiet beat while the key is derived. */
+.lock-loading { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.lock-loading .lock-note { border-top: none; margin-top: 0; padding-top: 0; text-align: center; }
+.lock-spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid var(--rule);
+  border-top-color: var(--ink);
+  animation: lock-spin 0.9s linear infinite;
+}
+@keyframes lock-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lock-spinner { animation-duration: 2.5s; } }
+
 /* ---------- buttons & inputs ---------- */
 
 .btn {

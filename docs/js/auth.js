@@ -48,10 +48,28 @@ export function lockNow() {
 }
 
 // Render the lock screen into #lock, hide it on success, then call onUnlock(manifest).
-// If the user opted to stay unlocked in this tab, try that silently first.
+// If the user opted to stay unlocked in this tab, the password is already in
+// sessionStorage — then the login form never appears: a quiet loading card
+// covers the silent unlock (key derivation takes a moment by design), and the
+// form only renders if that unlock fails.
 export function initLock(onUnlock) {
   const el = document.getElementById('lock');
-  el.innerHTML = `
+
+  const succeed = async (manifest) => {
+    el.hidden = true;
+    document.querySelector('main').hidden = false;
+    // The room wears the rank (styles.css, body[data-tier]): gold is earned
+    // light, silver a cool polish, black the austere baseline — and the Kegel
+    // der Schande drains every page and writes the lines into the walls.
+    document.body.dataset.tier = conductTier(conductScore(manifest));
+    navBadge(manifest); // unread messages/rulings, on every page's nav
+    // In the cone, the learner's photo hangs on every page — no hiding.
+    if (document.body.dataset.tier === 'cone') mountShameBanner(sessionPassword);
+    await onUnlock(manifest);
+  };
+
+  const renderForm = () => {
+    el.innerHTML = `
     <div class="lock-card">
       <p class="lock-kicker">German · Pushkar</p>
       <h1 class="lock-title">German lessons await you.</h1>
@@ -68,52 +86,51 @@ export function initLock(onUnlock) {
       without it, and <strong>if you lose it, the content is unrecoverable</strong>. Back it up.</p>
     </div>`;
 
-  const form = document.getElementById('lock-form');
-  const pwInput = document.getElementById('lock-pw');
-  const errEl = document.getElementById('lock-error');
+    const form = document.getElementById('lock-form');
+    const pwInput = document.getElementById('lock-pw');
+    const errEl = document.getElementById('lock-error');
 
-  const succeed = async (manifest) => {
-    el.hidden = true;
-    document.querySelector('main').hidden = false;
-    // The room wears the rank (styles.css, body[data-tier]): gold is earned
-    // light, silver a cool polish, black the austere baseline — and the Kegel
-    // der Schande drains every page and writes the lines into the walls.
-    document.body.dataset.tier = conductTier(conductScore(manifest));
-    navBadge(manifest); // unread messages/rulings, on every page's nav
-    // In the cone, the learner's photo hangs on every page — no hiding.
-    if (document.body.dataset.tier === 'cone') mountShameBanner(sessionPassword);
-    await onUnlock(manifest);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errEl.hidden = true;
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Checking…';
+      try {
+        const remember = document.getElementById('lock-remember').checked;
+        const manifest = await unlock(pwInput.value, remember);
+        await succeed(manifest);
+      } catch (err) {
+        const isCrypto = !(err && /Could not load|Not found|fetch/i.test(String(err.message)));
+        errEl.textContent = isCrypto
+          ? 'Wrong. A wrong password decrypts nothing here. Again — slower this time.'
+          : `The manifest could not be loaded: ${err.message}`;
+        errEl.hidden = false;
+        pwInput.select();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Unlock';
+      }
+    });
   };
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errEl.hidden = true;
-    const btn = form.querySelector('button');
-    btn.disabled = true;
-    btn.textContent = 'Checking…';
-    try {
-      const remember = document.getElementById('lock-remember').checked;
-      const manifest = await unlock(pwInput.value, remember);
-      await succeed(manifest);
-    } catch (err) {
-      const isCrypto = !(err && /Could not load|Not found|fetch/i.test(String(err.message)));
-      errEl.textContent = isCrypto
-        ? 'Wrong. A wrong password decrypts nothing here. Again — slower this time.'
-        : `The manifest could not be loaded: ${err.message}`;
-      errEl.hidden = false;
-      pwInput.select();
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Unlock';
-    }
-  });
-
-  // Silent unlock if this tab was left unlocked on purpose.
   const saved = sessionStorage.getItem(SESSION_KEY);
   if (saved) {
+    // Already unlocked in this tab — no login page, just a beat of quiet.
+    el.innerHTML = `
+      <div class="lock-card lock-loading" aria-busy="true">
+        <div class="lock-spinner" role="status" aria-label="Unlocking"></div>
+        <p class="lock-note">Unlocking…</p>
+      </div>`;
     unlock(saved, false)
       .then(succeed)
-      .catch(() => sessionStorage.removeItem(SESSION_KEY));
+      .catch(() => {
+        // Stale or wrong saved password (e.g. rotated) — back to the door.
+        sessionStorage.removeItem(SESSION_KEY);
+        renderForm();
+      });
+  } else {
+    renderForm();
   }
 }
 
