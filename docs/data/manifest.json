@@ -393,6 +393,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 24
+    },
+    {
+      "date": "2026-07-11T16:52:04.997Z",
+      "mode": "harder",
+      "items": 12,
+      "firstTry": 12,
+      "durationSec": 120
     }
   ],
   "corrections": [
