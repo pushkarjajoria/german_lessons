@@ -409,11 +409,11 @@
       "durationSec": 69
     },
     {
-      "date": "2026-07-11T19:26:09.141Z",
+      "date": "2026-07-11T19:26:09.915Z",
       "mode": "korrektur",
       "items": 1,
       "firstTry": 1,
-      "durationSec": 37
+      "durationSec": 38
     }
   ],
   "corrections": [
@@ -469,9 +469,9 @@
       "addedAt": "2026-07-11T09:52:11.014Z",
       "required": 3,
       "doneCount": 3,
-      "lastPassedAt": "2026-07-11T19:26:09.141Z",
+      "lastPassedAt": "2026-07-11T19:26:09.915Z",
       "status": "cleared",
-      "clearedAt": "2026-07-11T19:26:09.141Z"
+      "clearedAt": "2026-07-11T19:26:09.915Z"
     }
   ],
   "conduct": {
