@@ -365,6 +365,13 @@
       "items": 10,
       "firstTry": 10,
       "durationSec": 70
+    },
+    {
+      "date": "2026-07-11T09:58:07.600Z",
+      "mode": "harder",
+      "items": 12,
+      "firstTry": 9,
+      "durationSec": 259
     }
   ],
   "corrections": [
