@@ -599,18 +599,47 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .conduct-head { display: flex; gap: 0.9rem; align-items: center; }
 .conduct-head img { width: 64px; height: 80px; object-fit: contain; }
 
-/* The student's photo, beside hers, while the cone is worn. Clearly visible —
-   that is the point — but cold: drained color, her red pen for a frame. */
-.shame-photo { margin: 0; text-align: center; }
-.shame-photo img {
-  width: 84px !important;
-  height: 106px !important;
-  object-fit: cover !important;
+/* The student's photo IS the cone rank now — full size, ORIGINAL COLOR,
+   framed in her red under "Kegel der Schande". Maximum clarity is the point:
+   the only muted thing in the room is everything else. */
+.rank-glyph-photo { line-height: 0; transform: none !important; animation: none !important; }
+.rank-glyph-photo img {
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 18px rgba(150, 25, 12, 0.45);
+}
+
+/* And on every other page: pinned to the corner, always in view. No hiding. */
+.shame-banner {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 998;
+  margin: 0;
+  text-align: center;
+  background: var(--bg-raised);
   border: 2px solid var(--ink);
   border-radius: var(--radius);
-  filter: grayscale(0.8) contrast(1.05) brightness(0.9);
+  padding: 6px 6px 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
 }
-.shame-photo figcaption { font-size: 0.7rem; color: var(--ink); font-style: italic; margin-top: 0.15rem; }
+.shame-banner img {
+  width: 130px;
+  height: auto;
+  display: block;
+  border-radius: 3px;
+}
+.shame-banner figcaption {
+  font-size: 0.68rem;
+  color: var(--ink);
+  font-style: italic;
+  margin-top: 0.25rem;
+  line-height: 1.25;
+}
 .conduct-score { font-size: 2.1rem; font-family: var(--serif); margin: 0.1rem 0 0; line-height: 1; }
 .conduct-outof { font-size: 1rem; color: var(--text-dim); }
 .conduct-last { color: var(--text-dim); font-size: 0.88rem; margin: 0; }

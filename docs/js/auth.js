@@ -8,6 +8,7 @@ import { decryptString } from './crypto.js';
 import { readJson } from './github.js';
 import { conductScore, conductTier } from './conduct.js';
 import { navBadge } from './inbox.js';
+import { mountShameBanner } from './shame.js';
 
 export const CANARY_VALUE = 'german-lessons-canary-v1';
 const SESSION_KEY = 'gl_session_pw';
@@ -79,6 +80,8 @@ export function initLock(onUnlock) {
     // der Schande drains every page and writes the lines into the walls.
     document.body.dataset.tier = conductTier(conductScore(manifest));
     navBadge(manifest); // unread messages/rulings, on every page's nav
+    // In the cone, the learner's photo hangs on every page — no hiding.
+    if (document.body.dataset.tier === 'cone') mountShameBanner(sessionPassword);
     await onUnlock(manifest);
   };
 

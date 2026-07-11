@@ -11,6 +11,7 @@ import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfei
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
 import { getPolicy, openCorrections, eligibleNow, nextEligibleAt, isOverdue, homeworkGated } from './corrections.js';
+import { shamePhotoUrl } from './shame.js';
 import * as gh from './github.js';
 
 const $ = (id) => document.getElementById(id);
@@ -171,27 +172,25 @@ function fmtLecture(d) {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }) + ', 10:00';
 }
 
-// The learner's own photo, next to hers, while he sits in the cone — the
-// shame has a face, and it is not hers. Encrypted at rest (data/img/
-// learner.enc, AES under the same password); decrypted only after unlock,
-// shown only in cone standing.
-let shamePhotoUrl = null;
+// In the cone, the rank badge stops being a glyph: the learner's own photo
+// hangs there instead — full size, original color, framed in her red, under
+// the words "Kegel der Schande". The shame has a face, and everyone who
+// opens the page sees it clearly.
 async function showShamePhoto() {
-  const head = document.querySelector('.conduct-head');
-  if (!head || head.querySelector('.shame-photo')) return;
+  const glyph = $('rank-glyph');
+  if (glyph.querySelector('img')) return;
   try {
-    if (!shamePhotoUrl) {
-      const res = await fetch('data/img/learner.enc');
-      if (!res.ok) return;
-      const payload = JSON.parse(await decryptString(getPassword(), await res.json()));
-      shamePhotoUrl = `data:${payload.mime};base64,${payload.dataB64}`;
-    }
-    const fig = document.createElement('figure');
-    fig.className = 'shame-photo';
-    fig.innerHTML = '<img alt="The student, in the cone" /><figcaption>Der Schüler.</figcaption>';
-    fig.querySelector('img').src = shamePhotoUrl;
-    head.insertBefore(fig, head.firstElementChild.nextElementSibling);
-  } catch { /* wrong password or missing asset — the cone stands on its own */ }
+    const url = await shamePhotoUrl(getPassword());
+    if (!url) return;
+    glyph.textContent = '';
+    // star-cone rotates the ▲ into a cone — the photograph hangs straight.
+    glyph.classList.remove('star-cone');
+    glyph.classList.add('rank-glyph-photo');
+    const img = document.createElement('img');
+    img.alt = 'The student, in the cone';
+    img.src = url;
+    glyph.appendChild(img);
+  } catch { /* wrong password or missing asset — the triangle stands in */ }
 }
 
 function renderConduct(manifest) {
@@ -209,7 +208,6 @@ function renderConduct(manifest) {
   $('rank-next').textContent = nextUp[tier];
   $('conduct-score').textContent = score;
   if (tier === 'cone') showShamePhoto();
-  else document.querySelector('.conduct-head .shame-photo')?.remove();
   const log = manifest.conduct?.log || [];
   const last = log[log.length - 1];
   $('conduct-last').textContent = last

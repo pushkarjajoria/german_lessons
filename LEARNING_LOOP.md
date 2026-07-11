@@ -184,8 +184,9 @@ override; near-duplicates get a warning).
   baseline; cone: drained ashen palette, greyed portrait, a breathing red vignette,
   an SVG watermark of punishment lines (SCHANDE / nicht genug / Ich muss besser
   werden.) tiled across every page (animations respect prefers-reduced-motion), and
-  the learner's own photo (docs/data/img/learner.enc, encrypted) beside her portrait
-  on the conduct panel, captioned "Der Schüler."
+  the learner's own photo (docs/data/img/learner.enc, encrypted; docs/js/shame.js)
+  in full original color — replacing the cone glyph on the dashboard rank badge and
+  pinned to the corner of every other page, captioned "Der Schüler."
   Below 60 every page locks; the learner files an apology in German (encrypted
   inline, one per calendar day, chain restarts on a missed day) — three consecutive
   days earn review eligibility on the next lecture day (Mon/Wed 10:00), where the
