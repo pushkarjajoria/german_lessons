@@ -400,6 +400,13 @@
       "items": 12,
       "firstTry": 12,
       "durationSec": 120
+    },
+    {
+      "date": "2026-07-11T16:53:28.201Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 10,
+      "durationSec": 69
     }
   ],
   "corrections": [
