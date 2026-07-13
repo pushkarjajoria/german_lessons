@@ -136,7 +136,13 @@ provides is deliberately removed:
 - **Subjective questions** (`type: "subjective"`, optional `minWords`) collect free
   German prose for Frau Richter to grade by hand.
 - Tracking is test-grade too: per question — answer, time used, timed-out flag, audio
-  replays, and **window-blur count** (she notices tab-switching during a Klausur).
+  replays, and window-blur count. **Tab-switching is enforced, not just counted**
+  (announced in the standing rules and the briefing): the first switch during a live
+  question forfeits that question (`tabForfeit: true`, an acknowledged full-screen
+  warning follows); the second ends the exam where it stands (`endedByTabSwitch`),
+  with only the questions answered until then counting — the rest are zero
+  (`unreached`). Aggregates (`tabForfeits`, `endedByTabSwitch`) also land on the
+  plaintext manifest entry so the dashboard record shows it.
 
 **Lifecycle** (`manifest.tests[]`, plaintext aggregates only): `pending` → `submitted`
 → `graded`, or → `forfeited` (abandoned/deadline). The dashboard shows pending tests

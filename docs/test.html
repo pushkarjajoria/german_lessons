@@ -40,6 +40,7 @@
           <li><strong>No feedback during the test.</strong> You see nothing until I have graded it.</li>
           <li>Once started, the test <strong>cannot be paused or stopped</strong>.</li>
           <li><strong>Leaving this page mid-test means forfeit.</strong> Zero points. The browser will warn you once; after that it is on you.</li>
+          <li><strong>Switching tabs or windows is invigilated.</strong> The first switch during a question <strong>forfeits that question</strong> on the spot. The second switch <strong>ends the whole exam</strong> — only the questions answered until then count. There is no third warning because there is no third switch.</li>
           <li><strong>This paper has its own instructions</strong> — question types, marking, whether skipping is allowed. You read them after the door closes, before the clock starts.</li>
         </ul>
       </div>
@@ -60,6 +61,19 @@
       </div>
       <div class="btn-row">
         <button class="btn btn-primary btn-big" id="begin-questions-btn">Begin the questions →</button>
+      </div>
+    </section>
+
+    <!-- First tab-switch strike: the question is gone; the next switch ends
+         the exam. Nothing proceeds until the warning is acknowledged. -->
+    <section class="panel tab-warning" id="tab-warning" hidden>
+      <h1 class="hw-title">You left the exam window.</h1>
+      <p class="tab-warning-text" id="tab-warning-text"></p>
+      <p class="tab-warning-final">One more switch — for any reason — and the exam <strong>ends where it
+      stands</strong>. Only the questions answered until that moment are counted; everything after is
+      zero. There will be no further warning.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-big" id="tab-ack-btn">I acknowledge</button>
       </div>
     </section>
 

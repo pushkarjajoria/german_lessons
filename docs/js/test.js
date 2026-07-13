@@ -49,6 +49,9 @@ const state = {
   blurs: 0,
   totalBlurs: 0,
   running: false,
+  inQuestion: false,  // a live question is on screen — the invigilated window
+  tabStrikes: 0,      // 1st switch: question forfeited; 2nd: exam ends
+  endedByTabSwitch: false,
   justifyEl: null,   // q.justify: textarea whose value rides along with the answer
 };
 
@@ -57,8 +60,58 @@ function guard(e) {
   e.returnValue = ''; // required by Chrome to show the leave-warning dialog
 }
 
+// Invigilation. Announced in the standing rules: the first switch away during
+// a live question forfeits that question; the second ends the exam where it
+// stands. Blurs outside a live question (briefing, the warning screen itself)
+// are counted but not punished — there is nothing on screen to protect.
 function onBlur() {
-  if (state.running) { state.blurs += 1; state.totalBlurs += 1; }
+  if (!state.running) return;
+  state.blurs += 1;
+  state.totalBlurs += 1;
+  if (!state.inQuestion) return;
+  state.inQuestion = false;
+  stopTimer();
+  state.tabStrikes += 1;
+  const q = state.test.questions[state.index];
+  state.perQuestion.push({
+    qid: q.id,
+    index: state.index,
+    type: q.type,
+    category: q.category || 'Allgemein',
+    given: null,
+    skipped: false,
+    ...(q.justify ? { justification: null } : {}),
+    timedOut: false,
+    tabForfeit: true,
+    timeUsedSec: Math.round((Date.now() - state.qShownAt) / 100) / 10,
+    replays: state.replays,
+    blurCount: state.blurs,
+  });
+  const forfeitedNo = state.index + 1;
+  state.index += 1;
+  if (state.tabStrikes >= 2) {
+    // Second switch: the exam ends where it stands, as announced.
+    state.endedByTabSwitch = true;
+    finish();
+  } else if (state.index >= state.test.questions.length) {
+    finish(); // it was the last question — nothing left to warn about
+  } else {
+    showTabWarning(forfeitedNo);
+  }
+}
+
+function showTabWarning(forfeitedNo) {
+  $('test-area').hidden = true;
+  const warn = $('tab-warning');
+  warn.hidden = false;
+  $('tab-warning-text').textContent =
+    `Question ${forfeitedNo} is forfeited — zero, no appeal. The rules were on the front page ` +
+    'and you began anyway: during a Klausur, this window is the only window.';
+  $('tab-ack-btn').addEventListener('click', () => {
+    warn.hidden = true;
+    $('test-area').hidden = false;
+    renderQuestion();
+  }, { once: true });
 }
 
 // ---------- boot ----------
@@ -66,6 +119,7 @@ function onBlur() {
 function endScreen(title, text, statusMsg = '', ok = true) {
   $('pre-start').hidden = true;
   $('test-area').hidden = true;
+  $('tab-warning').hidden = true;
   const end = $('end-area');
   end.hidden = false;
   $('end-title').textContent = title;
@@ -196,6 +250,7 @@ function showBriefing() {
   } else {
     li('<strong>No skipping on this paper.</strong> Every question must be faced.');
   }
+  li('<strong>The tab rule is live from the first question:</strong> one switch away forfeits the question on screen, a second ends the exam where it stands.');
   li('The per-question clock starts at the first question, not on this page.');
   $('begin-questions-btn').addEventListener('click', () => {
     $('briefing-area').hidden = true;
@@ -236,6 +291,7 @@ function renderQuestion() {
   promptEl.textContent = q.type === 'fill_blank' ? '' : q.prompt;
   area.appendChild(promptEl);
 
+  state.inQuestion = true; // the invigilated window opens with the question
   let getAnswer;
   if (q.type === 'fill_blank') getAnswer = renderFillBlank(q, promptEl, area);
   else if (q.type === 'multiple_choice') getAnswer = renderMultipleChoice(q, area);
@@ -303,6 +359,8 @@ function stopTimer() {
 }
 
 function record(given, timedOut, skipped = false) {
+  if (!state.inQuestion) return; // a blur already took this question
+  state.inQuestion = false;
   stopTimer();
   const q = state.test.questions[state.index];
   state.perQuestion.push({
@@ -544,9 +602,12 @@ async function finish() {
     date: new Date().toISOString(),
     durationSec: Math.round((Date.now() - state.startedAt) / 1000),
     totalQuestions: state.test.questions.length,
-    answered: state.perQuestion.filter((p) => !p.timedOut && !p.skipped).length,
+    answered: state.perQuestion.filter((p) => !p.timedOut && !p.skipped && !p.tabForfeit).length,
     skipped: state.perQuestion.filter((p) => p.skipped).length,
     timedOut: state.perQuestion.filter((p) => p.timedOut).length,
+    tabForfeits: state.perQuestion.filter((p) => p.tabForfeit).length,
+    endedByTabSwitch: state.endedByTabSwitch,
+    unreached: state.test.questions.length - state.perQuestion.length,
     subjectiveCount: state.perQuestion.filter((p) => p.type === 'subjective').length,
     totalBlurs: state.totalBlurs,
     negativeMarking: Boolean(state.test.negativeMarking),
@@ -562,9 +623,19 @@ async function finish() {
     ? ` The clock took ${result.timedOut} of them — speed is part of knowing.`
     : '') + (result.skipped
     ? ` You skipped ${result.skipped} — honestly declared, honestly zero.`
+    : '') + (result.tabForfeits
+    ? ` ${result.tabForfeits} forfeited to tab-switching — the rule was announced.`
     : '');
-  endScreen('Submitted.',
-    `${result.answered} of ${result.totalQuestions} questions answered.${skippedNote} You will see nothing until I have graded it. That is how tests work.`);
+  if (result.endedByTabSwitch) {
+    endScreen('Ended. You switched away twice.',
+      `The exam stopped at question ${state.perQuestion.length} of ${result.totalQuestions}, exactly as the rules said it would. ` +
+      `${result.answered} answered question${result.answered === 1 ? '' : 's'} count; the remaining ${result.unreached + result.tabForfeits} are zero. ` +
+      'The warning was on the front page, in the briefing, and on your screen after the first switch. It goes in the record as what it is.',
+      '', false);
+  } else {
+    endScreen('Submitted.',
+      `${result.answered} of ${result.totalQuestions} questions answered.${skippedNote} You will see nothing until I have graded it. That is how tests work.`);
+  }
 
   const st = $('end-status');
   if (gh.isConfigured()) {
@@ -579,6 +650,8 @@ async function finish() {
         entry.submittedAt = result.date;
         entry.answered = result.answered;
         entry.timedOut = result.timedOut;
+        if (result.tabForfeits) entry.tabForfeits = result.tabForfeits;
+        if (result.endedByTabSwitch) entry.endedByTabSwitch = true;
       }
       await gh.writeText('data/manifest.json', JSON.stringify(manifest, null, 2),
         `manifest: test ${state.entry.id} submitted`);
