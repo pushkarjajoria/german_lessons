@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0004",
-  "currentHomeworkId": "0004",
+  "currentLessonId": "0005",
+  "currentHomeworkId": "0005",
   "counters": {
     "lessonsCompleted": 3,
     "totalQuestions": 32,
@@ -250,6 +250,12 @@
       "title": "Im Supermarkt — Finding Things & Paying",
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Supermarkt"
+    },
+    {
+      "id": "0005",
+      "title": "Im Supermarkt — Mengen, Plural & Pfand",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Supermarkt"
     }
   ],
   "tests": [],
@@ -260,10 +266,9 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-10T10:48:25.189Z",
-    "text": "Report 0003: 10/11 first-try, fast, no hints — a real jump from 5/10, and the English-fallback reflex stayed away. One slip: the du-form (möchtest → möchte), now in your Korrektur queue until you produce it cold. New room: Supermarkt, and a first look at der→den. Konjugation and Kasus are the front. Order at the till in German — I will ask how it went.",
+    "date": "2026-07-13T09:47:31.758Z",
+    "text": "Best week yet, and recorded: 10/11 first-try, the whole Korrektur queue cleared on your own, moechtest fixed, no English fallback. Betragen +4 → 72. Silver waits on two things I now name — three unfiled Berichte (0002-0004) and the still-unreported supermarket deed. Lesson 0005 brings your first named grammar: der Plural. File the Berichte.",
     "weakAreas": [
-      "Konjugation",
       "Kasus"
     ]
   },
@@ -475,16 +480,22 @@
     }
   ],
   "conduct": {
-    "score": 68,
+    "score": 72,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
         "delta": 3,
         "score": 68,
         "reason": "Report 0003: 5/10 to 10/11 first-try, no hints, English-fallback reflex broken; unprompted drilling continued. +3 only — the du-form still slid and the real-world deed is unreported."
+      },
+      {
+        "date": "2026-07-13T09:47:19.283Z",
+        "delta": 4,
+        "score": 72,
+        "reason": "Report 0004: 10/11 first-try; entire Korrektur queue cleared unprompted (incl. Fridays miss enrolled and drilled clean the same evening); moechtest fixed; English-fallback gone; 21 voluntary drills. +4 not +5 — the Supermarkt deed is unreported and three Berichte (0002-0004) are unfiled (named this week, not yet penalised)."
       }
     ],
-    "updatedAt": "2026-07-10T10:47:58.358Z"
+    "updatedAt": "2026-07-13T09:47:19.283Z"
   },
   "requests": [
     {
@@ -496,7 +507,9 @@
         "iv": "JcKaqIGiNgPwD5Ug",
         "ct": "FqkISWEzbxkxgBzQQN55WI+1ghhcBO3lkonOpC+n594AlK4XknYkN998fTtZrVpVJI0073GaDW5vwSs6mvCjxOJAChqRlC5NyyqJ7r+nBN5XfRmTzgvEdfVZSiAyEPOU+ojt+15xs5v6EOMty28xGFhntN+xOZElsV4GEgPwt8YNtyF+g+gRng=="
       },
-      "status": "pending"
+      "status": "granted",
+      "response": "Stattgegeben — berechtigt und höflich gestellt: ab Lektion 0005 nennt jede Vorlesung ihre Grammatik beim Namen (heute: der Plural), die Chunks bleiben.",
+      "respondedAt": "2026-07-13T09:49:04.340Z"
     }
   ]
 }
