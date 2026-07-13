@@ -2,11 +2,11 @@
   "currentLessonId": "0005",
   "currentHomeworkId": "0005",
   "counters": {
-    "lessonsCompleted": 3,
-    "totalQuestions": 32,
-    "totalCorrect": 25,
+    "lessonsCompleted": 4,
+    "totalQuestions": 43,
+    "totalCorrect": 32,
     "streakDays": 1,
-    "lastPracticed": "2026-07-11T09:52:11.014Z"
+    "lastPracticed": "2026-07-13T18:49:18.284Z"
   },
   "history": [
     {
@@ -230,6 +230,87 @@
         }
       },
       "weakCategories": []
+    },
+    {
+      "reportId": "0005",
+      "homeworkId": "0005",
+      "title": "Im Supermarkt — Mengen, Plural & Pfand",
+      "date": "2026-07-13T18:49:18.284Z",
+      "startedAt": "2026-07-13T18:43:38.993Z",
+      "durationSec": 339,
+      "totalQuestions": 11,
+      "firstTryCorrect": 7,
+      "eventualCorrect": 11,
+      "totalAttempts": 15,
+      "reworkRatio": 1.36,
+      "avgFirstAnswerLatencySec": 15.8,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 0,
+      "categoryAttempts": {
+        "Produktion": {
+          "attempts": 2,
+          "count": 1
+        },
+        "Kasus": {
+          "attempts": 3,
+          "count": 2
+        },
+        "Vokabular": {
+          "attempts": 5,
+          "count": 3
+        },
+        "Konjugation": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Redemittel": {
+          "attempts": 2,
+          "count": 2
+        },
+        "Wortstellung": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Hörverstehen": {
+          "attempts": 1,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Produktion": {
+          "correct": 0,
+          "total": 1
+        },
+        "Kasus": {
+          "correct": 1,
+          "total": 2
+        },
+        "Vokabular": {
+          "correct": 1,
+          "total": 3
+        },
+        "Konjugation": {
+          "correct": 1,
+          "total": 1
+        },
+        "Redemittel": {
+          "correct": 2,
+          "total": 2
+        },
+        "Wortstellung": {
+          "correct": 1,
+          "total": 1
+        },
+        "Hörverstehen": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Produktion",
+        "Kasus",
+        "Vokabular"
+      ]
     }
   ],
   "lessons": [
@@ -477,6 +558,58 @@
       "lastPassedAt": "2026-07-11T19:26:09.915Z",
       "status": "cleared",
       "clearedAt": "2026-07-11T19:26:09.915Z"
+    },
+    {
+      "key": "0005:q1",
+      "hwId": "0005",
+      "qid": "q1",
+      "category": "Produktion",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-13T18:49:18.284Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0005:q3",
+      "hwId": "0005",
+      "qid": "q3",
+      "category": "Vokabular",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-13T18:49:18.284Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0005:q6",
+      "hwId": "0005",
+      "qid": "q6",
+      "category": "Vokabular",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-13T18:49:18.284Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0005:q7",
+      "hwId": "0005",
+      "qid": "q7",
+      "category": "Kasus",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-13T18:49:18.284Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ],
   "conduct": {
