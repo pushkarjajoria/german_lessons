@@ -549,6 +549,13 @@
       "items": 2,
       "firstTry": 2,
       "durationSec": 10
+    },
+    {
+      "date": "2026-07-19T07:37:24.617Z",
+      "mode": "korrektur",
+      "items": 2,
+      "firstTry": 2,
+      "durationSec": 12
     }
   ],
   "corrections": [
