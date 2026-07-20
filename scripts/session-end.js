@@ -1,133 +1,155 @@
 #!/usr/bin/env node
 // session-end.js — the last thing Frau Richter runs, every session.
 //
-// Her sandbox can FETCH (the repo is public, plain HTTPS) but cannot PUSH:
-// there is no SSH key and no known_hosts there, so `git push` dies with
-// "Host key verification failed". Her work therefore has to reach origin one
-// of two ways, and this script takes whichever is available:
+// It commits the run and publishes it. Two sandbox facts shape the whole file:
 //
-//   * GL_GITHUB_TOKEN set (in the gitignored .env, beside GL_PASSWORD) →
-//     it pushes over authenticated HTTPS itself, and the loop closes with no
-//     human in it. The token is never written to the repo, never printed, and
-//     never stored in git config — it lives only in the .env and in the URL
-//     of a single push invocation.
-//   * No token → it commits anyway and writes an exact, copy-pasteable
-//     handoff into frau_richter/NEEDS_ATTENTION.md, so the Mac can publish
-//     the run with one paste.
+//   * COMMIT: the mount denies unlink inside `.git/`, so a stale index.lock
+//     would otherwise block `git add` forever (FR-003). We commit through an
+//     index held in the system temp dir, where locks can be created AND
+//     removed, so `.git/index.lock` is irrelevant. See lib-git.js.
+//   * PUSH: there is no SSH key there. With GL_GITHUB_TOKEN in the gitignored
+//     .env it pushes over authenticated HTTPS and the loop closes with nobody
+//     in it; without one it writes an exact one-paste hand-off.
 //
-// Either way her work is COMMITTED, which is what stops the weekly divergence
-// from getting worse.
+// It also closes the run claim (FR-006) and marks the Berichte that
+// session-start.js printed as read (FR-001) — "filed" is not "read", and it is
+// the reading that changes the teaching.
 //
 // Usage:  node scripts/session-end.js --message "lesson 0007: … + conduct …"
 //         node scripts/session-end.js --message "…" --dry-run
 
-import { execSync, execFileSync } from 'node:child_process';
-import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { canUnlinkInGitDir, withExternalIndex } from './lib-git.js';
+// Side-effect import: lib-crypto.js loads the gitignored .env (GL_PASSWORD,
+// GL_GITHUB_TOKEN) on module load. Without this, GL_GITHUB_TOKEN is never
+// populated here even when it's sitting in .env, and every run silently
+// falls back to the hand-off instead of pushing.
+import './lib-crypto.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HER_DIR = join(ROOT, 'frau_richter');
+const CLAIM = join(HER_DIR, 'RUN_CLAIM.json');
+const MANIFEST = join(ROOT, 'docs', 'data', 'manifest.json');
 const HTTPS_URL = 'https://github.com/pushkarjajoria/german_lessons.git';
 
 const args = process.argv.slice(2);
-const opt = (name) => {
-  const i = args.indexOf(name);
-  return i >= 0 ? args[i + 1] : null;
+const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
+const gitQ = (a) => {
+  try { return execFileSync('git', a, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); }
+  catch { return null; }
 };
-const git = (cmd) => execSync(`git ${cmd}`, { cwd: ROOT, encoding: 'utf8' }).trim();
-const gitQuiet = (cmd) => { try { return git(cmd); } catch { return null; } };
 
 const message = opt('--message') || opt('-m');
-if (!message) {
-  console.error('A commit needs a message: --message "lesson 0007: … + conduct …"');
-  process.exit(1);
-}
+if (!message) { console.error('A commit needs a message: --message "lesson 0007: … + conduct …"'); process.exit(1); }
 
 console.log('═══ SESSION END ═══');
 
-// ---------- 1. what is there to publish? ----------
-const dirty = git('status --porcelain');
-if (!dirty) {
-  console.log('  nothing new in the working tree.');
-} else {
-  console.log('  changes to publish:');
-  for (const l of dirty.split('\n')) console.log(`    ${l}`);
-}
+const dirty = gitQ(['status', '--porcelain']) || '';
+if (dirty) { console.log('  changes to publish:'); for (const l of dirty.split('\n')) console.log(`    ${l}`); }
+else console.log('  nothing new in the working tree.');
 
-if (args.includes('--dry-run')) {
-  console.log('  --dry-run: stopping before commit.');
-  process.exit(0);
-}
+if (args.includes('--dry-run')) { console.log('  --dry-run: stopping before commit.'); process.exit(0); }
 
-// ---------- 2. commit ----------
-// Only the published surface. Plaintext sources (scripts/templates/) and her
-// private notes are gitignored and stay out by construction.
-if (dirty) {
+// ---------- 1. mark the Berichte she was shown as read (FR-001) ----------
+// Done before the commit so it rides along in the same publish.
+let claim = null;
+try { claim = existsSync(CLAIM) ? JSON.parse(readFileSync(CLAIM, 'utf8')) : null; } catch { /* ignore */ }
+if (claim?.berichteShown?.length) {
   try {
-    git('add docs/data');
-    // Her own notes are gitignored; add anything else she deliberately touched.
-    const staged = git('diff --cached --name-only');
-    if (!staged) {
-      console.log('  nothing under docs/data changed — nothing to commit.');
-    } else {
-      execFileSync('git', ['commit', '-m', message], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
-      console.log(`  committed: ${message}`);
+    const m = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+    const stamp = new Date().toISOString();
+    let n = 0;
+    for (const id of claim.berichteShown) {
+      if (m.assignmentReports?.[id] && !m.assignmentReports[id].readByTeacher) {
+        m.assignmentReports[id].readByTeacher = stamp;
+        n += 1;
+      }
+    }
+    if (n) { writeFileSync(MANIFEST, JSON.stringify(m, null, 2)); console.log(`  marked ${n} Bericht(e) read: ${claim.berichteShown.join(', ')}`); }
+  } catch (e) { console.log(`  (could not mark Berichte read: ${e.message})`); }
+}
+
+// ---------- 2. commit, through an index that cannot be locked out ----------
+const mount = canUnlinkInGitDir(ROOT);
+let committed = false;
+const pending = gitQ(['status', '--porcelain']) || '';
+if (pending) {
+  let g = null;
+  try {
+    g = withExternalIndex(ROOT);
+    g.git(['add', 'docs/data']);
+    const staged = g.git(['diff', '--cached', '--name-only']).trim();
+    if (!staged) console.log('  nothing under docs/data changed — nothing to commit.');
+    else {
+      g.git(['commit', '-m', message]);
+      committed = true;
+      console.log(`  committed${mount.unlinkable ? '' : ' (external index — the stale .git/index.lock was bypassed)'}: ${message}`);
     }
   } catch (e) {
-    const msg = String(e.stderr || e.message);
-    console.error(`  COMMIT FAILED: ${msg.split('\n')[0]}`);
-    if (msg.includes('index.lock')) {
-      console.error('  → a stale .git/index.lock is in the way; session-start.js clears it when it can.');
-    }
-    writeHandoff(message, 'commit failed — the work is on disk but uncommitted');
+    const msg = String(e.stderr || e.message).split('\n').filter(Boolean)[0] || String(e.message);
+    console.error(`  COMMIT FAILED: ${msg}`);
+    writeHandoff(message, 'commit failed — the work is on disk but uncommitted', msg);
+    closeClaim('commit-failed');
+    console.log('  → hand-off written to frau_richter/NEEDS_ATTENTION.md');
     process.exit(1);
+  } finally {
+    if (g) g.dispose();
   }
 }
 
-const unpushed = Number(gitQuiet('rev-list --count @{u}..HEAD') || gitQuiet('rev-list --count origin/main..HEAD') || 0);
-if (!unpushed) {
-  console.log('  nothing to push. Done.');
-  process.exit(0);
-}
+const unpushed = Number(gitQ(['rev-list', '--count', 'origin/main..HEAD']) || 0);
+if (!unpushed) { console.log('  nothing to push. Done.'); closeClaim('published'); process.exit(0); }
 
-// ---------- 3. push, if we have a way ----------
+// ---------- 3. push ----------
 const token = process.env.GL_GITHUB_TOKEN;
 if (token) {
   try {
-    // Token only ever appears in this one argv, never in config or the repo.
     const authUrl = HTTPS_URL.replace('https://', `https://x-access-token:${token}@`);
     execFileSync('git', ['push', authUrl, 'HEAD:main'], {
-      cwd: ROOT,
-      env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
-      stdio: ['ignore', 'pipe', 'pipe'],
+      cwd: ROOT, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' }, stdio: ['ignore', 'pipe', 'pipe'],
     });
-    console.log(`  pushed ${unpushed} commit(s) to origin over HTTPS. The site redeploys itself.`);
+    console.log(`  pushed ${unpushed} commit(s) to origin. The site redeploys itself.`);
     clearHandoff();
+    closeClaim('published');
     process.exit(0);
   } catch (e) {
-    const msg = String(e.stderr || e.message).replace(token, '***');
-    console.error(`  PUSH FAILED: ${msg.split('\n').slice(0, 2).join(' ')}`);
+    const msg = String(e.stderr || e.message).replaceAll(token, '***');
+    console.error(`  PUSH FAILED: ${msg.split('\n').filter(Boolean).slice(0, 2).join(' ')}`);
+    if (/non-fast-forward|rejected/.test(msg)) {
+      console.error('  → origin moved while you were teaching. Re-run session-start.js (it rebases), then this again.');
+    }
   }
 } else {
-  console.log('  no GL_GITHUB_TOKEN — cannot push from here (SSH is unavailable in this sandbox).');
+  console.log('  no GL_GITHUB_TOKEN — cannot push from here (no SSH key in this sandbox).');
 }
 
 writeHandoff(message, `${unpushed} commit(s) committed locally, not pushed`);
-console.log('  → handoff written to frau_richter/NEEDS_ATTENTION.md');
+closeClaim('committed-not-pushed');
+console.log('  → hand-off written to frau_richter/NEEDS_ATTENTION.md');
 
-// ---------- handoff ----------
+// ---------- helpers ----------
 
-function writeHandoff(msg, why) {
+function closeClaim(outcome) {
+  if (!claim) return;
+  try {
+    claim.closedAt = new Date().toISOString();
+    claim.outcome = outcome;
+    writeFileSync(CLAIM, JSON.stringify(claim, null, 2));
+  } catch { /* not worth failing the run over */ }
+}
+
+function writeHandoff(msg, why, detail = '') {
   mkdirSync(HER_DIR, { recursive: true });
-  const when = new Date().toISOString();
-  const log = gitQuiet('log --oneline origin/main..HEAD') || gitQuiet('log --oneline -3') || '';
+  const log = gitQ(['log', '--oneline', 'origin/main..HEAD']) || gitQ(['log', '--oneline', '-3']) || '';
   writeFileSync(join(HER_DIR, 'NEEDS_ATTENTION.md'),
-`# NEEDS ATTENTION — ${when.slice(0, 10)}
+`# NEEDS ATTENTION — ${new Date().toISOString().slice(0, 10)}
 
-**${why}.** The teaching work itself is done and correct on disk; only publishing is left.
-The scheduled sandbox has no SSH key, so it cannot push.
+**${why}.** The teaching work is done and correct on disk; only publishing is left.
 
+${detail ? `Reported error:\n\n\`\`\`\n${detail}\n\`\`\`\n` : ''}
 ## One paste from your Mac publishes it
 
 \`\`\`bash
@@ -135,8 +157,8 @@ cd ~/Github/german_lessons
 git push
 \`\`\`
 
-If that says the branches diverged, the learner's site pushed while I was writing.
-Nothing is lost — this reconciles both sides and keeps my ruling and his work:
+If it says the branches diverged, the site pushed while I was writing. Nothing is lost —
+this reconciles both sides, keeping my ruling and his work:
 
 \`\`\`bash
 git pull --rebase && git push
@@ -148,25 +170,11 @@ git pull --rebase && git push
 ${log}
 \`\`\`
 
-## To stop seeing this file every week
-
-Put a GitHub token with \`contents: write\` in the gitignored \`.env\`, beside GL_PASSWORD:
-
-\`\`\`
-GL_GITHUB_TOKEN=github_pat_…
-\`\`\`
-
-Then \`session-end.js\` pushes on its own and the loop closes with no human in it.
-The token never enters the repo — \`.env\` is gitignored, and it is never written to
-git config or printed.
-
 _Last run's commit message: ${msg}_
 `);
 }
 
 function clearHandoff() {
   const f = join(HER_DIR, 'NEEDS_ATTENTION.md');
-  if (existsSync(f)) {
-    writeFileSync(f, `# NEEDS ATTENTION\n\n_Nothing outstanding. Last run published itself at ${new Date().toISOString()}._\n`);
-  }
+  if (existsSync(f)) writeFileSync(f, `# NEEDS ATTENTION\n\n_Nothing outstanding. The last run published itself at ${new Date().toISOString()}._\n`);
 }

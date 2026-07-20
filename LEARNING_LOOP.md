@@ -59,6 +59,36 @@ any report file the manifest hasn't caught up with.
 one-paste handoff to `frau_richter/NEEDS_ATTENTION.md`. Either way the work is
 committed, which is what keeps the histories from drifting.
 
+**FR-003, fixed 2026-07-20.** The sandbox mount **permits creating files inside `.git/` but
+denies deleting them** — `touch .git/__probe` succeeds, `rm` on it returns *Operation not
+permitted*, on a file owned by the sandbox user at mode 600. Because git creates
+`index.lock` with `O_CREAT|O_EXCL`, a single stale lock used to make every `git add` /
+`git commit` fail for the rest of the session, silently — `session-start.js` printed only
+`in sync with origin.` and a whole run could be taught believing it would publish.
+
+Fixed via `scripts/lib-git.js`: both scripts now commit through an index held in the
+system temp dir (`GIT_INDEX_FILE`, seeded with `git read-tree HEAD`), where the lock is
+created and removed on a writable-and-unlinkable path — so a stale, even *unremovable*,
+`.git/index.lock` becomes irrelevant litter instead of a permanent blockade.
+`session-start.js` now also says plainly when the mount can't unlink, and
+`session-end.js` reports the actual publish route used. Verified against a genuinely
+undeletable lock (macOS `chflags uchg`, reproducing the sandbox's `EPERM`): commit
+succeeds regardless.
+
+## Step 0.5 — She opens the drawer
+
+Before teaching, she reads `feature requests.md` (repo root, gitignored) for anything the
+development sessions have marked **`built`** since she last looked, and starts using it that
+day. At the end of the session she writes back into it.
+
+This is a **loop, not a suggestion box**: the development chat reads that file every time it
+is opened and implements what is pending, so a gap she absorbs silently is a gap that never
+gets fixed and that she pays for again every week. The trigger for writing an entry is not
+only "something broke" — it is also, and mostly, *catching herself improvising*: tracking
+something in her private notes because the site has nowhere to put it, trimming a judgement
+to fit a field, or telling him in prose what a dashboard should be showing him. See persona
+§ session routine, step 8.
+
 ## Step 1 — The session reads the record
 
 At the start of a Claude Code session in this repo, the assistant (as Frau Richter, per
