@@ -127,6 +127,58 @@ function render(manifest) {
     return det;
   };
 
+  // FR-005: her judgement of a justify:true answer, sent back instead of
+  // stopping at "Richtig" — a right answer for the wrong reason otherwise
+  // never reaches him. manifest.justifyVerdicts[reportId][qid] = {verdict, note}.
+  const verdicts = manifest.justifyVerdicts || {};
+  const justifyBlock = (l, h) => {
+    const reportId = h.reportId || l.id;
+    const byQid = verdicts[reportId];
+    if (!byQid || !Object.keys(byQid).length) return null;
+    const det = document.createElement('details');
+    det.className = 'report-details';
+    const sum = document.createElement('summary');
+    sum.className = 'report-sum';
+    sum.textContent = `Verdict on your reasoning (${Object.keys(byQid).length}) — view`;
+    det.appendChild(sum);
+    const body = document.createElement('div');
+    body.className = 'report-body';
+    det.appendChild(body);
+    det.addEventListener('toggle', async () => {
+      if (!det.open || body.dataset.loaded) return;
+      body.dataset.loaded = '1';
+      try {
+        const [reportRes, hwRes] = await Promise.all([
+          gh.readText(`data/reports/report-${reportId}.json.enc`),
+          gh.readText(`data/homework/homework-${l.id}.json.enc`),
+        ]);
+        const report = JSON.parse(await decryptString(getPassword(), JSON.parse(reportRes.text)));
+        const hw = JSON.parse(await decryptString(getPassword(), JSON.parse(hwRes.text)));
+        body.innerHTML = '';
+        for (const [qid, v] of Object.entries(byQid)) {
+          const pq = (report.perQuestion || []).find((p) => p.qid === qid);
+          const q = (hw.questions || []).find((x) => x.id === qid);
+          const row = document.createElement('div');
+          row.className = 'justify-verdict-row';
+          row.innerHTML = `
+            <p class="jv-prompt"></p>
+            <p class="jv-given muted">You answered: <strong></strong></p>
+            <p class="jv-reason muted">Your reasoning: <em></em></p>
+            <p class="jv-verdict jv-verdict-${v.verdict}"><strong></strong> <span></span></p>`;
+          row.querySelector('.jv-prompt').textContent = q?.prompt || qid;
+          row.querySelector('.jv-given strong').textContent = pq?.given ?? '(no record)';
+          row.querySelector('.jv-reason em').textContent = pq?.justification || '(none given)';
+          row.querySelector('.jv-verdict strong').textContent = v.verdict === 'sound' ? 'Sound reasoning.' : 'Pattern-matching.';
+          row.querySelector('.jv-verdict span').textContent = `— ${v.note}`;
+          body.appendChild(row);
+        }
+      } catch (e) {
+        body.innerHTML = `<p class="muted">(could not load: ${e.message})</p>`;
+      }
+    });
+    return det;
+  };
+
   const rowFor = (l) => {
     const h = byHw.get(l.id);
     const wrap = document.createElement('div');
@@ -150,7 +202,11 @@ function render(manifest) {
       <span class="assignment-name"><span class="leaf-id">${l.id}</span> ${l.title}</span>
       <span class="assignment-right">${right}</span>`;
     wrap.appendChild(row);
-    if (h) wrap.appendChild(reportBlock(l, manifest));
+    if (h) {
+      wrap.appendChild(reportBlock(l, manifest));
+      const jv = justifyBlock(l, h);
+      if (jv) wrap.appendChild(jv);
+    }
     return wrap;
   };
 

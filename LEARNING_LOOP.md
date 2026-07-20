@@ -284,7 +284,12 @@ override; near-duplicates get a warning).
   attempt and is counted in the report (`restarts`).
 - **Justify-your-answer:** questions flagged `justify: true` demand a typed one-line
   reason — in homework before continuing, in tests inside the same time limit — stored
-  verbatim (`justification`) for subjective grading.
+  verbatim (`justification`) for subjective grading. **Her verdict on it comes back**
+  (FR-005): `scripts/justify-verdict.js --report NNNN --qid qN --verdict
+  sound|pattern-matching --note "…"` writes to `manifest.justifyVerdicts[reportId][qid]`
+  (plaintext aggregate, never touches the encrypted report); the Assignments page
+  decrypts the matching report + homework to show his prompt/answer/reasoning next to
+  her verdict, per assignment.
 - **Buried interleaving:** `new-lesson.js --interleave 0002:q7` copies old questions
   into today's homework at random positions, unmarked for the learner, marked
   (`interleaved`) in the report. `new-lesson.js --republish NNNN` (FR-002) corrects an
