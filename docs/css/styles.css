@@ -165,7 +165,7 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
   color: var(--text-dim);
   cursor: pointer;
 }
-.lock-remember input { accent-color: var(--ink); }
+.lock-remember input { accent-color: var(--ink); flex: none; }
 .lock-error {
   color: var(--ink);
   font-size: 0.92rem;
@@ -173,6 +173,7 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
   margin-top: 0.9rem;
 }
 .lock-note { color: var(--text-dim); font-size: 0.82rem; margin-top: 1.4rem; text-align: left; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
+.lock-version { color: var(--text-dim); font-size: 0.72rem; margin-top: 1.4rem; opacity: 0.7; }
 .lock-note strong { color: var(--text); }
 
 /* Silent-unlock state: the tab already holds the password, so no login form —
@@ -218,7 +219,10 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
 .btn-row { display: flex; gap: 0.6rem; margin-top: 0.75rem; }
 
 label { display: block; margin: 0.8rem 0 0; font-size: 0.92rem; color: var(--text-dim); }
-label input {
+/* Settings-style text inputs nested in a <label> — NOT checkboxes/radios,
+   which this generic selector was also matching (it forced a checkbox to
+   render as a full-width block, breaking .lock-remember's layout entirely). */
+label input:not([type="checkbox"]):not([type="radio"]) {
   display: block;
   width: 100%;
   margin-top: 0.3rem;
@@ -946,6 +950,29 @@ body[data-tier="cone"] h1, body[data-tier="cone"] h2 { color: var(--text); }
 .confusion-row { font-size: 0.95rem; margin: 0.3rem 0; }
 
 /* ---------- assignments ledger ---------- */
+
+/* Phases collapse (<details>) — a course with several behind you shouldn't
+   mean scrolling past everything already done to reach today's row. */
+.phase-section { margin-bottom: 0.4rem; }
+.phase-summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.1rem;
+  border-radius: var(--radius);
+}
+.phase-summary::-webkit-details-marker { display: none; }
+.phase-summary::before {
+  content: '▶';
+  font-size: 0.62em;
+  color: var(--text-dim);
+  transition: transform 0.15s;
+}
+.phase-section[open] > .phase-summary::before { transform: rotate(90deg); }
+.phase-summary:hover { background: var(--bg-inset); }
 
 .pending-panel { border-left: 4px solid var(--brass); }
 .pending-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }

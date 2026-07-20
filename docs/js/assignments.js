@@ -210,13 +210,24 @@ function render(manifest) {
     return wrap;
   };
 
+  // Phases are collapsible (<details>) — a course with several phases behind
+  // you otherwise means scrolling past everything already done just to reach
+  // today's row. The phase holding the pending assignment (or, failing that,
+  // the last one) opens by default; earlier phases start collapsed.
+  const sectionNames = [...sections.keys()];
+  const pendingSection = pendingEntry?.section;
+  let defaultOpenSection = pendingSection && sections.has(pendingSection)
+    ? pendingSection
+    : sectionNames[sectionNames.length - 1];
+
   for (const [secName, subs] of sections) {
-    const secEl = document.createElement('div');
-    secEl.className = 'lesson-section';
-    const h = document.createElement('h3');
-    h.className = 'lesson-section-title';
-    h.textContent = secName;
-    secEl.appendChild(h);
+    const secEl = document.createElement('details');
+    secEl.className = 'phase-section';
+    secEl.open = secName === defaultOpenSection;
+    const sum = document.createElement('summary');
+    sum.className = 'lesson-section-title phase-summary';
+    sum.textContent = secName;
+    secEl.appendChild(sum);
     for (const [subName, items] of subs) {
       if (subName) {
         const subEl = document.createElement('p');

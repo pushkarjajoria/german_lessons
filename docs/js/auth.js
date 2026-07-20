@@ -47,6 +47,23 @@ export function lockNow() {
   location.reload();
 }
 
+// A quiet version stamp at the bottom of the lock card, so a deploy is
+// verifiable at a glance. docs/version.json is generated fresh by the Pages
+// workflow on every push (short commit sha + UTC deploy time); locally,
+// where that file doesn't exist, the line is simply omitted.
+async function renderVersionFooter(container) {
+  try {
+    const res = await fetch('version.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    const { sha, deployedAt } = await res.json();
+    if (!sha) return;
+    const p = document.createElement('p');
+    p.className = 'lock-version';
+    p.textContent = `v${sha}${deployedAt ? ` · ${deployedAt.slice(0, 10)}` : ''}`;
+    container.appendChild(p);
+  } catch { /* no version.json (local dev) — say nothing */ }
+}
+
 // Render the lock screen into #lock, hide it on success, then call onUnlock(manifest).
 // If the user opted to stay unlocked in this tab, the password is already in
 // sessionStorage — then the login form never appears: a quiet loading card
@@ -79,12 +96,11 @@ export function initLock(onUnlock) {
       </form>
       <label class="lock-remember">
         <input type="checkbox" id="lock-remember" checked />
-        Stay unlocked while this tab is open
+        <span>Remember me</span>
       </label>
       <p class="lock-error" id="lock-error" hidden></p>
-      <p class="lock-note">The password is the key, not just the door: nothing here decrypts
-      without it, and <strong>if you lose it, the content is unrecoverable</strong>. Back it up.</p>
     </div>`;
+    renderVersionFooter(el.querySelector('.lock-card'));
 
     const form = document.getElementById('lock-form');
     const pwInput = document.getElementById('lock-pw');

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Learn German">
+  <!-- Dark slate board, her red pen for a ring, the gold star every rank aims for. -->
+  <circle cx="16" cy="16" r="15" fill="#14161a" stroke="#b8433a" stroke-width="1.6"/>
+  <path fill="#c2a25c" d="M16 5.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L16 20.2l-5.9 3.4 1.3-6.6-4.9-4.6 6.6-.8z"/>
+</svg>
