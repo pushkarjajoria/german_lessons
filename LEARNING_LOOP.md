@@ -59,6 +59,16 @@ any report file the manifest hasn't caught up with.
 one-paste handoff to `frau_richter/NEEDS_ATTENTION.md`. Either way the work is
 committed, which is what keeps the histories from drifting.
 
+**FR-008, fixed 2026-07-20.** The HTTPS push above bypasses the `origin` remote
+entirely (it's an SSH URL, unreachable from the sandbox), so `refs/remotes/origin/main`
+never moved — a real, successful push left `git status` falsely reporting `ahead N`
+afterward, a false negative in exactly the direction that costs re-done or re-issued
+work. After a successful push, `session-end.js` now confirms the live commit via
+`git ls-remote` (same anonymous-HTTPS route `session-start.js` fetches with) and, if
+it matches local HEAD, corrects the tracking ref with `git update-ref
+refs/remotes/origin/main <sha>` — a plain `git status` is trustworthy again
+immediately. A mismatch is reported loudly rather than silently trusted.
+
 **FR-003, fixed 2026-07-20.** The sandbox mount **permits creating files inside `.git/` but
 denies deleting them** — `touch .git/__probe` succeeds, `rm` on it returns *Operation not
 permitted*, on a file owned by the sandbox user at mode 600. Because git creates

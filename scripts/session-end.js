@@ -120,6 +120,27 @@ if (token) {
       cwd: ROOT, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' }, stdio: ['ignore', 'pipe', 'pipe'],
     });
     console.log(`  pushed ${unpushed} commit(s) to origin. The site redeploys itself.`);
+    // FR-008: this push went straight to HTTPS, bypassing the `origin` remote
+    // entirely (it's an SSH URL, unreachable here) — so refs/remotes/origin/main
+    // never moves, and a plain `git status` right after a genuinely successful
+    // push falsely reports "ahead N". Verify what's actually live (same
+    // anonymous-HTTPS route session-start.js fetches with) and correct the
+    // local tracking ref to match, so raw git stops disagreeing with reality.
+    try {
+      const lsRemote = execFileSync('git', ['ls-remote', HTTPS_URL, 'refs/heads/main'], {
+        encoding: 'utf8', env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+      });
+      const remoteHead = lsRemote.split('\t')[0].trim();
+      const localHead = gitQ(['rev-parse', 'HEAD']);
+      if (remoteHead && remoteHead === localHead) {
+        execFileSync('git', ['update-ref', 'refs/remotes/origin/main', remoteHead], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
+        console.log(`  verified live: origin/main is ${remoteHead.slice(0, 7)}, matches HEAD. Tracking ref corrected — git status will tell the truth now.`);
+      } else {
+        console.error(`  WARNING: origin/main (${(remoteHead || '?').slice(0, 7)}) does not match local HEAD (${(localHead || '?').slice(0, 7)}) after a "successful" push — do not trust this run's publish without checking by hand.`);
+      }
+    } catch (e) {
+      console.error(`  could not verify the remote head after pushing (${String(e.message).split('\n')[0]}) — the push itself succeeded, but confirm with 'git ls-remote' before assuming git status is trustworthy.`);
+    }
     clearHandoff();
     closeClaim('published');
     process.exit(0);
