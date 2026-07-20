@@ -32,6 +32,33 @@ machine, since the repo itself is public.
                         └──────────────► loop repeats
 ```
 
+## Step 0 — The session syncs (and why it must)
+
+The scheduled sandbox has no SSH key and no `known_hosts`, so `git push` there dies
+with *Host key verification failed*, and a stale `.git/index.lock` has repeatedly
+blocked `git add`. Two failures followed from that: her commits piled up locally
+while the website pushed the learner's work to origin (**divergence**, hand-untangled
+every few days), and one run judged from a **stale manifest** while the report file
+sat on disk — it withheld a lesson and cost a week of wrong instruction.
+
+Both are fixed by bookending every session:
+
+```bash
+node scripts/session-start.js     # first command
+node scripts/session-end.js --message "…"   # last command
+```
+
+`session-start.js` clears a stale index.lock, fetches origin over **anonymous HTTPS**
+(the repo is public, so this needs no credentials and works in the sandbox), rebases
+her unpushed commits onto the learner's pushed work — so the next push is always a
+fast-forward — and prints the record **files first, manifest second**, loudly naming
+any report file the manifest hasn't caught up with.
+
+`session-end.js` commits the run. With `GL_GITHUB_TOKEN` in the gitignored `.env`
+(beside `GL_PASSWORD`) it pushes over HTTPS itself; without one it writes a
+one-paste handoff to `frau_richter/NEEDS_ATTENTION.md`. Either way the work is
+committed, which is what keeps the histories from drifting.
+
 ## Step 1 — The session reads the record
 
 At the start of a Claude Code session in this repo, the assistant (as Frau Richter, per
