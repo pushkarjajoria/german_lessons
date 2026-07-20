@@ -463,6 +463,22 @@ function render(manifest) {
   $('note-regularity').textContent = notes.regularity;
   $('note-effort').textContent = notes.effort;
 
+  // Correction notices (FR-007, scripts/correction.js): her admission that a
+  // past note or ruling was wrong, sitting right where the wrong claim sat —
+  // plain, not discipline-red, not a Nachricht he has to go open. Newest
+  // three, most recent first.
+  const notices = (manifest.correctionNotices || []).slice(-3).reverse();
+  const noticesWrap = $('correction-notices');
+  noticesWrap.innerHTML = '';
+  for (const c of notices) {
+    const block = document.createElement('div');
+    block.className = 'note-block correction-notice';
+    block.innerHTML = '<p class="note-label"></p><p class="note-text"></p>';
+    block.querySelector('.note-label').textContent = `Correction — ${fmtDate(c.date)}`;
+    block.querySelector('.note-text').textContent = c.text;
+    noticesWrap.appendChild(block);
+  }
+
   // Her hand-written remark (scripts/teacher-note.js) — shown above the
   // computed notes whenever she has left one.
   const tn = manifest.teacherNote;

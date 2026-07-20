@@ -301,6 +301,11 @@ override; near-duplicates get a warning).
   until the learner closes it (done/not yet/declining + an encrypted one-line note).
   No proof, no upload — self-report, now visible instead of living only in the
   teacher's private ledger. `session-start.js` prints every open one.
+- **Correction notices (FR-007):** `manifest.correctionNotices[]` — the counterpart
+  to Betragen docking, for when SHE was wrong. `scripts/correction.js --text "…"`
+  posts a plaintext, dated admission that a past note or ruling was mistaken; the
+  dashboard shows the latest three next to the teacher note, styled deliberately
+  plain — not discipline-red, not a Nachricht he has to open.
 - **Nachweis uploads:** discipline tasks accept a proof file on the dashboard — encrypted
   client-side and committed to `docs/data/uploads/`, opened only by the teacher
   (`scripts/read-upload.js`); clearing the block remains a manual teacher act.

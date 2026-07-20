@@ -527,6 +527,16 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .desk-note { background: var(--ink-soft); border-radius: var(--radius); padding: 0.85rem 1rem; }
 .desk-note .chips { margin-top: 0.5rem; }
 
+/* Correction notices (FR-007): deliberately plain — NOT discipline red, not
+   her authoritative ink-soft either. A neutral admission, not a verdict. */
+.correction-notice {
+  background: var(--bg-inset);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.6rem;
+}
+.correction-notice .note-label { color: var(--text-dim); }
+
 /* ---------- discipline (course halted) ---------- */
 
 .discipline-panel {
