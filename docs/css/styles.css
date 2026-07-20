@@ -29,6 +29,7 @@ body {
   font-family: var(--sans);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* belt-and-suspenders: no inner element should ever be able to push the page sideways */
 }
 
 main {
@@ -62,7 +63,7 @@ code { background: var(--bg-inset); padding: 0.1em 0.35em; border-radius: 4px; f
 }
 .brand { font-weight: 600; letter-spacing: 0.02em; display: flex; align-items: center; gap: 0.6rem; }
 .brand img { height: 34px; width: auto; opacity: 0.9; }
-.topbar nav { display: flex; gap: 1.1rem; align-items: center; }
+.topbar nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; align-items: center; }
 .topbar nav a { color: var(--text-dim); text-decoration: none; font-size: 0.95rem; }
 .topbar nav a:hover { color: var(--text); }
 .topbar nav a.active { color: var(--text); border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
@@ -455,9 +456,15 @@ label input {
 /* ---------- lessons ---------- */
 
 .lessons-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.25rem; align-items: start; }
-@media (max-width: 760px) { .lessons-layout { grid-template-columns: 1fr; } }
-
 .lesson-tree-panel { position: sticky; top: 1rem; }
+/* Below this, the two columns stack — the curriculum tree must stop being
+   sticky here too, or it pins itself to the top of the viewport and blocks
+   most of the screen from the actual lesson text underneath. Must come AFTER
+   the base rule above: same specificity, so cascade order decides. */
+@media (max-width: 760px) {
+  .lessons-layout { grid-template-columns: 1fr; }
+  .lesson-tree-panel { position: static; }
+}
 .lesson-section { margin-bottom: 1.1rem; }
 .lesson-section-title {
   font-family: var(--sans);
