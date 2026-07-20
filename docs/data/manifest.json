@@ -353,8 +353,8 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-20T13:33:44.751Z",
-    "text": "Correction: my last two notes judged you on a stale record. I said your Berichte were unfiled and that Korrektur was blocking your homework. Both were already done — the day before. Mine, not yours. True record: queue empty, all four Berichte in, nothing outstanding. +2. Lesson 0006 is rewritten around what those Berichte showed: the Akkusativ, missed in both directions. Nothing gates the deck.",
+    "date": "2026-07-20T18:37:17.862Z",
+    "text": "No new lesson today — deliberately. Lesson 0006 went live today and is untouched; stacking 0007 on top would bury it, which is the mistake I made in reverse last week. 0006 is the assignment. Three things are new on your dashboard: your two real-world tasks now sit there as open rows instead of in my notes, my verdict on your 0005 reasoning (sound), and a correction notice.",
     "weakAreas": [
       "Kasus"
     ]
@@ -784,5 +784,41 @@
       },
       "readByLearner": "2026-07-20T14:46:06.051Z"
     }
-  ]
+  ],
+  "correctionNotices": [
+    {
+      "id": "c1784572616233",
+      "date": "2026-07-20T18:36:56.233Z",
+      "text": "Twice I judged you from a stale record, and both claims went against you: on 15 July that homework 0005 was untouched, on 20 July that four Berichte were unfiled and Korrektur was blocking you. All were already done. Retracted. The -2 of 15 July rested on separate grounds and stands."
+    }
+  ],
+  "deeds": [
+    {
+      "id": "d1784572621805",
+      "text": "At the supermarket: ask \"Entschuldigung, wo finde ich ___?\" for one item, answer the card question with \"Mit Karte, bitte.\", and return one Pfand bottle at the Pfandautomat. Not to find the item — you know where it is. To say the sentence to a stranger who is not expecting it.",
+      "assignedAt": "2026-07-20T18:37:01.805Z",
+      "due": "0007",
+      "status": "open",
+      "closedAt": null,
+      "noteEnc": null
+    },
+    {
+      "id": "d1784572621824",
+      "text": "At the gym: ask \"Ist das Gerät frei?\" out loud, to an actual person, once.",
+      "assignedAt": "2026-07-20T18:37:01.824Z",
+      "due": "0007",
+      "status": "open",
+      "closedAt": null,
+      "noteEnc": null
+    }
+  ],
+  "justifyVerdicts": {
+    "0005": {
+      "q2": {
+        "verdict": "sound",
+        "note": "Sound. You named the rule — plural, therefore die — not \"it looked right.\" The article held; the endings failed three times. A rule you can state, holds. Endings go word by word.",
+        "date": "2026-07-20T18:37:13.184Z"
+      }
+    }
+  }
 }
