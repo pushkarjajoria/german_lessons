@@ -9,6 +9,13 @@
 //   node scripts/new-lesson.js --republish NNNN --lesson <file.md> --homework <file.json> \
 //        [--interleave 0002:q7] [--push]           # FR-002: correct an already-published lesson
 //
+// FR-006: refuses a second NEW lesson on the same calendar day (checks
+// manifest.lessons[].createdAt) unless --force — the Monday/Wednesday
+// scheduled-session collision this guards against. --republish is exempt;
+// it has its own guards. See also frau_richter/RUN_CLAIM.json
+// (session-start.js/session-end.js), which flags an earlier run that never
+// closed.
+//
 // --interleave buries copies of old questions in today's homework at random
 // positions (marked `interleaved` in the report, invisible to the learner) —
 // the "you thought this was settled" trap.
@@ -56,6 +63,18 @@ if (republishId) {
   }
   if (!(manifest.lessons || []).some((l) => l.id === republishId)) {
     console.error(`No lesson ${republishId} is indexed in the manifest — nothing to republish. Use the normal mode (without --republish) to publish it for the first time.`);
+    process.exit(1);
+  }
+} else {
+  // FR-006: two scheduled sessions share this repo (the scheduler can't fire
+  // one task twice a week), and a lesson published twice on the same day is
+  // exactly the collision that has no other guard. Refuse unless --force.
+  const today = new Date().toISOString().slice(0, 10);
+  const latest = (manifest.lessons || []).find((l) => l.id === manifest.currentLessonId);
+  if (latest?.createdAt?.slice(0, 10) === today && !args.includes('--force')) {
+    console.error(`A lesson (${latest.id}) was already published today (${today}). ` +
+      'If a second lesson today is genuinely intended — not the Monday/Wednesday twins colliding — rerun with --force.');
+    console.error('If this is unexpected, check frau_richter/RUN_CLAIM.json for another run before proceeding.');
     process.exit(1);
   }
 }
@@ -227,6 +246,7 @@ if (republishId) {
     title: lessonMeta.title,
     section: lessonMeta.section,
     ...(lessonMeta.subsection ? { subsection: lessonMeta.subsection } : {}),
+    createdAt: new Date().toISOString(), // FR-006: same-day publish guard reads this
   });
   manifestTouched = true;
   writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));

@@ -75,6 +75,16 @@ created and removed on a writable-and-unlinkable path — so a stale, even *unre
 undeletable lock (macOS `chflags uchg`, reproducing the sandbox's `EPERM`): commit
 succeeds regardless.
 
+**FR-006, fixed 2026-07-20.** Two scheduled sessions (Monday/Wednesday) share this
+repo with no way to merge them, so nothing but hoped-at prose in `state.md` kept them
+from double-authoring a lesson or re-issuing a ruling. `session-start.js` now writes
+`frau_richter/RUN_CLAIM.json` (run id, weekday, intent, publish route) and
+`session-end.js` closes it with the actual outcome; an earlier claim found still open
+is a loud warning, not something to assume finished or absent. `new-lesson.js`
+additionally refuses a second **new** lesson on the same calendar day unless
+`--force` (stamps and checks `createdAt` on `manifest.lessons[]`) — `--republish` is
+exempt, since correcting today's own lesson isn't the collision this guards against.
+
 ## Step 0.5 — She opens the drawer
 
 Before teaching, she reads `feature requests.md` (repo root, gitignored) for anything the
