@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0005",
-  "currentHomeworkId": "0005",
+  "currentLessonId": "0006",
+  "currentHomeworkId": "0006",
   "counters": {
     "lessonsCompleted": 4,
     "totalQuestions": 43,
@@ -337,6 +337,12 @@
       "title": "Im Supermarkt — Mengen, Plural & Pfand",
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Supermarkt"
+    },
+    {
+      "id": "0006",
+      "title": "Im Fitnessstudio — Geräte, Sätze & der Akkusativ",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Fitnessstudio"
     }
   ],
   "tests": [],
@@ -347,8 +353,8 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-15T08:09:16.873Z",
-    "text": "Lesson 0005 (plural, quantities, Pfand) has been live since Monday and its homework is still untouched. Finish it — no new lesson today, by decision, not neglect. Three Berichte (0002-0004), named last week, remain unfiled: Betragen -2 -> 70, exactly as I warned. Plural (article always die) and accusative (der->den) stay your weak ground. Do 0005.",
+    "date": "2026-07-20T12:18:15.809Z",
+    "text": "Correction first: last week's note told you to do homework 0005. You had already done it, the evening it appeared. I read a stale record — my fault, not yours. What the record shows: 7/11, then that same night two Korrektur items to 3/3 and vocab 10/10. Recorded, +2. Three of four misses were plural endings, one was den. Lesson 0006 moves to the gym and drags both with it. Berichte: still four.",
     "weakAreas": [
       "Kasus"
     ]
@@ -673,7 +679,7 @@
     }
   ],
   "conduct": {
-    "score": 70,
+    "score": 72,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -692,9 +698,15 @@
         "delta": -2,
         "score": 70,
         "reason": "Three post-assignment Berichte (0002-0004) named last session remain unfiled; pre-committed repeat-offence consequence applied. Not tied to homework 0005 (only 2 days live). Held at -2: proportionate, first enforcement of a named lapse."
+      },
+      {
+        "date": "2026-07-20T12:18:03.452Z",
+        "delta": 2,
+        "score": 72,
+        "reason": "Report 0005 was done the evening it went live (7/11 first-try) and followed the same night by unprompted remediation: two Korrektur items drilled to 3/3, vocab set 10/10. That work went unrecorded last session because the run misread the record; credit is entered where it belonged. Berichte stay docked once, not twice."
       }
     ],
-    "updatedAt": "2026-07-15T08:09:06.989Z"
+    "updatedAt": "2026-07-20T12:18:03.452Z"
   },
   "requests": [
     {
