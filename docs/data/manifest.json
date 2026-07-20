@@ -353,8 +353,8 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-20T12:18:15.809Z",
-    "text": "Correction first: last week's note told you to do homework 0005. You had already done it, the evening it appeared. I read a stale record — my fault, not yours. What the record shows: 7/11, then that same night two Korrektur items to 3/3 and vocab 10/10. Recorded, +2. Three of four misses were plural endings, one was den. Lesson 0006 moves to the gym and drags both with it. Berichte: still four.",
+    "date": "2026-07-20T13:33:44.751Z",
+    "text": "Correction: my last two notes judged you on a stale record. I said your Berichte were unfiled and that Korrektur was blocking your homework. Both were already done — the day before. Mine, not yours. True record: queue empty, all four Berichte in, nothing outstanding. +2. Lesson 0006 is rewritten around what those Berichte showed: the Akkusativ, missed in both directions. Nothing gates the deck.",
     "weakAreas": [
       "Kasus"
     ]
@@ -679,7 +679,7 @@
     }
   ],
   "conduct": {
-    "score": 72,
+    "score": 74,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -704,9 +704,15 @@
         "delta": 2,
         "score": 72,
         "reason": "Report 0005 was done the evening it went live (7/11 first-try) and followed the same night by unprompted remediation: two Korrektur items drilled to 3/3, vocab set 10/10. That work went unrecorded last session because the run misread the record; credit is entered where it belonged. Berichte stay docked once, not twice."
+      },
+      {
+        "date": "2026-07-20T13:33:39.480Z",
+        "delta": 2,
+        "score": 74,
+        "reason": "Correction queue cleared to zero (0005:q6, 0005:q7 both to 3/3) and all four outstanding Berichte filed on 2026-07-19 — four days after the -2 was applied. The named consequence was met in full; the obligation is closed. Credit entered late because the previous two runs read a stale record. The -2 of 2026-07-15 was correct on its own grounds and stands."
       }
     ],
-    "updatedAt": "2026-07-20T12:18:03.452Z"
+    "updatedAt": "2026-07-20T13:33:39.480Z"
   },
   "requests": [
     {
@@ -731,7 +737,8 @@
         "salt": "mSyQ070bBUmvZNdmyWECBA==",
         "iv": "sMYIr9StZKO9iTo5",
         "ct": "qJxctZIN+SYGKXytRsnU+8DmxrzbFBN/O/YvirNbCbXVg5Uv79cLFWPuIylBq0cbEgTWzzUBWSULsfcQ7uiCE5AUxYyjJfg7RMNM+0D5fFtIB6wqM9SMs1Q7//NFm19I5LPkARGsX2xn9ePIsWzeKuG+PBSvqpgDi0lauoVco0mZhyY0OKuS27J+W8x5HMU1schTDJxY9DeWfe6LNaIwt0dYy5fsqIzpx2h88hie"
-      }
+      },
+      "readByTeacher": "2026-07-20T14:05:00.774Z"
     },
     "0003": {
       "date": "2026-07-19T11:48:31.370Z",
@@ -740,7 +747,8 @@
         "salt": "arwakxApcBGOftS4dSrfYQ==",
         "iv": "yvm8J6V6YfxPjvTv",
         "ct": "lGQMWo2Q9f32vjJKGBO3HlBggcXtEKPn2MDCinGHJbTuq/4ogjqUWejILKC3xrME/L4LqFPCu+0GpYd/Kwb/RksigHHnqaXzpHg/9wS+vbVX8BHJbZYYZ2s5WPDdropsj/d3Z5FnrxVtj3ju2fmUR730N0RwCioIzgtlsV1hJFrV26nADDlAMpTcjyLM7Ycivy9wzOVcZnHqUNq+b+U="
-      }
+      },
+      "readByTeacher": "2026-07-20T14:05:00.774Z"
     },
     "0004": {
       "date": "2026-07-19T11:49:37.714Z",
@@ -749,7 +757,8 @@
         "salt": "qKDxce1SP+3nDAQsfVCZvw==",
         "iv": "32U+Z8oRGfoo6fUF",
         "ct": "wPjmtL9SRf1pAdpXYuxiijqyG3AhJ04Vg6jhAZoMku1oMxrhcbbLqqI3Kp/0Z0LC4K74knGZtVUyrzWINuS0funaJDmCCG5nG1Fll7FhIiLfPNVCpRv7IDlyw8DJ7F+/yS17DqQlWU6LSZHmf0/RHpRudn6wzQ9mZ/PadQzk2IcWuw=="
-      }
+      },
+      "readByTeacher": "2026-07-20T14:05:00.774Z"
     },
     "0005": {
       "date": "2026-07-19T11:51:32.199Z",
@@ -758,7 +767,21 @@
         "salt": "X+n9iJP1jqOiGcMg31kjdg==",
         "iv": "lhb0P8f5uyD5f1i5",
         "ct": "5WC3svH0WMpBOQQEkY/LdSaex9NGqmk3oMMNahLGfDFTudQSyxJ9CLGaoXC9BEFXM9prZ267YLd/2IHC3tEtSAnudbkvjvbuO8oiYe+jFDEShsxyPW05JuyBHQo/q2HzjciXOi7X/x5YaBX0vpn4pFmyXtA6odeMyf4TTgw9pws5JsnhRdXNFYCTeBOgKfO4dm68zA6Cl7g8iAsnBXow3cNeJspdtoUXs+MYQcG9LQ=="
+      },
+      "readByTeacher": "2026-07-20T14:05:00.774Z"
+    }
+  },
+  "messages": [
+    {
+      "id": "m1784554880215",
+      "date": "2026-07-20T13:41:20.215Z",
+      "from": "richter",
+      "enc": {
+        "v": 1,
+        "salt": "88fHmrqVGHbZxrTmmlQtCg==",
+        "iv": "4KJTzvLHibgPk1H9",
+        "ct": "O7RiKA3PeGkQYwQoEMJQ5avVDb1SXprdOzUyvLEqsXvQCpWNSxGxSY/GRLNZ/UKp2Lx0mIT2/b9Mrc78QaADOVnalUlUqnOA3RQa60gcBPg3baGhWrdCqY/Q1dnJhLS0aELhjpm/x51n3xPVX6v84km2V7oVKT0ihWukEX0CN062dXHQyvAilR8jpAqZW+dbqsKn63SE29WlC3S1moD7TIde6w1cc0S66+syUUR6M4hYzCovghh3At0jeLiypwkdPcXfUyR0/gB/UnnmescHYAmwpGu9L7sfUBUWPZjXAOSZrn1XQTaHy0Di4nsYxm6TVBZ12ZN0hPZ+OXm/NlWriZNFlbXGcZ4Nba/DHllAaM5MwVniMyNHw2OsmmZ0rBVj4KhPFxtA7OtUe8lzlEQHoT4+ByBDZewrLua4fL+eginIx6gke4i6ATvFVKk++GB8n7gzOR7nG2xWAFCBuDpGaEqnyxj1UAD66XV/ksH1d5XFdN/Nsuvz3fbmoPm+K+A2FsVMkZORANXwuOMyd7B6dGrlVBfhXGJToPZFnU6BHn/tf0ixJRTQvJGszLkqkBmo2TeqbTzWtXdBPnZTlaVEYzsl2xDWFTKUwTl5kTmVlVZ/zTfjnrlxVxDTufMTBrOQDkV8gXGwaQkEeoN/fP7qcQRZ3WYP2tDhHM3Xkdf7l2P4yytvWAIaZIF0zy1zSgW/KWed6B11JOzOldXZp9M+4JqE2JvRUctuyPgWVyPEqzY6kz9BEXOhwECXLDdQUe+8Aee/eCpV4UwqflfgVBjhBXBHDHvjxyU5sSjXbewdDuQA5orjb1sNJHtQQAC8tZpYYlXcydJIPWw5sCYSl/ZIQEkHGENzyekXFEg5ddDPv/fPpWdH6OxjFILXmdnOgy2cKBltZIvK801+T0mVajMSuIV+ZfISt7icI5y+aofJn/SwQKyftJc8bXc8hz+ebFrVVCPmKZovvX3P69n0sod0T0iVeb2Cz6pTBScDpYuwslPQxBGwpYCn1TGflH6WI4/SWz4lg2cjGwDnyZbzMA6vv7m3vzHbB0rKbH6ef4ufIPMSBvPsdZRuNFgB2T5g/h/pPp6JSKwhipahgClTtzTTEcSJ2g8w9HeX5Uv6/F14tjEKOG2I6MUBsC6Zpy5zPSbrYtnZ3mGd9y40qLM9POYuQNf4fcGsQxPmRO9bObJkObrvzYfX6+/3E0WPomj7VX/7zislNrnzmTcUk1/2MiQMQwR0rzomZSv8k5M6qLZfeknsKlnbcJL6TpeJUWlANAAscrN4p4sbBYwx1E4sJf2b18D/wqyQWjug3Mr3aTUqB32piiE7L3S8mfQQhv57kAQifNnGOTvRrMgL6TYPhXWR7t9Y5Mp+oXP4LdzEAvrsjL3jMV9bwUwnhVPazqyI72bDkzeyaUdyxOESr1MuWlSeCFgTaoFUEQSC2H+X9MIbVEwvcoiddQ+toyasuZfEUqCEwJf+M64WvvXFx8rRUITU/TFl453h+sWiLPF9VAuxdb060z7bXElPY1KcPL2vMdHgXUjzumfVhoWWE1dwZYm/4sZ7/asL+a9rYaqwy9qI38KRDx6iYsDhw0q1WJLjkxJyITANxGww5riQkqtavZ1uU5ZDglndMZ6wzXLgfWbfwDAOnf/wOfiel4KSlB6691FTZU7K9M60EHGWajccTwiuUHTZNIpU30EkYjR2K3KbAHHasm2p7jk4CacvVQhBu7A+Qndpwkzoin0RXHJAe97SHvOMxyOJF7QvO80aAnUpiCORtFATiuL7mrHtsEpqAVWr4xcpjh5x22tk1wZv7nAKZ9ElleqZIS/7H/tsoDi2eS7o8dBaXksRdx+JrZfRnx2h7Z1M62ebvkwawIHYPsSk5Xm7HyanWjJVrEGYwg=="
       }
     }
-  }
+  ]
 }
