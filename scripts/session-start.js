@@ -1,147 +1,147 @@
 #!/usr/bin/env node
 // session-start.js — the first thing Frau Richter runs, every session.
 //
-// It exists because of two failures that cost a real week of teaching:
+// It exists because of failures that each cost real teaching:
 //
-//   1. STALE READ (2026-07-15). The run judged "homework 0005 not done" from a
-//      manifest that was behind origin, withheld a lesson, and published a note
-//      instructing work already finished. The report file was sitting on disk
-//      the whole time. Standing rule since: the REPORT FILES are the truth,
-//      the manifest is a cache. This script enforces that rule in code.
+//   1. STALE READ (2026-07-15, again 07-20). A run judged "homework not done"
+//      from a manifest behind origin while the report sat on disk, withheld a
+//      lesson, and published a note instructing work already finished.
+//      Standing rule since: the FILES are the truth, the manifest is a cache.
+//   2. DIVERGENCE. Her commits piled up locally while the site pushed his work.
+//   3. UNREAD BERICHTE (FR-001). "Filed" is not "read". Twice she ruled on his
+//      conduct while the decisive information sat unread in that channel, so
+//      the unread ones are now printed IN FULL, not merely counted.
+//   4. SILENT LOCK FAILURE (FR-003). When the sandbox could not clear a stale
+//      index.lock this script said only "in sync with origin" — and a whole
+//      session was taught believing it would publish. It never does that again.
+//   5. COLLIDING TWINS (FR-006). Two scheduled tasks share this repo; the only
+//      thing keeping them apart was prose. Now there is a claim file.
 //
-//   2. DIVERGENCE. Her scheduled sandbox cannot push (no SSH key, no known
-//      hosts), so her commits pile up locally while the website pushes the
-//      learner's work to origin. Every few days the two histories diverge and
-//      someone has to untangle them by hand. Rebasing her local work onto
-//      origin at the START of each session keeps her commits on top, so the
-//      learner's eventual push is always a clean fast-forward.
-//
-// The repo is PUBLIC, so fetching needs no credentials at all — plain HTTPS,
-// no SSH, no token. That is what makes this work inside the sandbox.
-//
-// Usage:  node scripts/session-start.js            # sync + report
-//         node scripts/session-start.js --no-sync  # report only (offline)
+// Usage:  node scripts/session-start.js
+//         node scripts/session-start.js --no-sync   # offline: report only
+//         node scripts/session-start.js --intent "Wednesday consolidation"
 
-import { execSync, execFileSync } from 'node:child_process';
-import { readFileSync, existsSync, readdirSync, unlinkSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { decryptString } from './lib-crypto.js';
+import { canUnlinkInGitDir, clearStaleIndexLock, isDirty } from './lib-git.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MANIFEST = join(ROOT, 'docs', 'data', 'manifest.json');
 const REPORTS_DIR = join(ROOT, 'docs', 'data', 'reports');
+const HER_DIR = join(ROOT, 'frau_richter');
+const CLAIM = join(HER_DIR, 'RUN_CLAIM.json');
 const HTTPS_URL = 'https://github.com/pushkarjajoria/german_lessons.git';
 
 const args = process.argv.slice(2);
-const git = (cmd, opts = {}) =>
-  execSync(`git ${cmd}`, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...opts }).trim();
-const gitQuiet = (cmd) => { try { return git(cmd); } catch (e) { return null; } };
-
+const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
+const git = (a, o = {}) => execFileSync('git', a, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...o }).trim();
+const gitQ = (a) => { try { return git(a); } catch { return null; } };
 const line = (s = '') => console.log(s);
 const warn = (s) => console.log(`  !! ${s}`);
 
 line('═══ SESSION START ═══');
 
-// ---------- 1. stale index.lock ----------
-// The sandbox has repeatedly hit an index.lock it could not remove, which makes
-// every `git add` fail. A lock with no git process behind it is just litter —
-// remove it. If it will not go, say so plainly rather than failing later.
-const LOCK = join(ROOT, '.git', 'index.lock');
-if (existsSync(LOCK)) {
-  let held = false;
-  try {
-    // gitstatusd (shell prompt daemon) is read-only and does not count.
-    held = execSync('pgrep -f "git (add|commit|rebase|merge|pull)" || true', { encoding: 'utf8' }).trim().length > 0;
-  } catch { /* pgrep unavailable — assume not held */ }
-  if (held) {
-    warn('.git/index.lock is held by a running git process — leaving it alone.');
-  } else {
-    try {
-      const age = Math.round((Date.now() - statSync(LOCK).mtimeMs) / 1000);
-      unlinkSync(LOCK);
-      line(`  cleared a stale .git/index.lock (${age}s old, no git process behind it)`);
-    } catch (e) {
-      warn(`.git/index.lock exists and cannot be removed (${e.code}). ` +
-           'git add/commit will fail this run — your work still lands on disk; ' +
-           'the handoff in frau_richter/NEEDS_ATTENTION.md will carry it.');
-    }
+// ---------- 1. can this mount publish at all? (FR-003) ----------
+const mount = canUnlinkInGitDir(ROOT);
+const lock = clearStaleIndexLock(ROOT);
+let publishRoute = 'normal';
+
+if (!mount.writable) {
+  warn('.git/ IS NOT WRITABLE HERE. No commit is possible this session. ' +
+       'Teach if you wish, but assume NOTHING will publish — session-end.js will write a hand-off.');
+  publishRoute = 'blocked';
+} else if (!mount.unlinkable) {
+  // Her sandbox exactly: create/write allowed, unlink denied.
+  publishRoute = 'external-index';
+  line('  mount: .git/ is write-only (unlink denied) — using an external index so locks cannot block us.');
+  if (lock.present && !lock.cleared) {
+    line('         a stale .git/index.lock is present and cannot be removed — ' +
+         'that is expected here and NO LONGER BLOCKS PUBLISHING.');
   }
+} else {
+  if (lock.present && lock.cleared) line('  cleared a stale .git/index.lock.');
+  else if (lock.present && lock.held) warn('.git/index.lock is held by a live git process — left alone.');
+  else if (lock.present) warn(`.git/index.lock present and unremovable (${lock.error}) — will use an external index.`);
+  if (lock.present && !lock.cleared) publishRoute = 'external-index';
 }
 
-// ---------- 2. sync with origin ----------
+// ---------- 2. run claim (FR-006) ----------
+mkdirSync(HER_DIR, { recursive: true });
+const now = new Date();
+const runId = `${now.toISOString().slice(0, 10)}-${now.toISOString().slice(11, 16).replace(':', '')}`;
+if (existsSync(CLAIM)) {
+  try {
+    const prev = JSON.parse(readFileSync(CLAIM, 'utf8'));
+    if (!prev.closedAt) {
+      warn(`AN EARLIER RUN NEVER CLOSED ITS CLAIM: ${prev.runId} (${prev.weekday}, intent: ${prev.intent || 'unstated'}).`);
+      warn('It may have died mid-session. Check whether its work published BEFORE authoring anything new — ' +
+           'do not assume a lesson it started is either finished or absent.');
+    }
+  } catch { /* unreadable claim is not worth failing over */ }
+}
+
+// ---------- 3. sync with origin ----------
 let synced = false;
 if (!args.includes('--no-sync')) {
   try {
-    // Anonymous HTTPS: public repo, no SSH key, no token, no prompt.
     execFileSync('git', ['fetch', '--quiet', HTTPS_URL, 'main'], {
-      cwd: ROOT,
-      env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
-      stdio: ['ignore', 'pipe', 'pipe'],
+      cwd: ROOT, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' }, stdio: ['ignore', 'pipe', 'pipe'],
     });
     synced = true;
-    const remote = git('rev-parse FETCH_HEAD');
-    const local = git('rev-parse HEAD');
-    const behind = Number(gitQuiet(`rev-list --count HEAD..${remote}`) || 0);
-    const ahead = Number(gitQuiet(`rev-list --count ${remote}..HEAD`) || 0);
+    const remote = git(['rev-parse', 'FETCH_HEAD']);
+    const local = git(['rev-parse', 'HEAD']);
+    const behind = Number(gitQ(['rev-list', '--count', `HEAD..${remote}`]) || 0);
+    const ahead = Number(gitQ(['rev-list', '--count', `${remote}..HEAD`]) || 0);
+    // isDirty(), not `git status --porcelain`: the latter reads the default
+    // index, which goes stale the moment any commit is made through
+    // withExternalIndex() (see lib-git.js) — HEAD moves, the default index
+    // doesn't, and a truthful tree shows up as dirty forever after. isDirty()
+    // never depends on the default index being in sync with anything.
+    const dirty = isDirty(ROOT);
+    // merge/rebase still touch the DEFAULT index directly (unlike the commit
+    // path). On a mount that denies unlink AND still has an uncleared lock,
+    // these can fail exactly as `git add` used to — that residual risk is
+    // real and not yet routed around (FR-003 covers the commit path only).
+    // Both are wrapped so a failure here is reported plainly, never a crash.
 
-    if (remote === local) {
-      line('  in sync with origin.');
-    } else if (behind && !ahead) {
-      const dirty = git('status --porcelain').length > 0;
-      if (dirty) {
-        warn(`${behind} new commit(s) on origin, but the working tree is dirty — not touching it. Commit or stash, then re-run.`);
-      } else {
-        git(`merge --ff-only ${remote}`);
-        line(`  fast-forwarded ${behind} commit(s) from origin — you are now reading current state.`);
-      }
-    } else if (ahead) {
-      const dirty = git('status --porcelain').length > 0;
-      if (dirty) {
-        warn(`${ahead} unpushed local commit(s) and a dirty tree — not rebasing. Commit first, then re-run.`);
-      } else if (behind) {
-        // The weekly collision: her commits vs the learner's pushed work.
-        // Replay hers on top so the eventual push is a fast-forward.
-        try {
-          git(`rebase ${remote}`);
-          line(`  rebased ${ahead} local commit(s) onto ${behind} new commit(s) from origin — histories reconciled.`);
-        } catch (e) {
-          gitQuiet('rebase --abort');
-          warn('REBASE CONFLICT — aborted, nothing changed. The two sides touched the same lines. ' +
-               'Do not hand-resolve blind: note it in frau_richter/NEEDS_ATTENTION.md for the Mac.');
-        }
-      } else {
-        line(`  ${ahead} local commit(s) waiting to be pushed (origin has nothing new).`);
-      }
+    if (remote === local) line('  in sync with origin.');
+    else if (behind && !ahead && !dirty) {
+      try { git(['merge', '--ff-only', remote]); line(`  fast-forwarded ${behind} commit(s) from origin.`); }
+      catch (e) { warn(`could not fast-forward (${String(e.stderr || e.message).split('\n')[0]}) — leaving it for the Mac.`); }
     }
-  } catch (e) {
-    warn('could not reach origin (offline?) — reading the local copy. ' +
-         'Treat the manifest as possibly stale and trust the report files below.');
+    else if (behind && !ahead && dirty) warn(`${behind} new commit(s) on origin but the tree is dirty — not touching it.`);
+    else if (ahead && behind && !dirty) {
+      try { git(['rebase', remote]); line(`  rebased ${ahead} local commit(s) onto ${behind} from origin — histories reconciled.`); }
+      catch (e) {
+        gitQ(['rebase', '--abort']);
+        warn(`REBASE FAILED (${String(e.stderr || e.message).split('\n')[0]}) — aborted, nothing changed. Note it for the Mac; do not hand-resolve.`);
+      }
+    } else if (ahead && behind && dirty) warn(`${ahead} unpushed commit(s), ${behind} incoming, and a dirty tree — publish first, then re-run.`);
+    else if (ahead) line(`  ${ahead} local commit(s) not yet pushed.`);
+  } catch {
+    warn('could not reach origin (offline?) — reading the local copy. Trust the report files below over the manifest.');
   }
 }
 
-// ---------- 3. the authoritative record ----------
-// Files first, manifest second. If they disagree, the files win — that is the
-// standing rule adopted after the Jul-15 misjudgement.
+// ---------- 4. the record: files first, manifest second ----------
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 const history = manifest.history || [];
 const inHistory = new Set(history.map((h) => String(h.reportId)));
-
-const reportFiles = existsSync(REPORTS_DIR)
-  ? readdirSync(REPORTS_DIR).filter((f) => /^report-\d+\.json\.enc$/.test(f)).sort()
+const reportIds = existsSync(REPORTS_DIR)
+  ? readdirSync(REPORTS_DIR).filter((f) => /^report-\d+\.json\.enc$/.test(f)).map((f) => f.match(/report-(\d+)\./)[1]).sort()
   : [];
-const reportIds = reportFiles.map((f) => f.match(/report-(\d+)\./)[1]);
 const unrecorded = reportIds.filter((id) => !inHistory.has(id));
 
 line();
 line('── THE RECORD (files first, manifest second) ──');
-line(`  report files on disk : ${reportIds.length ? reportIds.join(', ') : '(none)'}`);
-line(`  recorded in manifest : ${history.length ? history.map((h) => h.reportId).join(', ') : '(none)'}`);
+line(`  report files on disk : ${reportIds.join(', ') || '(none)'}`);
+line(`  recorded in manifest : ${history.map((h) => h.reportId).join(', ') || '(none)'}`);
 if (unrecorded.length) {
-  warn(`REPORT FILE(S) NOT IN THE MANIFEST: ${unrecorded.join(', ')}. ` +
-       'The work WAS done — read those files before judging. Do not conclude "not practised".');
-} else if (reportIds.length) {
-  line('  ✓ files and manifest agree.');
-}
+  warn(`REPORT FILE(S) NOT IN THE MANIFEST: ${unrecorded.join(', ')}. The work WAS done — read those files before judging.`);
+} else if (reportIds.length) line('  ✓ files and manifest agree.');
 
 const current = manifest.currentHomeworkId;
 line();
@@ -149,28 +149,67 @@ line(`  current lesson/homework : ${manifest.currentLessonId} / ${current}` +
      (inHistory.has(String(current)) ? '  (report is IN — it was done)' : '  (no report yet)'));
 line(`  last practised          : ${manifest.counters?.lastPracticed || '—'}`);
 line(`  Betragen                : ${manifest.conduct?.score ?? 65}/100`);
-
 const open = (manifest.corrections || []).filter((c) => c.status === 'open');
 line(`  Korrektur open          : ${open.length}${open.length ? ' — ' + open.map((c) => c.key).join(', ') : ''}`);
+line(`  Anträge pending         : ${(manifest.requests || []).filter((r) => r.status === 'pending').length}`);
 
-const done = new Set(history.map((h) => String(h.homeworkId)));
-const filed = Object.keys(manifest.assignmentReports || {});
-const owed = [...done].filter((id) => !filed.includes(id)).sort();
-line(`  Berichte filed          : ${filed.length ? filed.join(', ') : '(none)'}`);
-line(`  Berichte owed           : ${owed.length ? owed.join(', ') : 'none'}`);
+// ---------- 5. Berichte: filed vs READ BY YOU (FR-001) ----------
+const reports = manifest.assignmentReports || {};
+const filedIds = Object.keys(reports).sort();
+const unreadIds = filedIds.filter((id) => !reports[id].readByTeacher);
+const doneIds = new Set(history.map((h) => String(h.homeworkId)));
+const owed = [...doneIds].filter((id) => !filedIds.includes(id)).sort();
 
-const pending = (manifest.requests || []).filter((r) => r.status === 'pending');
-line(`  Anträge pending         : ${pending.length}`);
-const unread = (manifest.messages || []).filter((m) => m.from === 'learner' && !m.readByTeacher);
-line(`  Messages from him       : ${(manifest.messages || []).filter((m) => m.from === 'learner').length}`);
-
-// ---------- 4. the seal ----------
 line();
-if (existsSync(join(ROOT, 'frau_richter', 'SEAL_BREACH.md'))) {
-  line('  ⚠ frau_richter/SEAL_BREACH.md EXISTS — the guardrail was tampered with. Read it and rule.');
-} else {
-  line('  seal: no breach reported.');
+line('── BERICHTE ──');
+line(`  filed  : ${filedIds.length ? filedIds.join(', ') : '(none)'}`);
+line(`  owed   : ${owed.length ? owed.join(', ') : 'none'}`);
+line(`  UNREAD by you: ${unreadIds.length ? unreadIds.join(', ') : 'none'}`);
+
+if (unreadIds.length) {
+  let pw = process.env.GL_PASSWORD;
+  if (!pw) {
+    warn('GL_PASSWORD not set — cannot decrypt the unread Berichte. Read them before ruling on conduct.');
+  } else {
+    line();
+    line('  ┌─ UNREAD BERICHTE, IN FULL. Read these BEFORE any ruling. ─────────');
+    for (const id of unreadIds) {
+      let text;
+      try { text = decryptString(pw, reports[id].enc); } catch { text = '(cannot decrypt)'; }
+      line(`  │`);
+      line(`  │ ── Bericht ${id} — filed ${String(reports[id].date).slice(0, 16)} ──`);
+      for (const l of String(text).split('\n')) line(`  │   ${l}`);
+    }
+    line('  └───────────────────────────────────────────────────────────────────');
+    line('  (session-end.js marks exactly these as read.)');
+  }
+}
+
+// ---------- 6. deeds + seal ----------
+const deeds = (manifest.deeds || []).filter((d) => d.status === 'open');
+if (deeds.length) {
+  line();
+  line('── DEEDS OPEN ──');
+  for (const d of deeds) line(`  ${d.id} (since ${d.assignedAt.slice(0, 10)}${d.due ? `, due ${d.due}` : ''}): ${d.text}`);
 }
 
 line();
-line(synced ? '═══ synced. Teach. ═══' : '═══ NOT synced — state may be stale. ═══');
+line(existsSync(join(HER_DIR, 'SEAL_BREACH.md'))
+  ? '  ⚠ frau_richter/SEAL_BREACH.md EXISTS — the guardrail was tampered with. Read it and rule.'
+  : '  seal: no breach reported.');
+
+// ---------- 7. write the claim ----------
+writeFileSync(CLAIM, JSON.stringify({
+  runId,
+  startedAt: now.toISOString(),
+  weekday: now.toLocaleDateString('en-GB', { weekday: 'long' }),
+  intent: opt('--intent') || null,
+  publishRoute,
+  berichteShown: unreadIds,
+  closedAt: null,
+}, null, 2));
+
+line();
+line(`  run claim ${runId} open (publish route: ${publishRoute}).`);
+if (publishRoute === 'blocked') line('═══ NOT publishable this run — teach knowing that. ═══');
+else line(synced ? '═══ synced. Teach. ═══' : '═══ NOT synced — state may be stale. ═══');

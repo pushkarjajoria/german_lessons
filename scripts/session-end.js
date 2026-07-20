@@ -22,7 +22,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { canUnlinkInGitDir, withExternalIndex } from './lib-git.js';
+import { canUnlinkInGitDir, withExternalIndex, changedFiles, resyncDefaultIndex } from './lib-git.js';
 // Side-effect import: lib-crypto.js loads the gitignored .env (GL_PASSWORD,
 // GL_GITHUB_TOKEN) on module load. Without this, GL_GITHUB_TOKEN is never
 // populated here even when it's sitting in .env, and every run silently
@@ -47,8 +47,12 @@ if (!message) { console.error('A commit needs a message: --message "lesson 0007:
 
 console.log('═══ SESSION END ═══');
 
-const dirty = gitQ(['status', '--porcelain']) || '';
-if (dirty) { console.log('  changes to publish:'); for (const l of dirty.split('\n')) console.log(`    ${l}`); }
+// changedFiles(), not raw `git status`: the default index can be stale from
+// an earlier withExternalIndex() commit, and raw status would then lie
+// (observed: every already-committed file reported as both staged AND
+// unstaged). This reports the true diff against HEAD.
+const toPublish = changedFiles(ROOT);
+if (toPublish.length) { console.log('  changes to publish:'); for (const l of toPublish) console.log(`    ${l}`); }
 else console.log('  nothing new in the working tree.');
 
 if (args.includes('--dry-run')) { console.log('  --dry-run: stopping before commit.'); process.exit(0); }
@@ -75,8 +79,7 @@ if (claim?.berichteShown?.length) {
 // ---------- 2. commit, through an index that cannot be locked out ----------
 const mount = canUnlinkInGitDir(ROOT);
 let committed = false;
-const pending = gitQ(['status', '--porcelain']) || '';
-if (pending) {
+if (toPublish.length) {
   let g = null;
   try {
     g = withExternalIndex(ROOT);
@@ -98,6 +101,11 @@ if (pending) {
   } finally {
     if (g) g.dispose();
   }
+  // Best-effort: bring the default index back in sync with the new HEAD so a
+  // plain `git status` (run by a human, or any script that forgets to use
+  // changedFiles()/isDirty()) reports truthfully afterward. Silent failure
+  // is fine — nothing in this file depends on it having worked.
+  if (committed) resyncDefaultIndex(ROOT);
 }
 
 const unpushed = Number(gitQ(['rev-list', '--count', 'origin/main..HEAD']) || 0);
