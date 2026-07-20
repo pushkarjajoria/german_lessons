@@ -767,6 +767,14 @@ body[data-tier="cone"] h1, body[data-tier="cone"] h2 { color: var(--text); }
   body[data-tier="cone"]::after, .rank-glyph { animation: none !important; }
 }
 
+/* ---------- Deeds: real-world spoken tasks (FR-004) ---------- */
+
+.deeds-panel .deed-row + .deed-row { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+.deed-text { font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.2rem; }
+.deed-meta { margin: 0 0 0.5rem; font-size: 0.8rem; }
+.deed-note { margin-bottom: 0.5rem; }
+.deed-actions { flex-wrap: wrap; }
+
 /* ---------- Messages: the correspondence desk ---------- */
 
 .msg-thread { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.2rem 0 1.5rem; }

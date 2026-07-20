@@ -6,6 +6,8 @@
 //   node scripts/new-lesson.js --lesson path/to/lesson.md --homework path/to/homework.json \
 //        [--interleave 0002:q7,0002:q3] [--push]
 //   node scripts/new-lesson.js --scaffold          # create empty templates for the next id
+//   node scripts/new-lesson.js --republish NNNN --lesson <file.md> --homework <file.json> \
+//        [--interleave 0002:q7] [--push]           # FR-002: correct an already-published lesson
 //
 // --interleave buries copies of old questions in today's homework at random
 // positions (marked `interleaved` in the report, invisible to the learner) —
@@ -36,7 +38,27 @@ const opt = (name) => {
 };
 
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
-const nextId = String(Number(manifest.currentLessonId) + 1).padStart(4, '0');
+const republishId = opt('--republish');
+const nextId = republishId || String(Number(manifest.currentLessonId) + 1).padStart(4, '0');
+
+// FR-002: republishing is for CORRECTING already-published content — a
+// lesson that stated something false about the learner's record, a homework
+// question with a factual error. It is not a way to reopen finished work.
+// Refuse outright if a report already exists for this id: republishing under
+// completed work would rewrite the very thing the report is a record of.
+if (republishId) {
+  const reportPath = join(ROOT, 'docs', 'data', 'reports', `report-${republishId}.json.enc`);
+  const inHistory = (manifest.history || []).some((h) => String(h.reportId) === republishId);
+  if (existsSync(reportPath) || inHistory) {
+    console.error(`Refusing: a report already exists for ${republishId} (${inHistory ? 'in manifest.history' : 'report file on disk'}).`);
+    console.error('Republishing under completed work would corrupt the record. If this really needs to change, that is a deliberate, separate, manual act — not this script.');
+    process.exit(1);
+  }
+  if (!(manifest.lessons || []).some((l) => l.id === republishId)) {
+    console.error(`No lesson ${republishId} is indexed in the manifest — nothing to republish. Use the normal mode (without --republish) to publish it for the first time.`);
+    process.exit(1);
+  }
+}
 
 if (args.includes('--scaffold')) {
   const lessonPath = join(ROOT, 'scripts', 'templates', `lesson-${nextId}.md`);
@@ -137,11 +159,10 @@ try {
 // a deliberate "you thought this was settled" trap. The copies are marked
 // `interleaved` so the report shows her how the trap went; the learner sees
 // nothing special.
-const interleave = opt('--interleave');
-if (interleave) {
+function applyInterleave(refs) {
   const srcCache = new Map();
   let xn = 1;
-  for (const ref of interleave.split(',').map((s) => s.trim()).filter(Boolean)) {
+  for (const ref of refs) {
     const m = ref.match(/^(\d{4}):(\S+)$/);
     if (!m) { console.error(`--interleave expects hwId:qid refs, got "${ref}".`); process.exit(1); }
     const [, srcId, qid] = m;
@@ -161,30 +182,65 @@ if (interleave) {
   }
 }
 
+const interleaveOpt = opt('--interleave');
+if (interleaveOpt) {
+  applyInterleave(interleaveOpt.split(',').map((s) => s.trim()).filter(Boolean));
+} else if (republishId) {
+  // FR-002: no --interleave given on a republish — carry over whatever the
+  // LIVE version had, so correcting the prose doesn't silently drop the trap.
+  const livePath = join(ROOT, 'docs', 'data', 'homework', `homework-${republishId}.json.enc`);
+  const live = JSON.parse(decryptString(password, JSON.parse(readFileSync(livePath, 'utf8'))));
+  const carried = (live.questions || []).filter((q) => q.interleaved).map((q) => q.interleaved);
+  if (carried.length) {
+    console.log(`Republish: carrying over ${carried.length} buried interleave(s) from the live version: ${carried.join(', ')}`);
+    applyInterleave(carried);
+  }
+}
+
 const lessonOut = join(ROOT, 'docs', 'data', 'lessons', `lesson-${nextId}.md.enc`);
 const hwOut = join(ROOT, 'docs', 'data', 'homework', `homework-${nextId}.json.enc`);
 writeFileSync(lessonOut, JSON.stringify(encryptString(password, lessonText), null, 2));
 writeFileSync(hwOut, JSON.stringify(encryptString(password, JSON.stringify(hw, null, 2)), null, 2));
 
-manifest.currentLessonId = nextId;
-manifest.currentHomeworkId = nextId;
-manifest.lessons ||= [];
-manifest.lessons.push({
-  id: nextId,
-  title: lessonMeta.title,
-  section: lessonMeta.section,
-  ...(lessonMeta.subsection ? { subsection: lessonMeta.subsection } : {}),
-});
-writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
+let manifestTouched = false;
+if (republishId) {
+  // FR-002: pointers and the lessons[] index entry stay exactly as they
+  // were — a republish corrects content, not curriculum placement. If the
+  // rewritten front matter disagrees with the indexed section/subsection,
+  // say so rather than silently drifting out of sync or silently applying it.
+  const indexed = manifest.lessons.find((l) => l.id === republishId);
+  if (indexed && (indexed.section !== lessonMeta.section || (indexed.subsection || '') !== (lessonMeta.subsection || ''))) {
+    console.warn(`Note: front matter now says section="${lessonMeta.section}"` +
+      `${lessonMeta.subsection ? `/subsection="${lessonMeta.subsection}"` : ''}, ` +
+      `but the index still has "${indexed.section}"${indexed.subsection ? `/"${indexed.subsection}"` : ''} — left untouched. ` +
+      'Edit manifest.lessons by hand if the placement itself needs to move.');
+  }
+  if (indexed && indexed.title !== lessonMeta.title) {
+    console.warn(`Note: front matter title changed ("${indexed.title}" → "${lessonMeta.title}") — index entry left untouched.`);
+  }
+} else {
+  manifest.currentLessonId = nextId;
+  manifest.currentHomeworkId = nextId;
+  manifest.lessons ||= [];
+  manifest.lessons.push({
+    id: nextId,
+    title: lessonMeta.title,
+    section: lessonMeta.section,
+    ...(lessonMeta.subsection ? { subsection: lessonMeta.subsection } : {}),
+  });
+  manifestTouched = true;
+  writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
+}
 
-console.log(`Encrypted and staged lesson ${nextId}:`);
+console.log(`Encrypted and ${republishId ? 're' : ''}staged lesson ${nextId}:`);
 console.log(`  ${lessonOut}`);
 console.log(`  ${hwOut}`);
-console.log(`  manifest: current pointers → ${nextId}`);
+console.log(manifestTouched ? `  manifest: current pointers → ${nextId}` : '  manifest: pointers and index entry left untouched (republish).');
 
+const gitPaths = ['docs/data/lessons', 'docs/data/homework', ...(manifestTouched ? ['docs/data/manifest.json'] : [])];
 const gitCmds = [
-  'git add docs/data/lessons docs/data/homework docs/data/manifest.json',
-  `git commit -m "lesson ${nextId}: new lesson + homework"`,
+  `git add ${gitPaths.join(' ')}`,
+  `git commit -m "lesson ${nextId}: ${republishId ? 'republished — content correction' : 'new lesson + homework'}"`,
   'git push',
 ];
 if (args.includes('--push')) {

@@ -273,6 +273,64 @@ function renderConduct(manifest) {
 // Anträge live on the Messages page now (messages.html), in the same thread
 // as her Nachrichten — the dashboard stopped hosting the form.
 
+// ---------- deeds (FR-004) ----------
+// Real-world spoken tasks, made visible: assigned by her (scripts/deed.js),
+// closed by the learner with one of three buttons and a one-line note. No
+// proof, no upload — self-report, exactly as before, just no longer living
+// only in her private ledger.
+
+const DEED_STATUS_LABEL = { done: 'done', not_yet: 'not yet', declined: 'declined' };
+
+function renderDeeds(manifest) {
+  const panel = $('deeds-panel');
+  const open = (manifest.deeds || []).filter((d) => d.status === 'open');
+  if (!open.length) { panel.hidden = true; return; }
+  panel.hidden = false;
+  const list = $('deeds-list');
+  list.innerHTML = '';
+  for (const d of open) {
+    const row = document.createElement('div');
+    row.className = 'deed-row';
+    row.innerHTML = `
+      <p class="deed-text">${d.text}</p>
+      <p class="muted deed-meta">assigned ${fmtDate(d.assignedAt)}${d.due ? ` · due with ${d.due}` : ''}</p>
+      <textarea class="justify-input deed-note" rows="2" placeholder="One honest line — what happened?"></textarea>
+      <div class="btn-row deed-actions">
+        <button class="btn" data-status="done">Done</button>
+        <button class="btn" data-status="not_yet">Not yet</button>
+        <button class="btn btn-danger" data-status="declined">I'm not going to</button>
+      </div>
+      <p class="model-repeat-status deed-msg"></p>`;
+    const note = row.querySelector('.deed-note');
+    const msg = row.querySelector('.deed-msg');
+    row.querySelectorAll('[data-status]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const text = note.value.trim();
+        if (text.length < 3) { msg.textContent = 'One honest line first.'; return; }
+        if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — this cannot be filed.'; return; }
+        row.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+        msg.textContent = 'Filing…';
+        try {
+          const { data: fresh } = await gh.readJson('data/manifest.json');
+          const entry = (fresh.deeds || []).find((x) => x.id === d.id);
+          if (!entry || entry.status !== 'open') throw new Error('Already closed — reload the page.');
+          entry.status = btn.dataset.status;
+          entry.closedAt = new Date().toISOString();
+          entry.noteEnc = await encryptString(getPassword(), text);
+          await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
+            `deed ${d.id}: ${DEED_STATUS_LABEL[btn.dataset.status]}`);
+          manifest.deeds = fresh.deeds;
+          renderDeeds(manifest);
+        } catch (e) {
+          row.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+          msg.textContent = e.message;
+        }
+      });
+    });
+    list.appendChild(row);
+  }
+}
+
 // ---------- semester panel ----------
 // Quizzes (40%) + one long final (60%), her weights. Standing shown as it
 // accumulates; a failed final shows the retake countdown; a second failure
@@ -350,6 +408,7 @@ function render(manifest) {
 
   renderDiscipline(manifest);
   renderConduct(manifest);
+  renderDeeds(manifest);
   renderKorrektur(manifest);
   renderSemester(manifest);
 

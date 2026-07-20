@@ -287,7 +287,15 @@ override; near-duplicates get a warning).
   verbatim (`justification`) for subjective grading.
 - **Buried interleaving:** `new-lesson.js --interleave 0002:q7` copies old questions
   into today's homework at random positions, unmarked for the learner, marked
-  (`interleaved`) in the report.
+  (`interleaved`) in the report. `new-lesson.js --republish NNNN` (FR-002) corrects an
+  already-published lesson/homework in place — same `.enc` paths, manifest pointers
+  and curriculum placement untouched, any live buried interleave carried forward
+  automatically; refuses outright once a report exists for that id.
+- **Deeds (FR-004):** `manifest.deeds[]` — real-world spoken tasks as first-class
+  objects (`scripts/deed.js --add "…" --due NNNN`), shown as a standing dashboard row
+  until the learner closes it (done/not yet/declining + an encrypted one-line note).
+  No proof, no upload — self-report, now visible instead of living only in the
+  teacher's private ledger. `session-start.js` prints every open one.
 - **Nachweis uploads:** discipline tasks accept a proof file on the dashboard — encrypted
   client-side and committed to `docs/data/uploads/`, opened only by the teacher
   (`scripts/read-upload.js`); clearing the block remains a manual teacher act.
