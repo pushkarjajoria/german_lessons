@@ -5,12 +5,17 @@
 *.pem
 *.token
 
-# Personal pedagogy files — live ONLY on the local machine (the repo is public;
-# Claude reads these from disk during sessions). Never commit them.
+# No markdown on the public repo, ever. All of it — pedagogy, docs, notes — is
+# local-only (the repo is public; these can hold personal/architectural detail).
+# Blanket-ignored so nothing new gets committed by accident; the named files
+# below are kept for clarity. Encrypted lessons are *.md.enc, unaffected.
+*.md
 Deutsch_Sprachstand_Bericht.md
 Frau_Richter_Persona.md
 Studienplan.md
 SCHEMA.md
+LEARNING_LOOP.md
+README.md
 
 # Plaintext lesson/homework sources — only the encrypted .enc versions under
 # docs/data/ get committed.
