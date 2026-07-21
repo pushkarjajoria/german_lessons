@@ -874,6 +874,17 @@
       "status": "granted",
       "response": "Stattgegeben — berechtigt und höflich gestellt: ab Lektion 0005 nennt jede Vorlesung ihre Grammatik beim Namen (heute: der Plural), die Chunks bleiben.",
       "respondedAt": "2026-07-13T09:49:04.340Z"
+    },
+    {
+      "id": "r1784644435421",
+      "date": "2026-07-21T14:33:55.422Z",
+      "enc": {
+        "v": 1,
+        "salt": "dZyqwG3k4Azt4K1F0yaJ+w==",
+        "iv": "pGWRbD/kq0mkB7ns",
+        "ct": "4wWLjnMTyFSTCmGzXQ5e0aObe/6xQUbe46Jowcdje+Q8IwTSBIg7BnevlvK+A9UIfo4PlUP83Y2m768liQcocT51hjzIEz/2hieClpHfkClv4QQQrAtn8UdTx+Yp1wrgvk1QHanlXJIUPiL/ft2WuZfmTLghS4epBCWRri2pJY/QwUaNhM61lGmDmmuE+CdtfhOatCJF7p7BsBF4QXPPFepw0jsaAXoWCLXemULhU/YYvQcrECz7cyozCxfm3iJeIcB1fsvn6QHz88B9FEMdJQljCd5UKehfYEYsJ741MtDJz1/3s05IZpp2vXzCE7nRUpfBBtkLj6rEHYsZzTYDmm/RhADefmKigC2C2uqWPVWz3d9ZqI0hXp3DeNggv7izWe3lIUAClhYKmK7lZhQ9zpNTNtZUUf1E4SEM2nHgMuruk1UiF5wJldH1ePj1KRq+0UbWhtppFEKuf+/zq0vPk4kxHU6nt2z2Q8jF4vmluZJ8bH3NrC3TRpA0nE8m/vIm1r7LhVAnVfceH7K7mZol4xxO1w=="
+      },
+      "status": "pending"
     }
   ],
   "assignmentReports": {
