@@ -798,9 +798,14 @@
       "text": "At the supermarket: ask \"Entschuldigung, wo finde ich ___?\" for one item, answer the card question with \"Mit Karte, bitte.\", and return one Pfand bottle at the Pfandautomat. Not to find the item — you know where it is. To say the sentence to a stranger who is not expecting it.",
       "assignedAt": "2026-07-20T18:37:01.805Z",
       "due": "0007",
-      "status": "open",
-      "closedAt": null,
-      "noteEnc": null
+      "status": "done",
+      "closedAt": "2026-07-21T13:39:36.850Z",
+      "noteEnc": {
+        "v": 1,
+        "salt": "IUwKy4JNNYOBa1EDkfpl8w==",
+        "iv": "G0TWkxy/dKwbmn0Q",
+        "ct": "7rdsYUf/xqXsU6Je2TeOU3taY4Lc5b9nN7cL2Z4bu2TsAV0TyGvDeAFnd9TWl7XbWdEa4gxvFJCYc3PqPwveH5ml7iyBqcXvS6Htg6IOstx+fjhdY+vxQ45z9DUpdd5uNaerv2xIxeeJViwhMeA+649fbX0T3IICwhN7JFwCsTBieINvx1bBRdLeii5TqYvIUjuas+EdcelN23GUzL4KrOVMJa7wqK5Y62K5FGsE87R897ea3hx8lx3uw4Z4YIEewzogO0dmCpZl/2hlABH6N1uHBCNkee3X+v7bty7t5YWdAdk9IDeEK2Ray1XEjFAqIObyKpl6whTOEytbLwnL/Z671BUMw2P/kZDLi4oPIrXQGoerzD2WFGqup3ANNhVVbNffzRNIhI5GUwFYBtmeBxF5r0BrkFsfp/DXbV9rKatCK3AzEofJrYwDfK9ZzEv/jgv7j4X/QWezFKB7+q9RDcoT7P7AatMYdWB0UY7OQXXPQvhYLoVdv8iS+isDbM6iTC1LRbStIRlIuloBoQvd5xOJbQpJ3T0="
+      }
     },
     {
       "id": "d1784572621824",
