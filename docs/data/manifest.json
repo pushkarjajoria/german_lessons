@@ -2,11 +2,11 @@
   "currentLessonId": "0006",
   "currentHomeworkId": "0006",
   "counters": {
-    "lessonsCompleted": 4,
-    "totalQuestions": 43,
-    "totalCorrect": 32,
+    "lessonsCompleted": 5,
+    "totalQuestions": 56,
+    "totalCorrect": 40,
     "streakDays": 1,
-    "lastPracticed": "2026-07-13T18:49:18.284Z"
+    "lastPracticed": "2026-07-21T14:30:15.178Z"
   },
   "history": [
     {
@@ -310,6 +310,88 @@
         "Produktion",
         "Kasus",
         "Vokabular"
+      ]
+    },
+    {
+      "reportId": "0006",
+      "homeworkId": "0006",
+      "title": "Im Fitnessstudio — Geräte, Sätze & der Akkusativ",
+      "date": "2026-07-21T14:30:15.178Z",
+      "startedAt": "2026-07-21T14:20:04.923Z",
+      "durationSec": 610,
+      "totalQuestions": 13,
+      "firstTryCorrect": 8,
+      "eventualCorrect": 13,
+      "totalAttempts": 18,
+      "reworkRatio": 1.38,
+      "avgFirstAnswerLatencySec": 16.8,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 1,
+      "categoryAttempts": {
+        "Redemittel": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Kasus": {
+          "attempts": 5,
+          "count": 4
+        },
+        "Vokabular": {
+          "attempts": 4,
+          "count": 3
+        },
+        "Produktion": {
+          "attempts": 3,
+          "count": 2
+        },
+        "Hörverstehen": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Wortstellung": {
+          "attempts": 2,
+          "count": 1
+        },
+        "Konjugation": {
+          "attempts": 2,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Redemittel": {
+          "correct": 1,
+          "total": 1
+        },
+        "Kasus": {
+          "correct": 3,
+          "total": 4
+        },
+        "Vokabular": {
+          "correct": 2,
+          "total": 3
+        },
+        "Produktion": {
+          "correct": 1,
+          "total": 2
+        },
+        "Hörverstehen": {
+          "correct": 1,
+          "total": 1
+        },
+        "Wortstellung": {
+          "correct": 0,
+          "total": 1
+        },
+        "Konjugation": {
+          "correct": 0,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Vokabular",
+        "Produktion",
+        "Wortstellung",
+        "Konjugation"
       ]
     }
   ],
@@ -676,6 +758,71 @@
       "lastPassedAt": "2026-07-19T07:37:22.139Z",
       "status": "cleared",
       "clearedAt": "2026-07-19T07:37:22.139Z"
+    },
+    {
+      "key": "0006:q3",
+      "hwId": "0006",
+      "qid": "q3",
+      "category": "Vokabular",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-21T14:30:15.178Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0006:q5",
+      "hwId": "0006",
+      "qid": "q5",
+      "category": "Produktion",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-21T14:30:15.178Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0006:q9",
+      "hwId": "0006",
+      "qid": "q9",
+      "category": "Wortstellung",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-21T14:30:15.178Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0006:q10",
+      "hwId": "0006",
+      "qid": "q10",
+      "category": "Konjugation",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-21T14:30:15.178Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0006:q11",
+      "hwId": "0006",
+      "qid": "q11",
+      "category": "Kasus",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-21T14:30:15.178Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ],
   "conduct": {
