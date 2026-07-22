@@ -651,6 +651,13 @@
       "items": 5,
       "firstTry": 2,
       "durationSec": 301
+    },
+    {
+      "date": "2026-07-22T11:45:22.682Z",
+      "mode": "korrektur",
+      "items": 5,
+      "firstTry": 2,
+      "durationSec": 303
     }
   ],
   "corrections": [
@@ -775,8 +782,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:45:20.878Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-22T11:45:22.682Z",
       "status": "open"
     },
     {
@@ -827,8 +834,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:45:20.878Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-22T11:45:22.682Z",
       "status": "open"
     }
   ],
