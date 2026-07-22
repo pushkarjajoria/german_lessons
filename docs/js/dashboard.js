@@ -234,6 +234,7 @@ function forbidPaste(el, msgEl, warning) {
 }
 
 async function renderLockdown(manifest) {
+  detachLinesGuards(); // any prior lines-phase tab guard is stale now
   // Strip the dashboard to this one panel: hide every other section.
   const lockPanel = $('conduct-lock-panel');
   for (const sec of document.querySelectorAll('main > section')) {
@@ -249,9 +250,7 @@ async function renderLockdown(manifest) {
   const st = lockStatus(manifest);
 
   $('lock-reason').textContent =
-    `Betragen ${score}/100. The course is closed. The way back: two days of writing my lines, ` +
-    `then on the third day your apology — in German, in full sentences. I review it on the next ` +
-    `lecture day — Monday or Wednesday, 10:00. Not before.`;
+    `Betragen ${score}/100. Two days of my lines, then the apology on the third.`;
 
   if (st.extraTasks) {
     const ex = $('apology-extra');
@@ -306,29 +305,55 @@ async function renderLockdown(manifest) {
   wireLines(manifest, st, score);
 }
 
-// Days 1–2: type her line, exactly, `times` times.
+// Tab/window-switch guards for the lines phase — kept module-level so a
+// re-render never stacks duplicates. Detached whenever we leave the phase.
+let linesGuards = null;
+function detachLinesGuards() {
+  if (!linesGuards) return;
+  document.removeEventListener('visibilitychange', linesGuards.onHide);
+  window.removeEventListener('blur', linesGuards.onBlur);
+  linesGuards = null;
+}
+
+// Days 1–2: type her line, exactly, `times` times. Strict lines rules:
+//   - any mistake restarts the count at 0;
+//   - the last two are written from memory — the reference disappears;
+//   - switching tabs/windows resets the current count.
 function wireLines(manifest, st, score) {
   const area = $('lines-area');
   area.hidden = false;
   const input = $('lines-input');
   const status = $('lines-status');
+  const prompt = $('lines-prompt');
   const line = st.lines.text;
   const times = st.lines.times;
+  const norm = (s) => s.trim().replace(/\s+/g, ' ');
+  // The last two reps are written from memory (only meaningful for 3+).
+  const memoryFrom = times >= 3 ? times - 2 : Infinity;
+  let done = 0;
+
+  const render = (msg) => {
+    prompt.innerHTML = done < memoryFrom
+      ? `Write it, ${times} times — exactly:<br><strong>„${line}“</strong>`
+      : `From memory now — the last ${times - done} without the line in front of you.`;
+    status.textContent = msg ?? `${done} / ${times}`;
+  };
+  const reset = (why) => { done = 0; input.value = ''; render(why); };
+
   input.value = '';
   input.disabled = false;
-  let done = 0;
-  const norm = (s) => s.trim().replace(/\s+/g, ' ');
-  const update = () => { $('lines-prompt').innerHTML = `Write it, ${times} times — exactly:<br><strong>„${line}“</strong>`; status.textContent = `${done} / ${times}`; };
-  update();
+  render();
   forbidPaste(input, status, 'No pasting. Write the line yourself.');
+
   input.onkeydown = async (e) => {
     if (e.key !== 'Enter') return;
-    if (norm(input.value) !== norm(line)) { status.textContent = `Not the line. Look at it, then type it exactly. (${done} / ${times})`; input.select(); return; }
+    if (norm(input.value) !== norm(line)) { reset(`Wrong. Start over — 0 / ${times}. Get it exactly right.`); input.focus(); return; }
     done += 1;
     input.value = '';
-    if (done < times) { status.textContent = `${done} / ${times}`; return; }
-    // Today's set complete — record the day.
+    if (done < times) { render(); return; }
+    // Today's set complete — record the day. Guards off first.
     input.disabled = true;
+    detachLinesGuards();
     status.textContent = 'Filing today’s lines…';
     if (!gh.isConfigured()) { status.textContent = 'No GitHub token (Settings) — the lines cannot be filed.'; input.disabled = false; return; }
     try {
@@ -348,6 +373,15 @@ function wireLines(manifest, st, score) {
       status.textContent = err.message;
     }
   };
+
+  // Switching tabs or windows resets the current count — eyes here, or start over.
+  detachLinesGuards();
+  const penalise = () => { if (done > 0) { reset('You switched away. The lines reset — 0. Eyes here.'); } };
+  const onHide = () => { if (document.hidden) penalise(); };
+  const onBlur = () => penalise();
+  document.addEventListener('visibilitychange', onHide);
+  window.addEventListener('blur', onBlur);
+  linesGuards = { onHide, onBlur };
 }
 
 // Day 3: reveal → typed apology → file it.
