@@ -681,11 +681,11 @@
       "durationSec": 213
     },
     {
-      "date": "2026-07-22T18:00:39.859Z",
+      "date": "2026-07-22T18:00:41.107Z",
       "mode": "korrektur",
       "items": 1,
       "firstTry": 1,
-      "durationSec": 12
+      "durationSec": 13
     }
   ],
   "corrections": [
@@ -838,7 +838,7 @@
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
       "doneCount": 1,
-      "lastPassedAt": "2026-07-22T18:00:39.859Z",
+      "lastPassedAt": "2026-07-22T18:00:41.107Z",
       "status": "open"
     },
     {
