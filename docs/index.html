@@ -103,6 +103,48 @@
       </div>
     </section>
 
+    <!-- Discipline (Nachweis) lock: the no-practice halt. Same immersive frame
+         as the Betragen lock, its own portrait image, and a one-session ritual —
+         lines, a typed explanation, then a short vocab quiz that reopens the
+         course when passed. Only the Lessons page stays open beside it. -->
+    <section class="lockdown-panel discipline-lock" id="discipline-lock-panel" hidden>
+      <figure class="lockdown-photo lockdown-photo--portrait" id="discipline-photo"></figure>
+      <div class="lockdown-controls">
+        <h2 class="lockdown-title">Kurs gesperrt. Kein Üben.</h2>
+        <p class="discipline-reason" id="dlock-reason"></p>
+        <p class="note-label lockdown-progress" id="dlock-progress"></p>
+
+        <!-- Phase 1: her line, typed N times. -->
+        <div id="dlines-area" hidden>
+          <input type="text" class="text-answer lockdown-lines-input" id="dlines-input"
+            autocapitalize="off" autocomplete="off" placeholder="Type the line…" />
+          <p class="lockdown-lines-prompt" id="dlines-prompt"></p>
+          <p class="model-repeat-status" id="dlines-status"></p>
+        </div>
+
+        <!-- Phase 2: the typed explanation/apology (English or German). -->
+        <div id="dapology-area" hidden>
+          <textarea id="dapology-text" class="justify-input lockdown-textarea" rows="6"
+            placeholder="Warum habe ich nicht geübt, und warum passiert das nicht wieder? (English or German, in full sentences — typed, not pasted)"></textarea>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="dapology-submit">Submit my explanation</button>
+          </div>
+          <p class="model-repeat-status" id="dapology-msg"></p>
+        </div>
+
+        <!-- Phase 3: the short vocabulary quiz. -->
+        <div id="dquiz-area" hidden>
+          <div id="dquiz-questions"></div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="dquiz-submit" hidden>Submit the quiz</button>
+          </div>
+          <p class="model-repeat-status" id="dquiz-msg"></p>
+        </div>
+
+        <p class="muted" id="dlock-foot"></p>
+      </div>
+    </section>
+
     <section id="cta" class="cta"></section>
 
     <!-- Deeds (FR-004): real-world spoken tasks. No proof, no upload — verified

@@ -11,7 +11,9 @@ import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfei
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
 import { getPolicy, openCorrections, eligibleNow, nextEligibleAt, isOverdue, homeworkGated } from './corrections.js';
-import { shamePhotoUrl, lockdownPhotoUrl } from './shame.js';
+import { shamePhotoUrl, lockdownPhotoUrl, disciplinePhotoUrl } from './shame.js';
+import { disciplineActive, disciplineStatus, retryAfterDate } from './discipline.js';
+import { checkTextAnswer } from './checking.js';
 import * as gh from './github.js';
 
 const $ = (id) => document.getElementById(id);
@@ -36,95 +38,202 @@ function aggregateCategories(history) {
   return agg;
 }
 
-// ---------- discipline (Nachweis) banner ----------
-// When Frau Richter has halted the course (scripts/discipline.js), the banner
-// takes over the top of the dashboard and homework/tests refuse to start.
+// ---------- discipline (Nachweis / no-practice) lockdown ----------
+// Frau Richter has halted the course for lapsed practice (scripts/discipline.js).
+// The dashboard collapses to one screen — the no-entry image and a single-
+// session ritual: write her line N times, type an explanation/apology, then
+// pass a short vocabulary quiz. Passing reopens the course automatically; a
+// failed quiz bars the ritual two days, then resets it. Only the Lessons page
+// stays open; the image stays until the quiz is passed.
 
-function renderDiscipline(manifest) {
-  const d = manifest.discipline;
-  const panel = $('discipline-panel');
-  if (!d || !d.active) { panel.hidden = true; return; }
-  const S = STRINGS[LANG];
+const escHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function shuffleArr(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+async function renderDisciplineLockdown(manifest) {
+  detachLinesGuards(); // any Betragen lines guard is stale here
+  const panel = $('discipline-lock-panel');
+  for (const sec of document.querySelectorAll('main > section')) sec.hidden = sec !== panel;
   panel.hidden = false;
-  $('discipline-title').textContent = S.disciplineTitle;
-  $('discipline-reason').textContent = d.reason || '';
-  const list = $('discipline-tasks');
-  list.innerHTML = '';
-  (d.tasks || []).forEach((t, i) => {
-    const row = document.createElement('div');
-    row.className = 'discipline-task';
-    const kind = t.type === 'recording' ? '🎙' : '✍';
-    const status = t.status === 'claimed'
-      ? `<span class="chip">${S.disciplineClaimed}${t.upload ? ' · proof attached' : ''}</span>`
-      : `<input type="file" id="dfile-${i}" class="discipline-file" ${t.type === 'recording' ? 'accept="audio/*"' : 'accept="image/*"'} />
-         <button class="btn btn-primary discipline-upload" data-i="${i}">Attach proof &amp; ${S.disciplineClaim}</button>
-         <button class="btn discipline-claim" data-i="${i}" title="Only if she said no file is needed">${S.disciplineClaim} (no file)</button>`;
-    row.innerHTML = `
-      <p class="discipline-instructions">${kind} ${t.instructions}</p>
-      <div class="discipline-status">${status}</div>
-      <p class="model-repeat-status discipline-msg" id="dmsg-${i}"></p>`;
-    list.appendChild(row);
-  });
-  $('discipline-foot').textContent = S.disciplineFoot;
+  document.body.classList.add('lockdown');
+  // Not fully dead: Lessons (and the Dashboard) stay reachable during discipline.
+  document.querySelector('.topbar nav')?.classList.add('nav-discipline');
 
-  // Claiming — with or without an encrypted proof upload. The upload is
-  // AES-GCM under the same password and lands in data/uploads/; only she can
-  // open it (scripts/read-upload.js), and only she clears the block.
-  const claimTask = async (i, uploadPath) => {
-    const { data: fresh } = await gh.readJson('data/manifest.json');
-    const task = fresh.discipline?.tasks?.[i];
-    if (task) {
-      task.status = 'claimed';
-      task.claimedAt = new Date().toISOString();
-      if (uploadPath) task.upload = uploadPath;
-      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
-        `discipline: task ${i + 1} claimed${uploadPath ? ' with proof' : ''}`);
-      manifest.discipline = fresh.discipline;
-    }
-    renderDiscipline(manifest);
+  const st = disciplineStatus(manifest);
+  $('dlock-reason').textContent = st.reason || 'Practice lapsed. The course is closed until you set it right.';
+  $('dlock-foot').textContent = 'Only the Lessons page is open. The image stays until the quiz is passed.';
+
+  // The no-entry image — its own encrypted asset (portrait).
+  const fig = $('discipline-photo');
+  if (!fig.querySelector('img')) {
+    try {
+      const url = await disciplinePhotoUrl(getPassword());
+      if (url) { const img = document.createElement('img'); img.alt = 'Kurs gesperrt'; img.src = url; fig.appendChild(img); }
+    } catch { /* wrong password or missing asset — the screen stands without it */ }
+  }
+
+  const prog = $('dlock-progress');
+  $('dlines-area').hidden = true; $('dapology-area').hidden = true; $('dquiz-area').hidden = true;
+
+  if (st.phase === 'cooldown') {
+    prog.textContent = `You fell short of ${st.quiz.passPct}%. The ritual is barred until ${fmtDate(st.retryAt)} — then it resets: lines, explanation, quiz, from the top.`;
+    return;
+  }
+  if (st.phase === 'lines') {
+    prog.textContent = 'First — write the line, exactly, every time.';
+    wireDisciplineLines(manifest, st);
+    return;
+  }
+  if (st.phase === 'apology') {
+    prog.textContent = 'Now — explain yourself: why practice lapsed, and why it will not happen again. English or German, in full sentences.';
+    wireDisciplineApology(manifest);
+    return;
+  }
+  // quiz
+  prog.textContent = st.lastQuiz
+    ? `Last — the quiz again: ${st.quiz.count} words, ${st.quiz.passPct}% to pass.`
+    : `Last — a short quiz: ${st.quiz.count} words, ${st.quiz.passPct}% to pass. Pass and the course reopens.`;
+  wireDisciplineQuiz(manifest, st);
+}
+
+// Phase 1: write her line, typed, N times. No pasting; a wrong copy doesn't count.
+function wireDisciplineLines(manifest, st) {
+  const area = $('dlines-area'); area.hidden = false;
+  const input = $('dlines-input'), status = $('dlines-status'), prompt = $('dlines-prompt');
+  const line = st.lines.text, times = st.lines.times, translation = st.lines.translation || '';
+  const en = translation ? `<span class="lines-en">${escHtml(translation)}</span>` : '';
+  const norm = (s) => s.trim().replace(/\s+/g, ' ');
+  let done = 0;
+  const render = (msg) => {
+    prompt.innerHTML = `Write it ${times} times, exactly:<span class="lines-de"><strong>„${escHtml(line)}“</strong></span>${en}`;
+    status.textContent = msg ?? `${done} / ${times}`;
   };
+  input.value = ''; input.disabled = false; render();
+  forbidPaste(input, status, 'No pasting. Write the line yourself.');
+  input.onkeydown = async (e) => {
+    if (e.key !== 'Enter') return;
+    if (norm(input.value) !== norm(line)) { input.value = ''; render(`Not exact — that one didn’t count. ${done} / ${times}.`); return; }
+    done += 1; input.value = '';
+    if (done < times) { render(); return; }
+    input.disabled = true; status.textContent = 'Filing today’s lines…';
+    if (!gh.isConfigured()) { status.textContent = 'No GitHub token (Settings) — the lines cannot be filed.'; input.disabled = false; return; }
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.discipline ||= {};
+      fresh.discipline.attempt = { ...(fresh.discipline.attempt || {}), linesDoneAt: new Date().toISOString() };
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'discipline: lines written');
+      manifest.discipline = fresh.discipline;
+      renderDisciplineLockdown(manifest);
+    } catch (err) { input.disabled = false; status.textContent = err.message; }
+  };
+}
 
-  list.querySelectorAll('.discipline-upload').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const i = Number(btn.dataset.i);
-      const msg = $(`dmsg-${i}`);
-      const file = $(`dfile-${i}`).files[0];
-      if (!file) { msg.textContent = 'Choose the file first. The proof is the point.'; return; }
-      if (file.size > 15 * 1024 * 1024) { msg.textContent = 'Over 15 MB — compress it (shorter clip, smaller photo) and try again.'; return; }
-      btn.disabled = true;
-      msg.textContent = 'Encrypting and filing…';
-      try {
-        if (!gh.isConfigured()) throw new Error('No GitHub token configured (Settings)');
-        const buf = await file.arrayBuffer();
-        let bin = '';
-        const bytes = new Uint8Array(buf);
-        for (let o = 0; o < bytes.length; o += 0x8000) {
-          bin += String.fromCharCode(...bytes.subarray(o, o + 0x8000));
-        }
-        const payload = JSON.stringify({ filename: file.name, mime: file.type, dataB64: btoa(bin) });
-        const envelope = JSON.stringify(await encryptString(getPassword(), payload), null, 2);
-        const path = `data/uploads/nachweis-task${i + 1}-${Date.now()}.enc`;
-        await gh.writeText(path, envelope, `nachweis: proof for task ${i + 1}`);
-        await claimTask(i, path);
-      } catch (e) {
-        btn.disabled = false;
-        msg.textContent = `Failed: ${e.message}`;
-      }
-    });
+// Phase 2: a typed explanation/apology, English or German. Encrypted; only she reads it.
+function wireDisciplineApology(manifest) {
+  const area = $('dapology-area'); area.hidden = false;
+  const ta = $('dapology-text'), msg = $('dapology-msg'), btn = $('dapology-submit');
+  ta.value = ''; msg.textContent = '';
+  forbidPaste(ta, msg, 'No pasting. Write it yourself.');
+  btn.disabled = false;
+  btn.onclick = async () => {
+    const text = ta.value.trim();
+    if (text.length < 60) { msg.textContent = 'Not enough. Explain properly — why it lapsed, and why it will not recur.'; return; }
+    btn.disabled = true; msg.textContent = 'Filing your explanation…';
+    if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — it cannot be filed.'; btn.disabled = false; return; }
+    try {
+      const envelope = await encryptString(getPassword(), text);
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.discipline ||= {};
+      fresh.discipline.attempt = { ...(fresh.discipline.attempt || {}), apology: envelope };
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'discipline: explanation filed');
+      manifest.discipline = fresh.discipline;
+      renderDisciplineLockdown(manifest);
+    } catch (err) { btn.disabled = false; msg.textContent = err.message; }
+  };
+}
+
+async function loadVocabPool() {
+  const res = await fetch('data/vocab.json.enc');
+  if (!res.ok) return [];
+  const bank = JSON.parse(await decryptString(getPassword(), await res.json()));
+  return bank.words || [];
+}
+
+// A vocab gloss like "forty (40)" or "the (masculine)" must accept the natural
+// answer ("forty", "the") as well as the parenthetical ("40"). Build every
+// reasonable form from one English gloss.
+function vocabAnswers(en) {
+  const set = new Set();
+  const add = (s) => { const t = String(s).trim(); if (t) set.add(t); };
+  const raw = String(en);
+  for (const part of raw.split(/[\/;,]/)) {
+    add(part);
+    add(part.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ')); // drop parentheticals
+  }
+  for (const m of raw.match(/\(([^)]*)\)/g) || []) add(m.replace(/[()]/g, '')); // keep their contents too
+  return [...set];
+}
+
+// Phase 3: a short recall quiz from the vocabulary bank — the neglected
+// material. Pass reopens the course; fall short and it's barred two days.
+async function wireDisciplineQuiz(manifest, st) {
+  const area = $('dquiz-area'); area.hidden = false;
+  const wrap = $('dquiz-questions'), msg = $('dquiz-msg'), btn = $('dquiz-submit');
+  btn.hidden = true; msg.textContent = '';
+  wrap.innerHTML = '<p class="muted">Loading the quiz…</p>';
+
+  let pool = [];
+  try { pool = (await loadVocabPool()).filter((w) => w && w.de && w.en); } catch { pool = []; }
+  if (!pool.length) {
+    wrap.innerHTML = '<p class="muted">The vocabulary bank is unavailable, so the quiz cannot run. This will be resolved at the next session — study in the meantime.</p>';
+    return; // never self-clears without a real quiz
+  }
+
+  const picked = shuffleArr(pool).slice(0, Math.min(st.quiz.count, pool.length));
+  wrap.innerHTML = '';
+  picked.forEach((w, i) => {
+    const row = document.createElement('div');
+    row.className = 'dquiz-item';
+    row.innerHTML = `<p class="dquiz-prompt">${i + 1}. „${escHtml(w.de)}“ <span class="muted">— in English</span></p>
+      <input type="text" class="text-answer dquiz-input" id="dq-${i}" autocomplete="off" autocapitalize="off" spellcheck="false" />`;
+    wrap.appendChild(row);
+    forbidPaste(row.querySelector('input'), msg, 'No pasting. Answer from memory.');
   });
-  list.querySelectorAll('.discipline-claim').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      const i = Number(btn.dataset.i);
-      try {
-        if (!gh.isConfigured()) throw new Error('No GitHub token configured (Settings) — tell her directly in the next session instead.');
-        await claimTask(i, null);
-      } catch (e) {
-        btn.disabled = false;
-        $(`dmsg-${i}`).textContent = e.message;
-      }
+  btn.hidden = false; btn.disabled = false;
+
+  btn.onclick = async () => {
+    let correct = 0;
+    picked.forEach((w, i) => {
+      const given = $(`dq-${i}`).value;
+      if (checkTextAnswer({ type: 'translate', answers: vocabAnswers(w.en), acceptFuzzy: true }, given)) correct += 1;
     });
-  });
+    const total = picked.length;
+    const scorePct = Math.round((correct / total) * 100);
+    const passed = scorePct >= st.quiz.passPct;
+    btn.disabled = true; msg.textContent = 'Grading…';
+    if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the quiz cannot be filed.'; btn.disabled = false; return; }
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.discipline ||= {};
+      if (passed) {
+        const prev = { issuedAt: fresh.discipline.issuedAt, reason: fresh.discipline.reason };
+        fresh.discipline = { active: false, clearedAt: new Date().toISOString(), previous: prev, lastQuiz: { score: correct, total, pct: scorePct } };
+        await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'discipline: quiz passed — course reopened');
+        manifest.discipline = fresh.discipline;
+        render(manifest); // the course is open again
+      } else {
+        fresh.discipline.attempt = null;                       // reset the whole ritual
+        fresh.discipline.retryAfter = retryAfterDate().toISOString();
+        await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'discipline: quiz failed — barred two days');
+        manifest.discipline = fresh.discipline;
+        msg.textContent = `${correct} / ${total} (${scorePct}%). Short of ${st.quiz.passPct}%.`;
+        renderDisciplineLockdown(manifest);
+      }
+    } catch (err) { btn.disabled = false; msg.textContent = err.message; }
+  };
 }
 
 // ---------- Korrektur panel ----------
@@ -574,10 +683,13 @@ function render(manifest) {
   // the full-size image and the gated, typed apology, nothing else.
   if (conductLocked(manifest)) { renderLockdown(manifest); return; }
   $('conduct-lock-panel').hidden = true;
+  // The Nachweis (no-practice) lockdown does the same, with its own image and the
+  // lines → apology → quiz ritual. Passing the quiz reopens the course.
+  if (disciplineActive(manifest)) { renderDisciplineLockdown(manifest); return; }
+  $('discipline-lock-panel').hidden = true;
   document.body.classList.remove('lockdown');
-  document.querySelector('.topbar nav')?.classList.remove('nav-dead');
+  document.querySelector('.topbar nav')?.classList.remove('nav-dead', 'nav-discipline');
 
-  renderDiscipline(manifest);
   renderConduct(manifest);
   renderDeeds(manifest);
   renderKorrektur(manifest);

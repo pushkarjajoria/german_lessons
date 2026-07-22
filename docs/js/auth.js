@@ -7,8 +7,9 @@
 import { decryptString } from './crypto.js';
 import { readJson } from './github.js';
 import { conductScore, conductTier } from './conduct.js';
+import { disciplineActive } from './discipline.js';
 import { navBadge } from './inbox.js';
-import { mountShameBanner } from './shame.js';
+import { mountShameBanner, mountDisciplineBanner } from './shame.js';
 
 export const CANARY_VALUE = 'german-lessons-canary-v1';
 const SESSION_KEY = 'gl_session_pw';
@@ -68,6 +69,26 @@ async function renderVersionFooter(container) {
 // If the user opted to stay unlocked in this tab, the password is already in
 // sessionStorage — then the login form never appears: a quiet loading card
 // covers the silent unlock (key derivation takes a moment by design), and the
+// While the Nachweis lockdown is active, every page but the dashboard and the
+// Lessons is barred: hide the page's own content and stand a block in its place
+// with the way back. The topbar (and its two live links) stays.
+function showDisciplineBlock(password) {
+  const main = document.querySelector('main');
+  const topbar = main.querySelector('.topbar');
+  for (const el of [...main.children]) if (el !== topbar) el.hidden = true;
+  if (!main.querySelector('.discipline-block')) {
+    const block = document.createElement('section');
+    block.className = 'panel discipline-block';
+    block.innerHTML = `
+      <h2>Kurs gesperrt. Kein Üben.</h2>
+      <p>Practice lapsed — the course is closed to everything but the Lessons.
+      Complete the ritual on the <a href="index.html">dashboard</a>, or
+      <a href="lessons.html">study the lessons</a> first.</p>`;
+    (topbar || main).insertAdjacentElement(topbar ? 'afterend' : 'afterbegin', block);
+  }
+  mountDisciplineBanner(password); // the image stays here too
+}
+
 // form only renders if that unlock fails.
 export function initLock(onUnlock) {
   const el = document.getElementById('lock');
@@ -80,8 +101,19 @@ export function initLock(onUnlock) {
     // der Schande drains every page and writes the lines into the walls.
     document.body.dataset.tier = conductTier(conductScore(manifest));
     navBadge(manifest); // unread messages/rulings, on every page's nav
-    // In the cone, the learner's photo hangs on every page — no hiding.
+    // In the cone, the Schande image hangs at the top of every page — no hiding.
     if (document.body.dataset.tier === 'cone') mountShameBanner(sessionPassword);
+    // Nachweis (no-practice) lockdown: the course closes to the Lessons page and
+    // the dashboard ritual alone. Every other page is barred; the nav keeps only
+    // those two live. The dashboard runs the ritual itself (dashboard.js).
+    if (disciplineActive(manifest)) {
+      document.querySelector('.topbar nav')?.classList.add('nav-discipline');
+      const page = location.pathname.split('/').pop() || 'index.html';
+      const onDashboard = page === '' || page === 'index.html';
+      const onLessons = page === 'lessons.html';
+      if (onLessons) mountDisciplineBanner(sessionPassword); // the image stays while you study
+      if (!onDashboard && !onLessons) { showDisciplineBlock(sessionPassword); return; }
+    }
     await onUnlock(manifest);
   };
 

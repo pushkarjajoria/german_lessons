@@ -724,32 +724,34 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
   box-shadow: 0 4px 18px rgba(150, 25, 12, 0.45);
 }
 
-/* And on every other page: pinned to the corner, always in view. No hiding. */
-.shame-banner {
-  position: fixed;
-  right: 14px;
-  bottom: 14px;
-  z-index: 998;
-  margin: 0;
+/* Cone tier: the Schande image hangs at the TOP of the main frame on every
+   page — the first thing seen, directly under the nav. Not a corner pin, not a
+   backdrop watermark. The picture dominates the fold; the caption names it. */
+.schande-banner {
+  margin: 0 0 1.5rem;
   text-align: center;
-  background: var(--bg-raised);
+  background: #0c0a09;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
-  padding: 6px 6px 4px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+  padding: 0.6rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(150, 25, 12, 0.18);
 }
-.shame-banner img {
-  width: 130px;
+.schande-banner img {
+  width: auto;
+  max-width: 100%;
+  max-height: 46vh;               /* portrait image, big but never taller than the fold */
   height: auto;
   display: block;
+  margin: 0 auto;
   border-radius: 3px;
 }
-.shame-banner figcaption {
-  font-size: 0.68rem;
+.schande-banner figcaption {
+  font-family: var(--serif);
+  font-size: 0.92rem;
   color: var(--ink);
   font-style: italic;
-  margin-top: 0.25rem;
-  line-height: 1.25;
+  margin-top: 0.5rem;
+  line-height: 1.3;
 }
 .conduct-score { font-size: 2.1rem; font-family: var(--serif); margin: 0.1rem 0 0; line-height: 1; }
 .conduct-outof { font-size: 1rem; color: var(--text-dim); }
@@ -881,6 +883,19 @@ body.lockdown main > [hidden] { display: none !important; }
 /* Dead nav — nothing is clickable at lockdown but the way back. */
 .topbar nav.nav-dead { pointer-events: none; opacity: 0.3; }
 
+/* Discipline nav — only Dashboard and Lessons stay live; the rest go dim/dead. */
+.topbar nav.nav-discipline a:not([href="index.html"]):not([href="lessons.html"]),
+.topbar nav.nav-discipline .nav-more,
+.topbar nav.nav-discipline .lock-link {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* The block that stands on every barred page during the discipline lockdown. */
+.discipline-block { text-align: center; }
+.discipline-block h2 { color: var(--ink); letter-spacing: 0.04em; }
+.discipline-block a { color: var(--ink); font-weight: 600; }
+
 /* Lines phase: her line, typed N times. */
 .lockdown-panel #lines-area { max-width: 640px; margin: 0 auto; text-align: center; }
 .lockdown-lines-input { width: 100%; text-align: center; }
@@ -890,6 +905,18 @@ body.lockdown main > [hidden] { display: none !important; }
 .lockdown-lines-prompt .lines-de { display: block; font-size: 1.12rem; }
 .lockdown-lines-prompt .lines-en { display: block; font-style: italic; color: var(--text-dim); font-size: 0.9rem; margin-top: 0.15rem; }
 .lockdown-panel #lines-status { text-align: center; font-size: 1.05rem; margin-top: 0.35rem; }
+
+/* Portrait lockdown image (the no-entry sign): never cropped — contained on
+   every viewport, so a tall image shows whole and stays big. */
+.lockdown-photo--portrait { background: #0c0a09; }
+.lockdown-photo--portrait img { object-fit: contain; object-position: center; }
+
+/* Discipline quiz — a stack of short vocab prompts, each typed. */
+#dquiz-area { max-width: 640px; margin: 0 auto; text-align: left; }
+.dquiz-item { margin: 0 0 0.8rem; }
+.dquiz-prompt { font-family: var(--serif); font-size: 1.02rem; margin: 0 0 0.3rem; }
+.dquiz-input { width: 100%; }
+.lockdown-panel #dlock-foot { max-width: 640px; margin: 0.8rem auto 0; }
 
 /* ---------- Deeds: real-world spoken tasks (FR-004) ---------- */
 
