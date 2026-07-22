@@ -5,15 +5,17 @@
 //
 //   95-100  Goldener Stern      80+  Silberner Stern
 //   65+     Schwarzer Stern     <65  Kegel der Schande
-//   <60     site locked — 3 consecutive daily apologies (German) buy a
-//           review on the next lecture day; accept → 65, reject → conditions.
+//   <60     site locked — two days straight of writing HER lines (her text, her
+//           count), then on the third day the apology opens; a filed apology
+//           buys a review on the next lecture day; accept → 65, reject → restart.
 //
 // Usage:
-//   node scripts/conduct.js --show                     # score, tier, log, lock, decrypted apologies
+//   node scripts/conduct.js --show                     # score, tier, log, lock, lines, decrypted apology
 //   node scripts/conduct.js --adjust +2 --reason "…" [--push]
 //   node scripts/conduct.js --adjust -5 --reason "…" [--push]
+//   node scripts/conduct.js --set-lines "Ich …" --times 20 [--push]    # set the lines he must write (days 1–2)
 //   node scripts/conduct.js --review --accept [--push]                 # apology accepted → score 65, unlock
-//   node scripts/conduct.js --review --reject --tasks "…" [--push]    # rejected → apologies reset, conditions shown
+//   node scripts/conduct.js --review --reject --tasks "…" [--push]    # rejected → sequence restarts, conditions shown
 //
 // Ruling guidance (persona §6.5 has the full economy): ASYMMETRIC BY DESIGN.
 // Required work done properly = +0 — meeting the contract earns nothing.
@@ -45,6 +47,7 @@ manifest.conduct ||= { score: 65, log: [] };
 const c = manifest.conduct;
 
 const tierOf = (s) => (s >= 95 ? 'Goldener Stern' : s >= 80 ? 'Silberner Stern' : s >= 65 ? 'Schwarzer Stern' : 'Kegel der Schande');
+const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', times: 20 };
 
 if (args.includes('--show')) {
   console.log(`Betragen: ${c.score}/100 — ${tierOf(c.score)}${c.score < 60 ? ' — SITE LOCKED' : ''}`);
@@ -52,7 +55,11 @@ if (args.includes('--show')) {
     console.log(`  ${l.date.slice(0, 10)}  ${l.delta > 0 ? '+' : ''}${l.delta} → ${l.score}  ${l.reason}`);
   }
   if (c.lock) {
-    console.log(`\nLock since ${c.lock.since} · apologies: ${(c.lock.apologies || []).length}` +
+    const lines = c.lock.lines || DEFAULT_LINES;
+    console.log(`\nLock since ${c.lock.since}` +
+      `\n  lines: „${lines.text}“ ×${lines.times}${c.lock.lines ? '' : ' (default — set yours with --set-lines)'}` +
+      `\n  line-days written: ${(c.lock.lineDays || []).join(', ') || '(none yet)'}` +
+      `\n  apology: ${(c.lock.apologies || []).length ? 'FILED' : 'not yet'}` +
       (c.lock.eligibleAt ? ` · eligible for review since ${c.lock.eligibleAt}` : '') +
       (c.lock.extraTasks ? `\n  conditions from last rejection: ${c.lock.extraTasks}` : ''));
     if ((c.lock.apologies || []).length) {
@@ -70,6 +77,17 @@ if (args.includes('--show')) {
 
 let commitMsg;
 
+const setLines = opt('--set-lines');
+if (setLines !== null) {
+  if (!c.lock) { console.error('No active lock — lines are the lockdown regimen. Nothing to set.'); process.exit(1); }
+  const times = Number(opt('--times'));
+  if (!setLines.trim()) { console.error('--set-lines needs the line text.'); process.exit(1); }
+  if (!Number.isInteger(times) || times < 1) { console.error('--times needs a whole number ≥ 1, e.g. --times 20.'); process.exit(1); }
+  c.lock.lines = { text: setLines.trim(), times };
+  commitMsg = `conduct: lockdown lines set (×${times})`;
+  console.log(`Lines set: „${setLines.trim()}“ ×${times}. He writes them out on days 1 and 2; the apology opens on day 3.`);
+} else {
+
 const adj = opt('--adjust');
 if (adj !== null) {
   const delta = Number(adj);
@@ -84,8 +102,9 @@ if (adj !== null) {
   c.updatedAt = new Date().toISOString();
   c.log = [...(c.log || []).slice(-19), { date: c.updatedAt, delta, score: c.score, reason }];
   if (c.score < 60 && !c.lock) {
-    c.lock = { active: true, since: c.updatedAt, apologies: [] };
-    console.log('The score fell below 60 — the site locks. The apology regimen begins on his side.');
+    c.lock = { active: true, since: c.updatedAt, lines: DEFAULT_LINES, lineDays: [], apologies: [] };
+    console.log('The score fell below 60 — the site locks. Two days of lines, then the apology.');
+    console.log(`Lines default to „${DEFAULT_LINES.text}“ ×${DEFAULT_LINES.times} — set yours: conduct.js --set-lines "…" --times N`);
   }
   commitMsg = `conduct: ${delta > 0 ? '+' : ''}${delta} → ${c.score} (${tierOf(c.score)})`;
   console.log(`Betragen ${delta > 0 ? '+' : ''}${delta} → ${c.score}/100 — ${tierOf(c.score)}.`);
@@ -101,19 +120,21 @@ if (adj !== null) {
   } else if (args.includes('--reject')) {
     const tasks = opt('--tasks');
     if (!tasks) { console.error('A rejection carries conditions — --tasks "…" (plaintext, category-level).'); process.exit(1); }
+    c.lock.lineDays = [];
     c.lock.apologies = [];
     c.lock.eligibleAt = null;
     c.lock.extraTasks = tasks;
-    commitMsg = 'conduct: apology rejected — count restarts with conditions';
-    console.log('Rejected. The apology count restarts at 0/3, with your conditions shown on the lock panel.');
+    commitMsg = 'conduct: apology rejected — sequence restarts with conditions';
+    console.log('Rejected. The whole sequence restarts — two days of lines, then the apology — with your conditions shown on the lockdown screen.');
   } else {
     console.error('--review needs --accept or --reject --tasks "…".');
     process.exit(1);
   }
 } else {
-  console.error('Usage: --show | --adjust ±N --reason "…" | --review --accept | --review --reject --tasks "…"');
+  console.error('Usage: --show | --adjust ±N --reason "…" | --set-lines "…" --times N | --review --accept | --review --reject --tasks "…"');
   process.exit(1);
 }
+} // end: not --set-lines
 
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
 

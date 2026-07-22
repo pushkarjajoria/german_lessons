@@ -6,9 +6,10 @@
 //   80–94      Silberner Stern
 //   65–79      Schwarzer Stern
 //   below 65   Kegel der Schande — with comments on behaviour and performance
-//   below 60   the site LOCKS: three consecutive days of a written apology in
-//              German buy eligibility for review on the next lecture day;
-//              she accepts (score back to 65) or rejects with extra tasks.
+//   below 60   the site LOCKS: two days straight of writing her assigned lines,
+//              then on the third day the apology opens; a filed apology buys
+//              eligibility for review on the next lecture day; she accepts
+//              (score back to 65) or rejects with extra tasks.
 //
 // Apology texts are AES-encrypted inline in the manifest (public repo) — only
 // she reads them (scripts/conduct.js --show).
@@ -97,6 +98,64 @@ export function apologyStatus(manifest, now = new Date()) {
     complete,
     remaining: Math.max(0, APOLOGIES_NEEDED - chain.length),
     eligibleAt: complete ? (lock?.eligibleAt ? new Date(lock.eligibleAt) : nextLecture(now)) : null,
+    extraTasks: lock?.extraTasks || null,
+  };
+}
+
+// ---------- the lockdown sequence: lines, then the apology ----------
+// Two days straight of writing the lines Frau Richter set (her text, her
+// count), then on the THIRD consecutive day the apology finally opens. A
+// missed day breaks the streak and restarts it — every day, not when
+// convenient. Lines and count are hers to set (scripts/conduct.js --set-lines);
+// this default only keeps the screen functional if she has not yet.
+
+export const LINE_DAYS_NEEDED = 2;
+export const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', times: 20 };
+
+// Consecutive run of dates ending today or yesterday, else [] (streak dead).
+function consecutiveRun(dates, now = new Date()) {
+  const sorted = [...dates].sort();
+  if (!sorted.length) return [];
+  let run = [sorted[0]];
+  for (let i = 1; i < sorted.length; i++) {
+    if (dayDiff(sorted[i - 1], sorted[i]) === 1) run.push(sorted[i]);
+    else run = [sorted[i]];
+  }
+  return dayDiff(run[run.length - 1], localDate(now)) <= 1 ? run : [];
+}
+
+// The full state machine for the lockdown screen.
+//   phase 'lines'     — still owe line-days (or just finished today's set)
+//   phase 'apology'   — two consecutive line-days done; today the apology opens
+//   phase 'submitted' — the apology is filed; awaiting her review
+export function lockStatus(manifest, now = new Date()) {
+  const lock = manifest.conduct?.lock || null;
+  const today = localDate(now);
+  const lines = lock?.lines || DEFAULT_LINES;
+  const linesAssigned = Boolean(lock?.lines);
+  const lineDays = (lock?.lineDays || []).map((d) => (typeof d === 'string' ? d : d.date));
+  const apologies = lock?.apologies || [];
+
+  const run = consecutiveRun(lineDays, now);
+  const lineDaysDone = run.length;
+  const linesDoneToday = run.includes(today);
+  const lastLineDay = run[run.length - 1] || null;
+
+  let phase;
+  if (apologies.length >= 1) phase = 'submitted';
+  else if (lineDaysDone >= LINE_DAYS_NEEDED && lastLineDay !== today) phase = 'apology';
+  else phase = 'lines';
+
+  const apologyDone = apologies.length >= 1;
+  return {
+    phase,
+    lines,                                   // {text, times} she set (or default)
+    linesAssigned,
+    lineDaysDone,                            // 0, 1, or 2 (consecutive)
+    linesDoneToday,
+    linesRemaining: Math.max(0, LINE_DAYS_NEEDED - lineDaysDone),
+    apologyDone,
+    eligibleAt: apologyDone ? (lock?.eligibleAt ? new Date(lock.eligibleAt) : nextLecture(now)) : null,
     extraTasks: lock?.extraTasks || null,
   };
 }

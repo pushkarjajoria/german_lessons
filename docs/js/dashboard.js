@@ -6,7 +6,7 @@
 
 import { initLock, initLockButton, getPassword } from './auth.js';
 import { encryptString, decryptString } from './crypto.js';
-import { conductScore, conductTier, conductLocked, TIERS, apologyStatus, localDate, nextLecture } from './conduct.js';
+import { conductScore, conductTier, conductLocked, TIERS, apologyStatus, lockStatus, localDate, nextLecture } from './conduct.js';
 import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfeits } from './tests-common.js';
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
@@ -218,9 +218,20 @@ function renderConduct(manifest) {
 }
 
 // ---------- lockdown (Betragen below 60) ----------
-// The site closes to a single screen: a full-size image, and — only after he
-// commits by clicking the button — the apology box. Nothing else on the page.
-// The apology is TYPED, never pasted.
+// The site closes to a single screen: a full-size image and nothing else — the
+// nav is dead, the backdrop is a lock, and the only thing that works is the
+// sequence back. That sequence is: two days straight of writing her assigned
+// lines (typed, N times), then on the third day the apology finally opens
+// (also typed, never pasted). See conduct.js lockStatus().
+
+// Block paste / drag-drop / paste-inputType on a field — the words come from
+// his own hand, whether they are her lines or his apology.
+function forbidPaste(el, msgEl, warning) {
+  const warn = (e) => { e.preventDefault(); if (msgEl) msgEl.textContent = warning; };
+  el.addEventListener('paste', warn);
+  el.addEventListener('drop', warn);
+  el.addEventListener('beforeinput', (e) => { if (e.inputType && /paste|drop/i.test(e.inputType)) warn(e); });
+}
 
 async function renderLockdown(manifest) {
   // Strip the dashboard to this one panel: hide every other section.
@@ -230,28 +241,22 @@ async function renderLockdown(manifest) {
   }
   lockPanel.hidden = false;
 
+  // The backdrop becomes a lock; the nav goes dead. Nothing works but the way back.
+  document.body.classList.add('lockdown');
+  document.querySelector('.topbar nav')?.classList.add('nav-dead');
+
   const score = conductScore(manifest);
-  const st = apologyStatus(manifest);
+  const st = lockStatus(manifest);
 
   $('lock-reason').textContent =
-    `Betragen ${score}/100. The course is closed. The way back: a written apology, in German, in full sentences, ` +
-    `on three consecutive days. Then I review it on the next lecture day — Monday or Wednesday, 10:00. Not before.`;
+    `Betragen ${score}/100. The course is closed. The way back: two days of writing my lines, ` +
+    `then on the third day your apology — in German, in full sentences. I review it on the next ` +
+    `lecture day — Monday or Wednesday, 10:00. Not before.`;
 
   if (st.extraTasks) {
     const ex = $('apology-extra');
     ex.hidden = false;
     ex.textContent = `Her last rejection carried conditions: ${st.extraTasks}`;
-  }
-
-  const prog = $('apology-progress');
-  if (st.complete) {
-    prog.textContent = `Apologies ${st.chain.length}/3 — complete. Eligible for review: ${fmtLecture(st.eligibleAt)}. She decides then.`;
-  } else if (st.doneToday) {
-    prog.textContent = `Apology ${st.chain.length}/3 recorded for today. Tomorrow the next one — a missed day starts the count over.`;
-  } else {
-    prog.textContent = st.chain.length
-      ? `Apologies: ${st.chain.length}/3. Today's is due.`
-      : 'Apologies: 0/3. Begin today — a missed day starts the count over.';
   }
 
   // The full-size lockdown image (its own encrypted asset, not the cone photo).
@@ -268,31 +273,97 @@ async function renderLockdown(manifest) {
     } catch { /* wrong password or missing asset — the screen stands without it */ }
   }
 
-  // The gate: the textbox appears only after he clicks the button.
+  const prog = $('apology-progress');
+  const linesArea = $('lines-area');
+  const gate = $('apology-gate');
+  const apologyArea = $('apology-area');
+  // reset visibility each render
+  linesArea.hidden = true; gate.hidden = true; apologyArea.hidden = true;
+
+  if (st.phase === 'submitted') {
+    prog.textContent = `Apology filed. Eligible for review: ${fmtLecture(st.eligibleAt)}. She decides then — not before.`;
+    return;
+  }
+
+  if (st.phase === 'apology') {
+    // Day 3: the lines are done; the apology opens behind the button.
+    prog.textContent = 'Lines done — two days straight. Today the apology.';
+    gate.hidden = false;
+    wireApology(manifest, score);
+    return;
+  }
+
+  // phase 'lines' — days 1 and 2.
+  if (st.linesDoneToday) {
+    prog.textContent = st.lineDaysDone >= 2
+      ? 'Lines complete for today — two days done. The apology opens tomorrow.'
+      : `Lines complete for today (day ${st.lineDaysDone} of 2). Come back tomorrow for the next set.`;
+    return; // nothing more today
+  }
+  prog.textContent = st.lineDaysDone
+    ? `Lines: day ${st.lineDaysDone + 1} of 2. A missed day starts the count over.`
+    : 'Lines: day 1 of 2. Write them out. A missed day starts the count over.';
+  wireLines(manifest, st, score);
+}
+
+// Days 1–2: type her line, exactly, `times` times.
+function wireLines(manifest, st, score) {
+  const area = $('lines-area');
+  area.hidden = false;
+  const input = $('lines-input');
+  const status = $('lines-status');
+  const line = st.lines.text;
+  const times = st.lines.times;
+  input.value = '';
+  input.disabled = false;
+  let done = 0;
+  const norm = (s) => s.trim().replace(/\s+/g, ' ');
+  const update = () => { $('lines-prompt').innerHTML = `Write it, ${times} times — exactly:<br><strong>„${line}“</strong>`; status.textContent = `${done} / ${times}`; };
+  update();
+  forbidPaste(input, status, 'No pasting. Write the line yourself.');
+  input.onkeydown = async (e) => {
+    if (e.key !== 'Enter') return;
+    if (norm(input.value) !== norm(line)) { status.textContent = `Not the line. Look at it, then type it exactly. (${done} / ${times})`; input.select(); return; }
+    done += 1;
+    input.value = '';
+    if (done < times) { status.textContent = `${done} / ${times}`; return; }
+    // Today's set complete — record the day.
+    input.disabled = true;
+    status.textContent = 'Filing today’s lines…';
+    if (!gh.isConfigured()) { status.textContent = 'No GitHub token (Settings) — the lines cannot be filed.'; input.disabled = false; return; }
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.conduct ||= { score, log: [] };
+      fresh.conduct.lock ||= { active: true, since: new Date().toISOString(), apologies: [] };
+      const lock = fresh.conduct.lock;
+      lock.lines ||= st.lines;
+      lock.lineDays ||= [];
+      const today = localDate();
+      if (!lock.lineDays.includes(today)) lock.lineDays.push(today);
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'conduct: lockdown lines written');
+      manifest.conduct = fresh.conduct;
+      renderLockdown(manifest);
+    } catch (err) {
+      input.disabled = false;
+      status.textContent = err.message;
+    }
+  };
+}
+
+// Day 3: reveal → typed apology → file it.
+function wireApology(manifest, score) {
   const reveal = $('apology-reveal');
   const area = $('apology-area');
   const ta = $('apology-text');
   const submit = $('apology-submit');
+  const msg = $('apology-msg');
   reveal.onclick = () => {
     $('apology-gate').hidden = true;
     area.hidden = false;
-    // Today's apology already in? Reveal the box read-only, so the ritual holds
-    // but a second same-day submission is refused.
-    if (st.doneToday) { ta.disabled = true; submit.disabled = true; ta.placeholder = 'Today’s apology is already filed. Tomorrow the next one.'; }
-    else { ta.disabled = false; submit.disabled = false; ta.focus(); }
+    ta.disabled = false; submit.disabled = false; ta.focus();
   };
-
-  // Typed, not pasted — block paste, drag-drop, and the paste inputType as a
-  // backstop. She wants the words to come from his own hand.
-  const blockPaste = (e) => { e.preventDefault(); $('apology-msg').textContent = 'No pasting. Type it — in your own words.'; };
-  ta.addEventListener('paste', blockPaste);
-  ta.addEventListener('drop', blockPaste);
-  ta.addEventListener('beforeinput', (e) => {
-    if (e.inputType && /paste|drop/i.test(e.inputType)) { e.preventDefault(); $('apology-msg').textContent = 'No pasting. Type it — in your own words.'; }
-  });
-
+  forbidPaste(ta, msg, 'No pasting. Type it — in your own words.');
   submit.onclick = async () => {
-    const msg = $('apology-msg');
     const text = ta.value.trim();
     if (text.length < 100) { msg.textContent = 'Too short for an apology that means anything. Full sentences, auf Deutsch.'; return; }
     if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the apology cannot be filed.'; return; }
@@ -304,12 +375,11 @@ async function renderLockdown(manifest) {
       fresh.conduct.lock ||= { active: true, since: new Date().toISOString(), apologies: [] };
       const lock = fresh.conduct.lock;
       const today = localDate();
-      if (lock.apologies.some((a) => a.date === today)) throw new Error('Already filed today. Tomorrow.');
+      if ((lock.apologies || []).some((a) => a.date === today)) throw new Error('Already filed today.');
+      lock.apologies ||= [];
       lock.apologies.push({ date: today, enc: await encryptString(getPassword(), text) });
-      const chainNow = apologyStatus(fresh).chain;
-      if (chainNow.length >= 3 && !lock.eligibleAt) lock.eligibleAt = nextLecture().toISOString();
-      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
-        `conduct: apology ${Math.min(chainNow.length, 3)}/3 filed`);
+      if (!lock.eligibleAt) lock.eligibleAt = nextLecture().toISOString();
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'conduct: apology filed');
       manifest.conduct = fresh.conduct;
       ta.value = '';
       renderLockdown(manifest);
@@ -460,6 +530,8 @@ function render(manifest) {
   // the full-size image and the gated, typed apology, nothing else.
   if (conductLocked(manifest)) { renderLockdown(manifest); return; }
   $('conduct-lock-panel').hidden = true;
+  document.body.classList.remove('lockdown');
+  document.querySelector('.topbar nav')?.classList.remove('nav-dead');
 
   renderDiscipline(manifest);
   renderConduct(manifest);

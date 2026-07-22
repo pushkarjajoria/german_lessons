@@ -72,7 +72,17 @@
       <p class="discipline-reason" id="lock-reason"></p>
       <p class="note-label lockdown-progress" id="apology-progress"></p>
       <p class="muted" id="apology-extra" hidden></p>
-      <div id="apology-gate">
+
+      <!-- Days 1–2: write her assigned lines, N times, typed. -->
+      <div id="lines-area" hidden>
+        <p class="lockdown-lines-prompt" id="lines-prompt"></p>
+        <input type="text" class="text-answer lockdown-lines-input" id="lines-input"
+          autocapitalize="off" autocomplete="off" placeholder="Type the line…" />
+        <p class="model-repeat-status" id="lines-status"></p>
+      </div>
+
+      <!-- Day 3: the apology, gated behind the button. -->
+      <div id="apology-gate" hidden>
         <button class="btn btn-primary btn-big lockdown-reveal" id="apology-reveal">
           I am sorry and I am ready to submit my apology
         </button>

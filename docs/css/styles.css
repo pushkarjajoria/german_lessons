@@ -817,6 +817,25 @@ body[data-tier="cone"] h1, body[data-tier="cone"] h2 { color: var(--text); }
   body[data-tier="cone"]::after, .rank-glyph { animation: none !important; }
 }
 
+/* Lockdown (below 60): the backdrop stops being words and becomes a lock,
+   tiled at the same size as the SCHANDE watermark. Comes after the cone rule
+   (equal specificity) so it wins. */
+body.lockdown {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='420'%3E%3Cg opacity='0.15' font-size='64' transform='rotate(-16 280 210)'%3E%3Ctext x='30' y='120'%3E%F0%9F%94%92%20%20%20%F0%9F%94%92%20%20%20%F0%9F%94%92%3C/text%3E%3Ctext x='10' y='250'%3E%F0%9F%94%92%20%20%20%F0%9F%94%92%20%20%20%F0%9F%94%92%3C/text%3E%3Ctext x='30' y='380'%3E%F0%9F%94%92%20%20%20%F0%9F%94%92%20%20%20%F0%9F%94%92%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(rgba(179, 169, 150, 0.018) 1px, transparent 1px);
+  background-size: 560px 420px, 100% 34px;
+}
+
+/* Dead nav — nothing is clickable at lockdown but the way back. */
+.topbar nav.nav-dead { pointer-events: none; opacity: 0.3; }
+
+/* Lines phase: her line, typed N times. */
+.lockdown-panel #lines-area { max-width: 640px; margin: 0 auto; text-align: center; }
+.lockdown-lines-prompt { font-family: var(--serif); font-size: 1.1rem; line-height: 1.6; margin: 0 0 0.9rem; }
+.lockdown-lines-input { width: 100%; text-align: center; }
+.lockdown-panel #lines-status { text-align: center; font-size: 1.05rem; margin-top: 0.6rem; }
+
 /* ---------- Deeds: real-world spoken tasks (FR-004) ---------- */
 
 .deeds-panel .deed-row + .deed-row { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
