@@ -1011,9 +1011,14 @@
       "text": "At the gym: ask \"Ist das Gerät frei?\" out loud, to an actual person, once.",
       "assignedAt": "2026-07-20T18:37:01.824Z",
       "due": "0007",
-      "status": "open",
-      "closedAt": null,
-      "noteEnc": null
+      "status": "not_yet",
+      "closedAt": "2026-07-22T16:58:57.938Z",
+      "noteEnc": {
+        "v": 1,
+        "salt": "fvcs99Xi8GO4rZfdI9Wbrg==",
+        "iv": "EaDNMhT2aofRXHpI",
+        "ct": "HqOI442ITrh1yrXK7xROlr/3lGfMpsBixt/n0SMqwMxmO/nFhH3fD/F+v9rBZnStd48spLGoXvpqMQkWpgJIEauZn6lqjBoR7eZvUxbRIiu+uml5b3o="
+      }
     }
   ],
   "justifyVerdicts": {
