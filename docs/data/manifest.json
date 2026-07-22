@@ -665,6 +665,13 @@
       "items": 3,
       "firstTry": 3,
       "durationSec": 51
+    },
+    {
+      "date": "2026-07-22T16:58:06.453Z",
+      "mode": "korrektur",
+      "items": 5,
+      "firstTry": 2,
+      "durationSec": 324
     }
   ],
   "corrections": [
@@ -789,9 +796,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-22T11:45:22.682Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-22T16:58:06.453Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-22T16:58:06.453Z"
     },
     {
       "key": "0006:q5",
@@ -802,8 +810,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:46:28.549Z",
+      "doneCount": 0,
+      "lastPassedAt": null,
       "status": "open"
     },
     {
@@ -815,8 +823,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:46:28.549Z",
+      "doneCount": 0,
+      "lastPassedAt": null,
       "status": "open"
     },
     {
@@ -828,8 +836,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:46:28.549Z",
+      "doneCount": 0,
+      "lastPassedAt": null,
       "status": "open"
     },
     {
@@ -841,9 +849,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-22T11:45:22.682Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-22T16:58:06.453Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-22T16:58:06.453Z"
     }
   ],
   "conduct": {
