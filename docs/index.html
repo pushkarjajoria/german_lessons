@@ -76,11 +76,13 @@
         <p class="note-label lockdown-progress" id="apology-progress"></p>
         <p class="muted" id="apology-extra" hidden></p>
 
-        <!-- Days 1–2: write her assigned lines, N times, typed. -->
+        <!-- Days 1–2: write her assigned lines, N times, typed. The textbox
+             sits directly under the image; the line, its translation, and any
+             warning go below the box. -->
         <div id="lines-area" hidden>
-          <p class="lockdown-lines-prompt" id="lines-prompt"></p>
           <input type="text" class="text-answer lockdown-lines-input" id="lines-input"
             autocapitalize="off" autocomplete="off" placeholder="Type the line…" />
+          <p class="lockdown-lines-prompt" id="lines-prompt"></p>
           <p class="model-repeat-status" id="lines-status"></p>
         </div>
 

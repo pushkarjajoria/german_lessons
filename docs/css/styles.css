@@ -564,10 +564,11 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .discipline-panel h2 { color: var(--ink); letter-spacing: 0.04em; }
 
 /* ---------- lockdown (Betragen below 60) ---------- */
-/* The dashboard collapses to a single full-screen hero: the image FILLS the
-   whole lockdown area (object-fit: cover — big, edge to edge, never
-   letterboxed), and the controls float over the bottom on a dark scrim so
-   the writing stays legible. Image and input are always on screen together. */
+/* MOBILE (default): the image is a big cover hero (50vh, edge to edge, no
+   letterbox), controls below it. DESKTOP (>=900px): the panel is locked to the
+   viewport height and never scrolls — the image is shown WHOLE (object-fit:
+   contain, no crop) and fills the space above a compact control block, so the
+   image and the textbox stay pinned on screen together while writing. */
 .lockdown-panel { text-align: center; padding: 0 0 0.5rem; }
 .lockdown-photo {
   height: 50vh;                      /* BIG — half the screen — leaving room for the controls */
@@ -580,12 +581,47 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .lockdown-photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;                 /* FILL the frame — big, edge to edge, no letterbox */
+  object-fit: cover;                 /* mobile: FILL the frame — big, edge to edge */
   object-position: center 35%;       /* bias toward the faces, not the floor */
   display: block;
 }
-/* The remaining ~38vh holds the controls, always fully visible below the image. */
 .lockdown-controls { padding: 0; }
+
+/* DESKTOP: lock the whole lockdown to one non-scrolling screen. `main` becomes
+   a full-height flex column (topbar + panel), so the split is exact — no
+   guessing the topbar height. The image is shown in full (contain — never
+   cropped) and grows to fill everything above the controls; the textbox and the
+   text below it stay pinned on screen, and the page never scrolls. */
+@media (min-width: 900px) {
+  body.lockdown { overflow: hidden; }               /* the page itself never scrolls */
+  body.lockdown main {
+    height: 100dvh;
+    padding-bottom: 1rem;                           /* drop the tall 4rem footer gap */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  body.lockdown .topbar { flex: 0 0 auto; }
+  .lockdown-panel {
+    flex: 1 1 auto;                                 /* fill the space under the topbar exactly */
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .lockdown-photo {
+    height: auto;
+    flex: 1 1 auto;                                 /* take all the room above the controls */
+    min-height: 0;
+    margin: 0 0 0.7rem;
+    background: rgba(0, 0, 0, 0.04);                /* subtle mat behind the contained image */
+  }
+  .lockdown-photo img {
+    object-fit: contain;                            /* WHOLE image — nothing cropped off */
+    object-position: center;
+  }
+  .lockdown-controls { flex: 0 0 auto; }            /* compact, always visible, never scrolls away */
+}
 .lockdown-title { color: var(--ink); letter-spacing: 0.04em; margin: 0 0 0.35rem; font-size: 1.2rem; }
 .lockdown-panel .discipline-reason { max-width: 640px; margin: 0 auto 0.55rem; color: var(--text-dim); font-size: 0.85rem; }
 .lockdown-progress { text-align: center; margin: 0 0 0.7rem; }
@@ -837,14 +873,23 @@ body.lockdown {
   background-size: 560px 420px, 100% 34px;
 }
 
+/* At lockdown the page collapses to the one panel. `hidden` alone isn't enough
+   — sections with an explicit display (e.g. .stats-grid: grid) override the
+   UA [hidden] rule and keep rendering, stealing layout space. Force them gone. */
+body.lockdown main > [hidden] { display: none !important; }
+
 /* Dead nav — nothing is clickable at lockdown but the way back. */
 .topbar nav.nav-dead { pointer-events: none; opacity: 0.3; }
 
 /* Lines phase: her line, typed N times. */
 .lockdown-panel #lines-area { max-width: 640px; margin: 0 auto; text-align: center; }
-.lockdown-lines-prompt { font-family: var(--serif); font-size: 1.02rem; line-height: 1.4; margin: 0 0 0.5rem; }
 .lockdown-lines-input { width: 100%; text-align: center; }
-.lockdown-panel #lines-status { text-align: center; font-size: 1.05rem; margin-top: 0.6rem; }
+/* The line to copy, its translation, and the counter/warnings all sit BELOW
+   the textbox. */
+.lockdown-lines-prompt { font-family: var(--serif); font-size: 1.02rem; line-height: 1.4; margin: 0.55rem 0 0; }
+.lockdown-lines-prompt .lines-de { display: block; font-size: 1.12rem; }
+.lockdown-lines-prompt .lines-en { display: block; font-style: italic; color: var(--text-dim); font-size: 0.9rem; margin-top: 0.15rem; }
+.lockdown-panel #lines-status { text-align: center; font-size: 1.05rem; margin-top: 0.35rem; }
 
 /* ---------- Deeds: real-world spoken tasks (FR-004) ---------- */
 

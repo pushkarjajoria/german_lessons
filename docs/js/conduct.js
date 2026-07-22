@@ -110,7 +110,7 @@ export function apologyStatus(manifest, now = new Date()) {
 // this default only keeps the screen functional if she has not yet.
 
 export const LINE_DAYS_NEEDED = 2;
-export const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', times: 20 };
+export const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', translation: 'I will not neglect my duties again.', times: 20 };
 
 // Consecutive run of dates ending today or yesterday, else [] (streak dead).
 function consecutiveRun(dates, now = new Date()) {

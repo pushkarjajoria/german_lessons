@@ -13,7 +13,7 @@
 //   node scripts/conduct.js --show                     # score, tier, log, lock, lines, decrypted apology
 //   node scripts/conduct.js --adjust +2 --reason "…" [--push]
 //   node scripts/conduct.js --adjust -5 --reason "…" [--push]
-//   node scripts/conduct.js --set-lines "Ich …" --times 20 [--push]    # set the lines he must write (days 1–2)
+//   node scripts/conduct.js --set-lines "Ich …" --times 20 [--translation "I …"] [--push]   # set the lines he must write (days 1–2)
 //   node scripts/conduct.js --review --accept [--push]                 # apology accepted → score 65, unlock
 //   node scripts/conduct.js --review --reject --tasks "…" [--push]    # rejected → sequence restarts, conditions shown
 //
@@ -47,7 +47,7 @@ manifest.conduct ||= { score: 65, log: [] };
 const c = manifest.conduct;
 
 const tierOf = (s) => (s >= 95 ? 'Goldener Stern' : s >= 80 ? 'Silberner Stern' : s >= 65 ? 'Schwarzer Stern' : 'Kegel der Schande');
-const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', times: 20 };
+const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', translation: 'I will not neglect my duties again.', times: 20 };
 
 if (args.includes('--show')) {
   console.log(`Betragen: ${c.score}/100 — ${tierOf(c.score)}${c.score < 60 ? ' — SITE LOCKED' : ''}`);
@@ -58,6 +58,7 @@ if (args.includes('--show')) {
     const lines = c.lock.lines || DEFAULT_LINES;
     console.log(`\nLock since ${c.lock.since}` +
       `\n  lines: „${lines.text}“ ×${lines.times}${c.lock.lines ? '' : ' (default — set yours with --set-lines)'}` +
+      `\n  translation: ${lines.translation ? `“${lines.translation}”` : '(none — add --translation "…")'}` +
       `\n  line-days written: ${(c.lock.lineDays || []).join(', ') || '(none yet)'}` +
       `\n  apology: ${(c.lock.apologies || []).length ? 'FILED' : 'not yet'}` +
       (c.lock.eligibleAt ? ` · eligible for review since ${c.lock.eligibleAt}` : '') +
@@ -81,11 +82,12 @@ const setLines = opt('--set-lines');
 if (setLines !== null) {
   if (!c.lock) { console.error('No active lock — lines are the lockdown regimen. Nothing to set.'); process.exit(1); }
   const times = Number(opt('--times'));
+  const translation = opt('--translation');
   if (!setLines.trim()) { console.error('--set-lines needs the line text.'); process.exit(1); }
   if (!Number.isInteger(times) || times < 1) { console.error('--times needs a whole number ≥ 1, e.g. --times 20.'); process.exit(1); }
-  c.lock.lines = { text: setLines.trim(), times };
+  c.lock.lines = { text: setLines.trim(), times, ...(translation && translation.trim() ? { translation: translation.trim() } : {}) };
   commitMsg = `conduct: lockdown lines set (×${times})`;
-  console.log(`Lines set: „${setLines.trim()}“ ×${times}. He writes them out on days 1 and 2; the apology opens on day 3.`);
+  console.log(`Lines set: „${setLines.trim()}“ ×${times}${translation && translation.trim() ? ` — “${translation.trim()}”` : ' (no translation — add --translation "…" so he understands it)'}. He writes them out on days 1 and 2; the apology opens on day 3.`);
 } else {
 
 const adj = opt('--adjust');

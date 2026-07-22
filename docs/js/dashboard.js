@@ -275,8 +275,13 @@ async function renderLockdown(manifest) {
   const linesArea = $('lines-area');
   const gate = $('apology-gate');
   const apologyArea = $('apology-area');
-  // reset visibility each render
+  const title = lockPanel.querySelector('.lockdown-title');
+  const reason = $('lock-reason');
+  // reset visibility each render — default: header text shown, header hidden
+  // only while actively writing lines (so the image + textbox sit together and
+  // the line/translation/warnings live below the box).
   linesArea.hidden = true; gate.hidden = true; apologyArea.hidden = true;
+  title.hidden = false; reason.hidden = false; prog.hidden = false;
 
   if (st.phase === 'submitted') {
     prog.textContent = `Apology filed. Eligible for review: ${fmtLecture(st.eligibleAt)}. She decides then — not before.`;
@@ -298,7 +303,9 @@ async function renderLockdown(manifest) {
       : `Lines complete for today (day ${st.lineDaysDone} of 2). Come back tomorrow for the next set.`;
     return; // nothing more today
   }
-  prog.textContent = `Lines — day ${st.lineDaysDone + 1} of 2.`;
+  // Actively writing: the image + textbox are the pinned pair; the day, the
+  // line, its translation and the counter all live below the box.
+  title.hidden = true; reason.hidden = true; prog.hidden = true;
   wireLines(manifest, st, score);
 }
 
@@ -324,15 +331,21 @@ function wireLines(manifest, st, score) {
   const prompt = $('lines-prompt');
   const line = st.lines.text;
   const times = st.lines.times;
+  const translation = st.lines.translation || '';
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const day = `Day ${st.lineDaysDone + 1} of 2`;
   const norm = (s) => s.trim().replace(/\s+/g, ' ');
   // The last two reps are written from memory (only meaningful for 3+).
   const memoryFrom = times >= 3 ? times - 2 : Infinity;
   let done = 0;
 
+  // The line to copy (with its English meaning) and the counter sit BELOW the
+  // textbox; once into the last two reps, the reference disappears.
+  const en = translation ? `<span class="lines-en">${esc(translation)}</span>` : '';
   const render = (msg) => {
     prompt.innerHTML = done < memoryFrom
-      ? `Write it, ${times} times — exactly:<br><strong>„${line}“</strong>`
-      : `From memory now — the last ${times - done} without the line in front of you.`;
+      ? `${day} — write it ${times} times, exactly:<span class="lines-de"><strong>„${esc(line)}“</strong></span>${en}`
+      : `${day} — from memory now. The last ${times - done} without the line in front of you.`;
     status.textContent = msg ?? `${done} / ${times}`;
   };
   const reset = (why) => { done = 0; input.value = ''; render(why); };
