@@ -67,33 +67,37 @@
          the button — the apology box. The apology is TYPED, never pasted. Three
          consecutive days buy a review on the next lecture day. -->
     <section class="lockdown-panel" id="conduct-lock-panel" hidden>
+      <!-- The image is a full-bleed hero filling the whole screen; the controls
+           overlay the bottom on a dark scrim so it stays big AND legible. -->
       <figure class="lockdown-photo" id="lockdown-photo"></figure>
-      <h2 class="lockdown-title">Gesperrt. Betragen unter 60.</h2>
-      <p class="discipline-reason" id="lock-reason"></p>
-      <p class="note-label lockdown-progress" id="apology-progress"></p>
-      <p class="muted" id="apology-extra" hidden></p>
+      <div class="lockdown-controls">
+        <h2 class="lockdown-title">Gesperrt. Betragen unter 60.</h2>
+        <p class="discipline-reason" id="lock-reason"></p>
+        <p class="note-label lockdown-progress" id="apology-progress"></p>
+        <p class="muted" id="apology-extra" hidden></p>
 
-      <!-- Days 1–2: write her assigned lines, N times, typed. -->
-      <div id="lines-area" hidden>
-        <p class="lockdown-lines-prompt" id="lines-prompt"></p>
-        <input type="text" class="text-answer lockdown-lines-input" id="lines-input"
-          autocapitalize="off" autocomplete="off" placeholder="Type the line…" />
-        <p class="model-repeat-status" id="lines-status"></p>
-      </div>
-
-      <!-- Day 3: the apology, gated behind the button. -->
-      <div id="apology-gate" hidden>
-        <button class="btn btn-primary btn-big lockdown-reveal" id="apology-reveal">
-          I am sorry and I am ready to submit my apology
-        </button>
-      </div>
-      <div id="apology-area" hidden>
-        <textarea id="apology-text" class="justify-input lockdown-textarea" rows="6"
-          placeholder="Sehr geehrte Frau Richter, es tut mir leid, dass …  (auf Deutsch, in ganzen Sätzen — typed, not pasted)"></textarea>
-        <div class="btn-row">
-          <button class="btn btn-primary" id="apology-submit">Submit today's apology</button>
+        <!-- Days 1–2: write her assigned lines, N times, typed. -->
+        <div id="lines-area" hidden>
+          <p class="lockdown-lines-prompt" id="lines-prompt"></p>
+          <input type="text" class="text-answer lockdown-lines-input" id="lines-input"
+            autocapitalize="off" autocomplete="off" placeholder="Type the line…" />
+          <p class="model-repeat-status" id="lines-status"></p>
         </div>
-        <p class="model-repeat-status" id="apology-msg"></p>
+
+        <!-- Day 3: the apology, gated behind the button. -->
+        <div id="apology-gate" hidden>
+          <button class="btn btn-primary btn-big lockdown-reveal" id="apology-reveal">
+            I am sorry and I am ready to submit my apology
+          </button>
+        </div>
+        <div id="apology-area" hidden>
+          <textarea id="apology-text" class="justify-input lockdown-textarea" rows="6"
+            placeholder="Sehr geehrte Frau Richter, es tut mir leid, dass …  (auf Deutsch, in ganzen Sätzen — typed, not pasted)"></textarea>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="apology-submit">Submit today's apology</button>
+          </div>
+          <p class="model-repeat-status" id="apology-msg"></p>
+        </div>
       </div>
     </section>
 

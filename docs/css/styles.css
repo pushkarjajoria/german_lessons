@@ -564,25 +564,31 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .discipline-panel h2 { color: var(--ink); letter-spacing: 0.04em; }
 
 /* ---------- lockdown (Betragen below 60) ---------- */
-/* The whole dashboard collapses to this: the image, then a gated typed
-   apology / the lines. The image is height-capped so it stays visible while
-   the lines are written below it, rather than pushing them off-screen. */
-.lockdown-panel { text-align: center; padding: 0.4rem 0 3rem; }
-.lockdown-photo { margin: 0 0 0.9rem; text-align: center; }
-.lockdown-photo img {
-  display: block;
-  max-width: 100%;
-  max-height: 44vh;         /* visible alongside the lines, not a full page of its own */
-  width: auto;
-  height: auto;
-  margin: 0 auto;
-  border-radius: var(--radius);
+/* The dashboard collapses to a single full-screen hero: the image FILLS the
+   whole lockdown area (object-fit: cover — big, edge to edge, never
+   letterboxed), and the controls float over the bottom on a dark scrim so
+   the writing stays legible. Image and input are always on screen together. */
+.lockdown-panel { text-align: center; padding: 0 0 0.5rem; }
+.lockdown-photo {
+  height: 50vh;                      /* BIG — half the screen — leaving room for the controls */
+  margin: 0 0 0.6rem;
+  overflow: hidden;                  /* clip the cover image to the rounded frame */
   border: 2px solid var(--ink);
+  border-radius: var(--radius);
   box-shadow: 0 6px 26px rgba(150, 25, 12, 0.4);
 }
-.lockdown-title { color: var(--ink); letter-spacing: 0.04em; margin: 0 0 0.4rem; font-size: 1.25rem; }
-.lockdown-panel .discipline-reason { max-width: 640px; margin: 0 auto 0.7rem; color: var(--text-dim); font-size: 0.86rem; }
-.lockdown-progress { text-align: center; margin: 0 0 1rem; }
+.lockdown-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                 /* FILL the frame — big, edge to edge, no letterbox */
+  object-position: center 35%;       /* bias toward the faces, not the floor */
+  display: block;
+}
+/* The remaining ~38vh holds the controls, always fully visible below the image. */
+.lockdown-controls { padding: 0; }
+.lockdown-title { color: var(--ink); letter-spacing: 0.04em; margin: 0 0 0.35rem; font-size: 1.2rem; }
+.lockdown-panel .discipline-reason { max-width: 640px; margin: 0 auto 0.55rem; color: var(--text-dim); font-size: 0.85rem; }
+.lockdown-progress { text-align: center; margin: 0 0 0.7rem; }
 .lockdown-reveal { font-weight: 700; }
 .lockdown-panel #apology-extra { max-width: 640px; margin: 0 auto 1rem; }
 .lockdown-panel #apology-area { max-width: 640px; margin: 0 auto; text-align: left; }
@@ -836,7 +842,7 @@ body.lockdown {
 
 /* Lines phase: her line, typed N times. */
 .lockdown-panel #lines-area { max-width: 640px; margin: 0 auto; text-align: center; }
-.lockdown-lines-prompt { font-family: var(--serif); font-size: 1.1rem; line-height: 1.6; margin: 0 0 0.9rem; }
+.lockdown-lines-prompt { font-family: var(--serif); font-size: 1.02rem; line-height: 1.4; margin: 0 0 0.5rem; }
 .lockdown-lines-input { width: 100%; text-align: center; }
 .lockdown-panel #lines-status { text-align: center; font-size: 1.05rem; margin-top: 0.6rem; }
 

@@ -249,8 +249,7 @@ async function renderLockdown(manifest) {
   const score = conductScore(manifest);
   const st = lockStatus(manifest);
 
-  $('lock-reason').textContent =
-    `Betragen ${score}/100. Two days of my lines, then the apology on the third.`;
+  $('lock-reason').textContent = `Betragen ${score}/100. Gesperrt.`;
 
   if (st.extraTasks) {
     const ex = $('apology-extra');
@@ -299,9 +298,7 @@ async function renderLockdown(manifest) {
       : `Lines complete for today (day ${st.lineDaysDone} of 2). Come back tomorrow for the next set.`;
     return; // nothing more today
   }
-  prog.textContent = st.lineDaysDone
-    ? `Lines: day ${st.lineDaysDone + 1} of 2. A missed day starts the count over.`
-    : 'Lines: day 1 of 2. Write them out. A missed day starts the count over.';
+  prog.textContent = `Lines — day ${st.lineDaysDone + 1} of 2.`;
   wireLines(manifest, st, score);
 }
 
