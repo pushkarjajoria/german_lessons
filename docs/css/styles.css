@@ -562,6 +562,29 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
   background: var(--ink-soft);
 }
 .discipline-panel h2 { color: var(--ink); letter-spacing: 0.04em; }
+
+/* ---------- lockdown (Betragen below 60) ---------- */
+/* The whole dashboard collapses to this: full-size image, then a gated,
+   typed-only apology. Nothing else on the page. */
+.lockdown-panel { text-align: center; padding: 0.5rem 0 3rem; }
+.lockdown-photo { margin: 0 0 1.5rem; }
+.lockdown-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 2px solid var(--ink);
+  box-shadow: 0 6px 26px rgba(150, 25, 12, 0.4);
+}
+.lockdown-title { color: var(--ink); letter-spacing: 0.04em; margin: 0 0 0.6rem; }
+.lockdown-panel .discipline-reason { max-width: 640px; margin: 0 auto 1rem; color: var(--text-dim); }
+.lockdown-progress { text-align: center; margin: 0 0 1.4rem; }
+.lockdown-reveal { font-weight: 700; }
+.lockdown-panel #apology-extra { max-width: 640px; margin: 0 auto 1rem; }
+.lockdown-panel #apology-area { max-width: 640px; margin: 0 auto; text-align: left; }
+.lockdown-textarea { width: 100%; }
+.lockdown-panel .btn-row { justify-content: center; }
+.lockdown-panel .model-repeat-status { text-align: center; }
 .discipline-reason { font-family: var(--serif); font-size: 1.05rem; }
 .discipline-task {
   border-top: 1px solid var(--rule);

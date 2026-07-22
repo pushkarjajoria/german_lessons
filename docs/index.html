@@ -62,16 +62,24 @@
       </div>
     </section>
 
-    <!-- Conduct lock: below 60 the site closes. Three consecutive days of a
-         written apology in German buy a review on the next lecture day. -->
-    <section class="panel discipline-panel" id="conduct-lock-panel" hidden>
-      <h2>Gesperrt. Betragen unter 60.</h2>
+    <!-- Conduct lock (Betragen below 60): the site closes down to THIS page and
+         nothing else. A full-size image, then — only after he commits by clicking
+         the button — the apology box. The apology is TYPED, never pasted. Three
+         consecutive days buy a review on the next lecture day. -->
+    <section class="lockdown-panel" id="conduct-lock-panel" hidden>
+      <figure class="lockdown-photo" id="lockdown-photo"></figure>
+      <h2 class="lockdown-title">Gesperrt. Betragen unter 60.</h2>
       <p class="discipline-reason" id="lock-reason"></p>
-      <div id="apology-area">
-        <p class="note-label" id="apology-progress"></p>
-        <p class="muted" id="apology-extra" hidden></p>
-        <textarea id="apology-text" class="justify-input" rows="5"
-          placeholder="Sehr geehrte Frau Richter, es tut mir leid, dass …  (auf Deutsch, in ganzen Sätzen)"></textarea>
+      <p class="note-label lockdown-progress" id="apology-progress"></p>
+      <p class="muted" id="apology-extra" hidden></p>
+      <div id="apology-gate">
+        <button class="btn btn-primary btn-big lockdown-reveal" id="apology-reveal">
+          I am sorry and I am ready to submit my apology
+        </button>
+      </div>
+      <div id="apology-area" hidden>
+        <textarea id="apology-text" class="justify-input lockdown-textarea" rows="6"
+          placeholder="Sehr geehrte Frau Richter, es tut mir leid, dass …  (auf Deutsch, in ganzen Sätzen — typed, not pasted)"></textarea>
         <div class="btn-row">
           <button class="btn btn-primary" id="apology-submit">Submit today's apology</button>
         </div>

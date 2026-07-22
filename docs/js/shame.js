@@ -7,6 +7,7 @@
 import { decryptString } from './crypto.js';
 
 let cachedUrl = null;
+let cachedLockdownUrl = null;
 
 export async function shamePhotoUrl(password) {
   if (cachedUrl) return cachedUrl;
@@ -15,6 +16,17 @@ export async function shamePhotoUrl(password) {
   const payload = JSON.parse(await decryptString(password, await res.json()));
   cachedUrl = `data:${payload.mime};base64,${payload.dataB64}`;
   return cachedUrl;
+}
+
+// The lockdown image (Betragen below 60) — a separate encrypted asset from the
+// cone photo, shown full-size on the dashboard's lockdown screen.
+export async function lockdownPhotoUrl(password) {
+  if (cachedLockdownUrl) return cachedLockdownUrl;
+  const res = await fetch('data/img/lockdown.enc');
+  if (!res.ok) return null;
+  const payload = JSON.parse(await decryptString(password, await res.json()));
+  cachedLockdownUrl = `data:${payload.mime};base64,${payload.dataB64}`;
+  return cachedLockdownUrl;
 }
 
 // The corner pin for every non-dashboard page (the dashboard hangs it bigger,

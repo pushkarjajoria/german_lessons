@@ -11,7 +11,7 @@ import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfei
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
 import { getPolicy, openCorrections, eligibleNow, nextEligibleAt, isOverdue, homeworkGated } from './corrections.js';
-import { shamePhotoUrl } from './shame.js';
+import { shamePhotoUrl, lockdownPhotoUrl } from './shame.js';
 import * as gh from './github.js';
 
 const $ = (id) => document.getElementById(id);
@@ -213,40 +213,90 @@ function renderConduct(manifest) {
   $('conduct-last').textContent = last
     ? `Last ruling: ${last.delta > 0 ? '+' : ''}${last.delta} — ${last.reason} (${fmtDate(last.date)})`
     : 'No rulings yet. The score starts at 65 — everything above it is earned, nothing is given.';
+  // The lock screen (below 60) is handled by renderLockdown() before the normal
+  // dashboard renders — renderConduct only ever runs when NOT locked.
+}
 
-  // Lock panel + apology machinery
+// ---------- lockdown (Betragen below 60) ----------
+// The site closes to a single screen: a full-size image, and — only after he
+// commits by clicking the button — the apology box. Nothing else on the page.
+// The apology is TYPED, never pasted.
+
+async function renderLockdown(manifest) {
+  // Strip the dashboard to this one panel: hide every other section.
   const lockPanel = $('conduct-lock-panel');
-  if (!conductLocked(manifest)) { lockPanel.hidden = true; return; }
+  for (const sec of document.querySelectorAll('main > section')) {
+    sec.hidden = sec !== lockPanel;
+  }
   lockPanel.hidden = false;
+
+  const score = conductScore(manifest);
   const st = apologyStatus(manifest);
+
   $('lock-reason').textContent =
     `Betragen ${score}/100. The course is closed. The way back: a written apology, in German, in full sentences, ` +
     `on three consecutive days. Then I review it on the next lecture day — Monday or Wednesday, 10:00. Not before.`;
+
   if (st.extraTasks) {
     const ex = $('apology-extra');
     ex.hidden = false;
     ex.textContent = `Her last rejection carried conditions: ${st.extraTasks}`;
   }
+
   const prog = $('apology-progress');
   if (st.complete) {
     prog.textContent = `Apologies ${st.chain.length}/3 — complete. Eligible for review: ${fmtLecture(st.eligibleAt)}. She decides then.`;
-    $('apology-text').disabled = false; // further apologies are permitted, not required
   } else if (st.doneToday) {
     prog.textContent = `Apology ${st.chain.length}/3 recorded for today. Tomorrow the next one — a missed day starts the count over.`;
-    $('apology-text').disabled = true;
-    $('apology-submit').disabled = true;
   } else {
     prog.textContent = st.chain.length
       ? `Apologies: ${st.chain.length}/3. Today's is due.`
       : 'Apologies: 0/3. Begin today — a missed day starts the count over.';
   }
 
-  $('apology-submit').onclick = async () => {
+  // The full-size lockdown image (its own encrypted asset, not the cone photo).
+  const fig = $('lockdown-photo');
+  if (!fig.querySelector('img')) {
+    try {
+      const url = await lockdownPhotoUrl(getPassword());
+      if (url) {
+        const img = document.createElement('img');
+        img.alt = 'Gesperrt';
+        img.src = url;
+        fig.appendChild(img);
+      }
+    } catch { /* wrong password or missing asset — the screen stands without it */ }
+  }
+
+  // The gate: the textbox appears only after he clicks the button.
+  const reveal = $('apology-reveal');
+  const area = $('apology-area');
+  const ta = $('apology-text');
+  const submit = $('apology-submit');
+  reveal.onclick = () => {
+    $('apology-gate').hidden = true;
+    area.hidden = false;
+    // Today's apology already in? Reveal the box read-only, so the ritual holds
+    // but a second same-day submission is refused.
+    if (st.doneToday) { ta.disabled = true; submit.disabled = true; ta.placeholder = 'Today’s apology is already filed. Tomorrow the next one.'; }
+    else { ta.disabled = false; submit.disabled = false; ta.focus(); }
+  };
+
+  // Typed, not pasted — block paste, drag-drop, and the paste inputType as a
+  // backstop. She wants the words to come from his own hand.
+  const blockPaste = (e) => { e.preventDefault(); $('apology-msg').textContent = 'No pasting. Type it — in your own words.'; };
+  ta.addEventListener('paste', blockPaste);
+  ta.addEventListener('drop', blockPaste);
+  ta.addEventListener('beforeinput', (e) => {
+    if (e.inputType && /paste|drop/i.test(e.inputType)) { e.preventDefault(); $('apology-msg').textContent = 'No pasting. Type it — in your own words.'; }
+  });
+
+  submit.onclick = async () => {
     const msg = $('apology-msg');
-    const text = $('apology-text').value.trim();
+    const text = ta.value.trim();
     if (text.length < 100) { msg.textContent = 'Too short for an apology that means anything. Full sentences, auf Deutsch.'; return; }
     if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the apology cannot be filed.'; return; }
-    $('apology-submit').disabled = true;
+    submit.disabled = true;
     msg.textContent = 'Filing…';
     try {
       const { data: fresh } = await gh.readJson('data/manifest.json');
@@ -261,10 +311,10 @@ function renderConduct(manifest) {
       await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2),
         `conduct: apology ${Math.min(chainNow.length, 3)}/3 filed`);
       manifest.conduct = fresh.conduct;
-      $('apology-text').value = '';
-      renderConduct(manifest);
+      ta.value = '';
+      renderLockdown(manifest);
     } catch (e) {
-      $('apology-submit').disabled = false;
+      submit.disabled = false;
       msg.textContent = e.message;
     }
   };
@@ -405,6 +455,11 @@ function render(manifest) {
   const { counters, history } = manifest;
   LANG = voiceLang(manifest);
   const S = STRINGS[LANG];
+
+  // Betragen below 60: the dashboard collapses to the lockdown screen alone —
+  // the full-size image and the gated, typed apology, nothing else.
+  if (conductLocked(manifest)) { renderLockdown(manifest); return; }
+  $('conduct-lock-panel').hidden = true;
 
   renderDiscipline(manifest);
   renderConduct(manifest);
