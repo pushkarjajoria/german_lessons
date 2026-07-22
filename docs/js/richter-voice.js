@@ -216,10 +216,6 @@ export const STRINGS = {
     ctaDoneSub: 'Use the wait properly: say your coffee order out loud, once, from memory. Recognizing is not knowing.',
     ctaStart: 'Start today’s homework →',
     ctaSub: (id) => `Homework ${id} is waiting. It knows you are here.`,
-    disciplineTitle: 'The course is halted.',
-    disciplineClaim: 'I have done this — submit for her review',
-    disciplineClaimed: 'Submitted for review. She decides, not the button.',
-    disciplineFoot: 'Homework and tests stay locked until Frau Richter clears this. Completing the tasks is how you reopen the course.',
     coneVerdict: 'I am disappointed — not angry, disappointed, which is worse. This is not who you are when you actually work. Climb out before you mistake the cone for your ceiling.',
   },
   de: {
@@ -228,10 +224,6 @@ export const STRINGS = {
     ctaDoneSub: 'Nutze die Wartezeit richtig: Sag deine Kaffeebestellung einmal laut, aus dem Kopf. Erkennen ist nicht Können.',
     ctaStart: 'Heutige Hausaufgabe starten →',
     ctaSub: (id) => `Hausaufgabe ${id} wartet. Sie weiß, dass du hier bist.`,
-    disciplineTitle: 'Der Kurs ist angehalten.',
-    disciplineClaim: 'Erledigt — zur Kontrolle einreichen',
-    disciplineClaimed: 'Zur Kontrolle eingereicht. Sie entscheidet, nicht der Knopf.',
-    disciplineFoot: 'Hausaufgaben und Tests bleiben gesperrt, bis Frau Richter das hier aufhebt. Die Aufgaben zu erledigen ist der einzige Weg zurück.',
     coneVerdict: 'Ich bin enttäuscht — nicht wütend, enttäuscht, was schlimmer ist. So bist du nicht, wenn du wirklich arbeitest. Steig heraus, bevor du den Kegel für deine Decke hältst.',
   },
 };

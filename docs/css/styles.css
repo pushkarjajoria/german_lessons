@@ -554,15 +554,6 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 }
 .correction-notice .note-label { color: var(--text-dim); }
 
-/* ---------- discipline (course halted) ---------- */
-
-.discipline-panel {
-  border: 1px solid var(--ink);
-  border-left: 4px solid var(--ink);
-  background: var(--ink-soft);
-}
-.discipline-panel h2 { color: var(--ink); letter-spacing: 0.04em; }
-
 /* ---------- lockdown (Betragen below 60) ---------- */
 /* MOBILE (default): the image is a big cover hero (50vh, edge to edge, no
    letterbox), controls below it. DESKTOP (>=900px): the panel is locked to the
