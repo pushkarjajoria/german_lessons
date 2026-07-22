@@ -6,7 +6,7 @@
 
 import { decryptString } from './crypto.js';
 import { readJson } from './github.js';
-import { conductScore, conductTier } from './conduct.js';
+import { conductScore, conductTier, conductLocked } from './conduct.js';
 import { disciplineActive } from './discipline.js';
 import { navBadge } from './inbox.js';
 import { mountShameBanner, mountDisciplineBanner } from './shame.js';
@@ -101,8 +101,12 @@ export function initLock(onUnlock) {
     // der Schande drains every page and writes the lines into the walls.
     document.body.dataset.tier = conductTier(conductScore(manifest));
     navBadge(manifest); // unread messages/rulings, on every page's nav
-    // In the cone, the Schande image hangs at the top of every page — no hiding.
-    if (document.body.dataset.tier === 'cone') mountShameBanner(sessionPassword);
+    // In the cone, the Schande image (curtsy) hangs at the top of every page —
+    // but NOT while a lock is up: the Betragen lock shows its own image, and the
+    // discipline lock shows the no-entry image. One image per screen.
+    if (document.body.dataset.tier === 'cone' && !conductLocked(manifest) && !disciplineActive(manifest)) {
+      mountShameBanner(sessionPassword);
+    }
     // Nachweis (no-practice) lockdown: the course closes to the Lessons page and
     // the dashboard ritual alone. Every other page is barred; the nav keeps only
     // those two live. The dashboard runs the ritual itself (dashboard.js).

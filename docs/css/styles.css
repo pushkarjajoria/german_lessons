@@ -593,25 +593,27 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
     min-height: 0;
   }
   body.lockdown .topbar { flex: 0 0 auto; }
-  .lockdown-panel {
+  /* Scoped to body.lockdown: otherwise `display:flex` would override the [hidden]
+     attribute and the hidden lockdown panels would show on the normal dashboard. */
+  body.lockdown .lockdown-panel {
     flex: 1 1 auto;                                 /* fill the space under the topbar exactly */
     min-height: 0;
     display: flex;
     flex-direction: column;
     padding: 0;
   }
-  .lockdown-photo {
+  body.lockdown .lockdown-photo {
     height: auto;
     flex: 1 1 auto;                                 /* take all the room above the controls */
     min-height: 0;
     margin: 0 0 0.7rem;
     background: rgba(0, 0, 0, 0.04);                /* subtle mat behind the contained image */
   }
-  .lockdown-photo img {
+  body.lockdown .lockdown-photo img {
     object-fit: contain;                            /* WHOLE image — nothing cropped off */
     object-position: center;
   }
-  .lockdown-controls { flex: 0 0 auto; }            /* compact, always visible, never scrolls away */
+  body.lockdown .lockdown-controls { flex: 0 0 auto; }   /* compact, always visible, never scrolls away */
 }
 .lockdown-title { color: var(--ink); letter-spacing: 0.04em; margin: 0 0 0.35rem; font-size: 1.2rem; }
 .lockdown-panel .discipline-reason { max-width: 640px; margin: 0 auto 0.55rem; color: var(--text-dim); font-size: 0.85rem; }
@@ -700,20 +702,6 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .conduct-main { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 0.5rem; }
 .conduct-head { display: flex; gap: 0.9rem; align-items: center; }
 .conduct-head img { width: 64px; height: 80px; object-fit: contain; }
-
-/* The student's photo IS the cone rank now — full size, ORIGINAL COLOR,
-   framed in her red under "Kegel der Schande". Maximum clarity is the point:
-   the only muted thing in the room is everything else. */
-.rank-glyph-photo { line-height: 0; transform: none !important; animation: none !important; }
-.rank-glyph-photo img {
-  width: 190px;
-  max-width: 100%;
-  height: auto;
-  object-fit: cover;
-  border: 3px solid var(--ink);
-  border-radius: var(--radius);
-  box-shadow: 0 4px 18px rgba(150, 25, 12, 0.45);
-}
 
 /* Cone tier: the Schande image hangs at the TOP of the main frame on every
    page — the first thing seen, directly under the nav. Not a corner pin, not a

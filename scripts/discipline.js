@@ -16,7 +16,7 @@
 // Usage:
 //   node scripts/discipline.js --issue --reason "…" \
 //        --line "Ich übe jeden Tag, ohne Ausnahme." [--translation "I practice every day…"] \
-//        [--times 15] [--quiz-count 6] [--pass 70] [--push]
+//        [--times 15] [--quiz-count 6] [--pass 4] [--push]   (--pass = questions right to pass)
 //   node scripts/discipline.js --status
 //   node scripts/discipline.js --clear [--push]
 //
@@ -56,7 +56,7 @@ if (args.includes('--status')) {
   const l = d.lines || {};
   console.log(`HALTED since ${d.issuedAt} — ${d.reason}`);
   console.log(`  line: „${l.text || '(default)'}“ ×${l.times || 15}${l.translation ? ` — “${l.translation}”` : ''}`);
-  console.log(`  quiz: ${(d.quiz?.count) || 6} vocab items · pass ${(d.quiz?.passPct) || 70}%`);
+  console.log(`  quiz: ${(d.quiz?.count) || 6} vocab items · ${(d.quiz?.passCount) || 4} right to pass`);
   console.log(`  progress: ${fmtAttempt(d.attempt)}`);
   if (d.retryAfter) console.log(`  BARRED after a failed quiz — ritual resets and reopens on ${d.retryAfter.slice(0, 10)}`);
   console.log(`  (the learner clears this by passing the quiz — no --clear needed for that)`);
@@ -77,29 +77,29 @@ if (args.includes('--clear')) {
   const reason = opt('--reason');
   const line = opt('--line');
   if (!reason || !line || !line.trim()) {
-    console.error('Usage: node scripts/discipline.js --issue --reason "…" --line "Ich übe jeden Tag…" [--translation "…"] [--times 15] [--quiz-count 6] [--pass 70] [--push]');
+    console.error('Usage: node scripts/discipline.js --issue --reason "…" --line "Ich übe jeden Tag…" [--translation "…"] [--times 15] [--quiz-count 6] [--pass 4] [--push]');
     process.exit(1);
   }
   const times = opt('--times') ? Number(opt('--times')) : 15;
   const translation = opt('--translation');
   const count = opt('--quiz-count') ? Number(opt('--quiz-count')) : 6;
-  const passPct = opt('--pass') ? Number(opt('--pass')) : 70;
+  const passCount = opt('--pass') ? Number(opt('--pass')) : 4;
   if (!Number.isInteger(times) || times < 1) { console.error('--times needs a whole number ≥ 1.'); process.exit(1); }
   if (!Number.isInteger(count) || count < 1) { console.error('--quiz-count needs a whole number ≥ 1.'); process.exit(1); }
-  if (!(passPct >= 1 && passPct <= 100)) { console.error('--pass needs a percentage 1–100.'); process.exit(1); }
+  if (!Number.isInteger(passCount) || passCount < 1 || passCount > count) { console.error(`--pass needs a whole number 1–${count} (questions required, not a percentage).`); process.exit(1); }
   manifest.discipline = {
     active: true,
     issuedAt: new Date().toISOString(),
     reason,
     lines: { text: line.trim(), times, ...(translation && translation.trim() ? { translation: translation.trim() } : {}) },
-    quiz: { count, passPct },
+    quiz: { count, passCount },
     attempt: null,
     retryAfter: null,
   };
   commitMsg = 'discipline: course halted (no-practice lockdown)';
   console.log(`Issued. Course closed to the Lessons page alone.`);
   console.log(`  line „${line.trim()}“ ×${times}${translation && translation.trim() ? ` — “${translation.trim()}”` : ' (no translation — add --translation "…")'}`);
-  console.log(`  then a typed apology, then a ${count}-item vocab quiz at ${passPct}% to pass. Passing reopens the course.`);
+  console.log(`  then a typed apology, then a ${count}-item vocab quiz — ${passCount} right to pass. Passing reopens the course.`);
 } else {
   console.error('Usage: --issue … | --clear | --status   (see file header)');
   process.exit(1);

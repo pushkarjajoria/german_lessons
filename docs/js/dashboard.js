@@ -11,7 +11,7 @@ import { getTests, deriveStatus, deriveForfeitReason, fmtDeadline, enforceForfei
 import { loadPortrait } from './portrait.js';
 import { verdict, richterNotes, voiceLang, pct, STRINGS } from './richter-voice.js';
 import { getPolicy, openCorrections, eligibleNow, nextEligibleAt, isOverdue, homeworkGated } from './corrections.js';
-import { shamePhotoUrl, lockdownPhotoUrl, disciplinePhotoUrl } from './shame.js';
+import { lockdownPhotoUrl, disciplinePhotoUrl } from './shame.js';
 import { disciplineActive, disciplineStatus, retryAfterDate } from './discipline.js';
 import { checkTextAnswer } from './checking.js';
 import * as gh from './github.js';
@@ -64,7 +64,7 @@ async function renderDisciplineLockdown(manifest) {
 
   const st = disciplineStatus(manifest);
   $('dlock-reason').textContent = st.reason || 'Practice lapsed. The course is closed until you set it right.';
-  $('dlock-foot').textContent = 'Only the Lessons page is open. The image stays until the quiz is passed.';
+  $('dlock-foot').textContent = '';
 
   // The no-entry image — its own encrypted asset (portrait).
   const fig = $('discipline-photo');
@@ -79,7 +79,7 @@ async function renderDisciplineLockdown(manifest) {
   $('dlines-area').hidden = true; $('dapology-area').hidden = true; $('dquiz-area').hidden = true;
 
   if (st.phase === 'cooldown') {
-    prog.textContent = `You fell short of ${st.quiz.passPct}%. The ritual is barred until ${fmtDate(st.retryAt)} — then it resets: lines, explanation, quiz, from the top.`;
+    prog.textContent = `You fell short of ${st.quiz.passCount} of ${st.quiz.count}. The ritual is barred until ${fmtDate(st.retryAt)} — then it resets: lines, explanation, quiz, from the top.`;
     return;
   }
   if (st.phase === 'lines') {
@@ -94,8 +94,8 @@ async function renderDisciplineLockdown(manifest) {
   }
   // quiz
   prog.textContent = st.lastQuiz
-    ? `Last — the quiz again: ${st.quiz.count} words, ${st.quiz.passPct}% to pass.`
-    : `Last — a short quiz: ${st.quiz.count} words, ${st.quiz.passPct}% to pass. Pass and the course reopens.`;
+    ? `Last — the quiz again: ${st.quiz.count} words, ${st.quiz.passCount} right to pass.`
+    : `Last — a short quiz: ${st.quiz.count} words, ${st.quiz.passCount} right to pass. Pass and the course reopens.`;
   wireDisciplineQuiz(manifest, st);
 }
 
@@ -211,8 +211,7 @@ async function wireDisciplineQuiz(manifest, st) {
       if (checkTextAnswer({ type: 'translate', answers: vocabAnswers(w.en), acceptFuzzy: true }, given)) correct += 1;
     });
     const total = picked.length;
-    const scorePct = Math.round((correct / total) * 100);
-    const passed = scorePct >= st.quiz.passPct;
+    const passed = correct >= st.quiz.passCount;
     btn.disabled = true; msg.textContent = 'Grading…';
     if (!gh.isConfigured()) { msg.textContent = 'No GitHub token (Settings) — the quiz cannot be filed.'; btn.disabled = false; return; }
     try {
@@ -220,7 +219,7 @@ async function wireDisciplineQuiz(manifest, st) {
       fresh.discipline ||= {};
       if (passed) {
         const prev = { issuedAt: fresh.discipline.issuedAt, reason: fresh.discipline.reason };
-        fresh.discipline = { active: false, clearedAt: new Date().toISOString(), previous: prev, lastQuiz: { score: correct, total, pct: scorePct } };
+        fresh.discipline = { active: false, clearedAt: new Date().toISOString(), previous: prev, lastQuiz: { score: correct, total } };
         await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'discipline: quiz passed — course reopened');
         manifest.discipline = fresh.discipline;
         render(manifest); // the course is open again
@@ -229,7 +228,7 @@ async function wireDisciplineQuiz(manifest, st) {
         fresh.discipline.retryAfter = retryAfterDate().toISOString();
         await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'discipline: quiz failed — barred two days');
         manifest.discipline = fresh.discipline;
-        msg.textContent = `${correct} / ${total} (${scorePct}%). Short of ${st.quiz.passPct}%.`;
+        msg.textContent = `${correct} / ${total} correct. You need ${st.quiz.passCount}.`;
         renderDisciplineLockdown(manifest);
       }
     } catch (err) { btn.disabled = false; msg.textContent = err.message; }
@@ -281,27 +280,6 @@ function fmtLecture(d) {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }) + ', 10:00';
 }
 
-// In the cone, the rank badge stops being a glyph: the learner's own photo
-// hangs there instead — full size, original color, framed in her red, under
-// the words "Kegel der Schande". The shame has a face, and everyone who
-// opens the page sees it clearly.
-async function showShamePhoto() {
-  const glyph = $('rank-glyph');
-  if (glyph.querySelector('img')) return;
-  try {
-    const url = await shamePhotoUrl(getPassword());
-    if (!url) return;
-    glyph.textContent = '';
-    // star-cone rotates the ▲ into a cone — the photograph hangs straight.
-    glyph.classList.remove('star-cone');
-    glyph.classList.add('rank-glyph-photo');
-    const img = document.createElement('img');
-    img.alt = 'The student, in the cone';
-    img.src = url;
-    glyph.appendChild(img);
-  } catch { /* wrong password or missing asset — the triangle stands in */ }
-}
-
 function renderConduct(manifest) {
   const score = conductScore(manifest);
   const tier = conductTier(score);
@@ -316,7 +294,8 @@ function renderConduct(manifest) {
   const nextUp = { cone: 'Schwarzer Stern begins at 65.', black: 'Silberner Stern begins at 80.', silver: 'Goldener Stern begins at 95.', gold: 'There is nothing above. Hold it.' };
   $('rank-next').textContent = nextUp[tier];
   $('conduct-score').textContent = score;
-  if (tier === 'cone') showShamePhoto();
+  // Cone tier's face is the Schande banner at the top of the page (shame.js) —
+  // the rank badge keeps its plain ▲, no second photo here.
   const log = manifest.conduct?.log || [];
   const last = log[log.length - 1];
   $('conduct-last').textContent = last

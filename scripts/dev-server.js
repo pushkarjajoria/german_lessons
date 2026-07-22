@@ -31,7 +31,7 @@ const day = (days = 0) => iso(days).slice(0, 10);
 // Small lines + a short quiz everywhere, so the rituals are quick to test.
 const LINES = { text: 'Ich übe jeden Tag.', translation: 'I practice every day.', times: 2 };
 const fakeEnc = { v: 1, salt: 'x', iv: 'y', ct: 'z' };          // a filed-but-opaque envelope
-const disc = (attempt) => ({ active: true, issuedAt: iso(), reason: 'Testing the no-practice lockdown.', lines: LINES, quiz: { count: 4, passPct: 70 }, attempt, retryAfter: null });
+const disc = (attempt) => ({ active: true, issuedAt: iso(), reason: 'Testing the no-practice lockdown.', lines: LINES, quiz: { count: 6, passCount: 4 }, attempt, retryAfter: null });
 const conduct = (score) => ({ score, updatedAt: iso(), log: [] });
 
 // Each state is an override applied to a fresh copy of the real manifest.

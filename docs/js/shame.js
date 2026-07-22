@@ -17,9 +17,6 @@ async function encImageUrl(path, key, password) {
   return imgCache[key];
 }
 
-// The learner's own photograph — still used by the dashboard rank badge itself.
-export function shamePhotoUrl(password) { return encImageUrl('data/img/learner.enc', 'learner', password); }
-
 // The Schande banner image (curtsy) hung at the top of every page in the cone.
 export function schandePhotoUrl(password) { return encImageUrl('data/img/schande.enc', 'schande', password); }
 

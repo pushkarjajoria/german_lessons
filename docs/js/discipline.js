@@ -21,7 +21,7 @@ export const DEFAULT_DISCIPLINE_LINES = {
   translation: 'I practice every day, without exception.',
   times: 15,
 };
-export const DEFAULT_QUIZ = { count: 6, passPct: 70 };
+export const DEFAULT_QUIZ = { count: 6, passCount: 4 };
 export const RETRY_DAYS = 2;
 
 export function disciplineActive(manifest) {
