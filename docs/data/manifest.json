@@ -660,11 +660,11 @@
       "durationSec": 303
     },
     {
-      "date": "2026-07-22T11:46:27.149Z",
+      "date": "2026-07-22T11:46:28.549Z",
       "mode": "korrektur",
       "items": 3,
       "firstTry": 3,
-      "durationSec": 49
+      "durationSec": 51
     }
   ],
   "corrections": [
@@ -803,7 +803,7 @@
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
       "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:46:27.149Z",
+      "lastPassedAt": "2026-07-22T11:46:28.549Z",
       "status": "open"
     },
     {
@@ -816,7 +816,7 @@
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
       "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:46:27.149Z",
+      "lastPassedAt": "2026-07-22T11:46:28.549Z",
       "status": "open"
     },
     {
@@ -829,7 +829,7 @@
       "addedAt": "2026-07-21T14:30:15.178Z",
       "required": 3,
       "doneCount": 1,
-      "lastPassedAt": "2026-07-22T11:46:27.149Z",
+      "lastPassedAt": "2026-07-22T11:46:28.549Z",
       "status": "open"
     },
     {
