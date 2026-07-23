@@ -442,10 +442,11 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-20T18:37:17.862Z",
-    "text": "No new lesson today — deliberately. Lesson 0006 went live today and is untouched; stacking 0007 on top would bury it, which is the mistake I made in reverse last week. 0006 is the assignment. Three things are new on your dashboard: your two real-world tasks now sit there as open rows instead of in my notes, my verdict on your 0005 reasoning (sound), and a correction notice.",
+    "date": "2026-07-23T08:37:29.901Z",
+    "text": "Lesson 0007: der Akkusativ from the ground up — what 'doer' and 'receiver' actually mean, because the mechanics without the concept are only table-lookup. You asked for this lesson; granted. Progress on plurals: the English -s is gone, only the Umlaut still slips. The du ending holds on one verb but not yet cold on a new one. Consolidate first — a short, strictly timed test follows, not this week.",
     "weakAreas": [
-      "Kasus"
+      "Kasus",
+      "Konjugation"
     ]
   },
   "practiceLog": [
@@ -877,7 +878,7 @@
     }
   ],
   "conduct": {
-    "score": 74,
+    "score": 76,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -908,9 +909,15 @@
         "delta": 2,
         "score": 74,
         "reason": "Correction queue cleared to zero (0005:q6, 0005:q7 both to 3/3) and all four outstanding Berichte filed on 2026-07-19 — four days after the -2 was applied. The named consequence was met in full; the obligation is closed. Credit entered late because the previous two runs read a stale record. The -2 of 2026-07-15 was correct on its own grounds and stands."
+      },
+      {
+        "date": "2026-07-23T08:36:45.078Z",
+        "delta": 2,
+        "score": 76,
+        "reason": "Report 0006 done promptly (8/13 first-try, 13/13 eventual, 0 hints, 10 min). The Supermarkt deed — declined twice before — was carried out: a German sentence produced cold to a stranger, which is the target behaviour of the whole course. Gym deed legitimately pending (trains Mon/Wed/Fri), no penalty. Filed an honest, precise Antrag admitting he does not understand the case concept and asking for more work — the opposite of complacency."
       }
     ],
-    "updatedAt": "2026-07-20T13:33:39.480Z"
+    "updatedAt": "2026-07-23T08:36:45.078Z"
   },
   "requests": [
     {
@@ -935,7 +942,9 @@
         "iv": "pGWRbD/kq0mkB7ns",
         "ct": "4wWLjnMTyFSTCmGzXQ5e0aObe/6xQUbe46Jowcdje+Q8IwTSBIg7BnevlvK+A9UIfo4PlUP83Y2m768liQcocT51hjzIEz/2hieClpHfkClv4QQQrAtn8UdTx+Yp1wrgvk1QHanlXJIUPiL/ft2WuZfmTLghS4epBCWRri2pJY/QwUaNhM61lGmDmmuE+CdtfhOatCJF7p7BsBF4QXPPFepw0jsaAXoWCLXemULhU/YYvQcrECz7cyozCxfm3iJeIcB1fsvn6QHz88B9FEMdJQljCd5UKehfYEYsJ741MtDJz1/3s05IZpp2vXzCE7nRUpfBBtkLj6rEHYsZzTYDmm/RhADefmKigC2C2uqWPVWz3d9ZqI0hXp3DeNggv7izWe3lIUAClhYKmK7lZhQ9zpNTNtZUUf1E4SEM2nHgMuruk1UiF5wJldH1ePj1KRq+0UbWhtppFEKuf+/zq0vPk4kxHU6nt2z2Q8jF4vmluZJ8bH3NrC3TRpA0nE8m/vIm1r7LhVAnVfceH7K7mZol4xxO1w=="
       },
-      "status": "pending"
+      "status": "granted",
+      "response": "Stattgegeben. Lektion 0007 ist diese Extra-Stunde: doer und receiver von Grund auf, mit eigener Hausaufgabe, die das Konzept prüft — nicht die Tabelle. Erst der Boden, dann der Rest.",
+      "respondedAt": "2026-07-23T08:36:29.190Z"
     }
   ],
   "assignmentReports": {
@@ -1002,6 +1011,17 @@
         "salt": "2AXvRm3/5LcaKqnuYn0xmg==",
         "iv": "aGD+2CPeRK80pykb",
         "ct": "VCJPX9KIhx2TvdhluNLM+OEm0ldO2ACn1N83HxyAdv5Zy/CVRZaaTudsqRHVFzaUWCAczul2TIplw1kA3aJJMdeiKd3gBZrmAJyJUIA3k0wY/BQYY+55pgSuSRbaU8DkTxpCVbmUY2JlNlte8jLrhBZihNV5+5qyURB75B9Q0RwedOSw93b+4PENu0fX1yeGIrspmYgVgdwI+a++Sfz73GWXW3K/9123mXeCgTMm2EvBSPOo0Un05KSmCWFb1LNxkwFqQ3ioNq2qcHOb4sCxsON4DOfSSIjTwHXd"
+      }
+    },
+    {
+      "id": "m1784795833718",
+      "date": "2026-07-23T08:37:13.718Z",
+      "from": "richter",
+      "enc": {
+        "v": 1,
+        "salt": "81451Brokq15L5piMlwBeg==",
+        "iv": "uL8FPKFeVHfjos8E",
+        "ct": "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"
       }
     }
   ],
