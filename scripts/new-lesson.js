@@ -30,10 +30,10 @@
 //   5. Prints the git commands (or runs them with --push).
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { encryptString, promptPassword, decryptString } from './lib-crypto.js';
+import { publishViaApi } from './lib-publish.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MANIFEST = join(ROOT, 'docs', 'data', 'manifest.json');
@@ -257,18 +257,28 @@ console.log(`  ${lessonOut}`);
 console.log(`  ${hwOut}`);
 console.log(manifestTouched ? `  manifest: current pointers → ${nextId}` : '  manifest: pointers and index entry left untouched (republish).');
 
+// Publish over the GitHub API (lib-publish.js) — no local git, so the scheduled
+// sandbox's unlink-denied `.git/` can't block it. It publishes the changed files
+// under docs/data (the lesson, its homework, and the manifest pointers).
 const gitPaths = ['docs/data/lessons', 'docs/data/homework', ...(manifestTouched ? ['docs/data/manifest.json'] : [])];
-const gitCmds = [
-  `git add ${gitPaths.join(' ')}`,
-  `git commit -m "lesson ${nextId}: ${republishId ? 'republished — content correction' : 'new lesson + homework'}"`,
-  'git push',
-];
+const commitMsg = `lesson ${nextId}: ${republishId ? 'republished — content correction' : 'new lesson + homework'}`;
 if (args.includes('--push')) {
-  for (const cmd of gitCmds) {
-    console.log(`$ ${cmd}`);
-    execSync(cmd, { cwd: ROOT, stdio: 'inherit' });
+  const token = process.env.GL_GITHUB_TOKEN;
+  if (!token) {
+    console.log('\nNo GL_GITHUB_TOKEN — cannot publish over the API. On disk and ready; publish from a git machine:');
+    console.log(`  git add ${gitPaths.join(' ')} && git commit -m "${commitMsg}" && git push`);
+  } else {
+    try {
+      const r = await publishViaApi({ root: ROOT, subdir: 'docs/data', message: commitMsg, token });
+      if (r.published) console.log(`\nPublished as ${r.commit.slice(0, 7)} → main (${r.files.length} file(s)). The site redeploys itself.`);
+      else console.log(`\n${r.reason} — nothing to publish.`);
+    } catch (e) {
+      console.error(`\nPUBLISH FAILED: ${String(e.message).replaceAll(token, '***').split('\n')[0]}`);
+      console.error('The lesson is written and encrypted on disk; session-end.js will publish it at the end of the run.');
+      process.exit(1);
+    }
   }
 } else {
-  console.log('\nTo publish:');
-  for (const cmd of gitCmds) console.log(`  ${cmd}`);
+  console.log('\nTo publish: re-run with --push (publishes docs/data over the GitHub API), or by hand from a git machine:');
+  console.log(`  git add ${gitPaths.join(' ')} && git commit -m "${commitMsg}" && git push`);
 }
