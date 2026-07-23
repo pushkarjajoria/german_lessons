@@ -708,6 +708,13 @@
       "items": 3,
       "firstTry": 3,
       "durationSec": 133
+    },
+    {
+      "date": "2026-07-23T11:07:06.068Z",
+      "mode": "weak",
+      "items": 12,
+      "firstTry": 8,
+      "durationSec": 259
     }
   ],
   "corrections": [
