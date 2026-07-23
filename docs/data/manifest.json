@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0006",
-  "currentHomeworkId": "0006",
+  "currentLessonId": "0007",
+  "currentHomeworkId": "0007",
   "counters": {
     "lessonsCompleted": 5,
     "totalQuestions": 56,
@@ -425,6 +425,13 @@
       "title": "Im Fitnessstudio — Geräte, Sätze & der Akkusativ",
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Fitnessstudio"
+    },
+    {
+      "id": "0007",
+      "title": "Der Akkusativ — von Grund auf (doer, receiver, and the one change)",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Grammatik-Grundlagen",
+      "createdAt": "2026-07-23T08:35:15.769Z"
     }
   ],
   "tests": [],
