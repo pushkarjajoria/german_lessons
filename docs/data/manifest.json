@@ -902,7 +902,7 @@
     }
   ],
   "conduct": {
-    "score": 76,
+    "score": 68,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -939,9 +939,15 @@
         "delta": 2,
         "score": 76,
         "reason": "Report 0006 done promptly (8/13 first-try, 13/13 eventual, 0 hints, 10 min). The Supermarkt deed — declined twice before — was carried out: a German sentence produced cold to a stranger, which is the target behaviour of the whole course. Gym deed legitimately pending (trains Mon/Wed/Fri), no penalty. Filed an honest, precise Antrag admitting he does not understand the case concept and asking for more work — the opposite of complacency."
+      },
+      {
+        "date": "2026-07-23T14:57:30.288Z",
+        "delta": -8,
+        "score": 68,
+        "reason": "Deliberate review of the 10–23 Jul log against the tightened §6.5 (see correction notice): four bonuses over-credited — +3/+4 (10,13 Jul) sat above even the old +2 ceiling → +1 each; +2 (20 Jul) rewarded catching up on overdue Berichte/queue → +0; +2 (20 Jul) remediation → +1. The −2 (15 Jul) and the real-world deed +2 (23 Jul) stand. This corrects my drift, not his conduct. 76 → 68."
       }
     ],
-    "updatedAt": "2026-07-23T08:36:45.078Z"
+    "updatedAt": "2026-07-23T14:57:30.288Z"
   },
   "requests": [
     {
@@ -1064,6 +1070,11 @@
       "id": "c1784572616233",
       "date": "2026-07-20T18:36:56.233Z",
       "text": "Twice I judged you from a stale record, and both claims went against you: on 15 July that homework 0005 was untouched, on 20 July that four Berichte were unfiled and Korrektur was blocking you. All were already done. Retracted. The -2 of 15 July rested on separate grounds and stands."
+    },
+    {
+      "id": "c1784818650306",
+      "date": "2026-07-23T14:57:30.306Z",
+      "text": "Review of my six Betragen rulings (10–23 Jul) against §6.5: I over-credited. Two bonuses broke even the old +2 ceiling; two on 20 Jul paid for catching up on overdue work, which is +0. The drift was mine, not your conduct — your drilling, your deed, and the −2 of 15 Jul stand. Corrected 76 → 68."
     }
   ],
   "deeds": [
