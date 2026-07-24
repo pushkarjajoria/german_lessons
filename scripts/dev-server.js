@@ -48,16 +48,19 @@ const STATES = {
   'Discipline — apology': (m) => { m.conduct = conduct(74); m.discipline = disc({ linesDoneAt: iso() }); },
   'Discipline — quiz': (m) => { m.conduct = conduct(74); m.discipline = disc({ linesDoneAt: iso(), apology: fakeEnc }); },
   'Discipline — cooldown': (m) => { m.conduct = conduct(74); m.discipline = { ...disc(null), retryAfter: iso(2) }; },
-  'Detention — drills to do': (m) => { m.conduct = conduct(68); m.detention = det(null); },
-  'Detention — complete': (m) => { m.conduct = conduct(68); m.detention = det({ doneIndexes: [0, 1, 2], completedAt: iso(), secondsSpent: 1830 }); },
+  'Detention — not started': (m) => { m.conduct = conduct(68); m.detention = det(null); },
+  'Detention — complete': (m) => { m.conduct = conduct(68); m.detention = det({ secondsSpent: 90, itemsSeen: 12, correctCount: 9, wrongCount: 3, startedAt: iso(), completedAt: iso() }); },
 };
 
 // Detention fixture — window brackets "now" (startsAt in the past, expiresAt in
-// the future) so the lock renders on any day the harness is opened.
+// the future) so the lock renders on any day the harness is opened. A tiny
+// 1-minute floor (instead of the real 90) so the full "served the time" arc is
+// testable in seconds, not hours.
 const det = (record) => ({
   active: true, assignedAt: iso(-1), startsAt: iso(-1), expiresAt: iso(7),
   reason: 'Test 0007 came apart on Kasus. You will drill it until it holds.',
-  drills: [{ mode: 'weak', count: 3 }, { mode: 'cat:Kasus', count: 3 }, { mode: 'vocab', count: 3 }],
+  modes: ['weak', 'cat:Kasus', 'vocab'],
+  targetMinutes: 1, extensionPerWrongMinutes: 0.25, maxExtensionMinutes: 2,
   repsMin: 4, repsMax: 10, record,
 });
 

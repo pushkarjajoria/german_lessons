@@ -237,11 +237,13 @@ async function wireDisciplineQuiz(manifest, st) {
 }
 
 // ---------- detention (weekend remediation) lockdown ----------
-// A single locked screen on Sat/Sun: her tedious, repeat-heavy drills. Wrong
-// answers are studied then reproduced from memory 4–10× (escalating). The red
-// timer under the photo lives only in a cookie (never GitHub). Completion +
-// per-drill results are recorded so SHE can rule the ±Betragen on Monday — the
-// screen itself never touches the score.
+// A single locked screen from Friday 17:00 through Monday 00:00: her tedious,
+// repeat-heavy drills. The point is TIME, not a checklist — a real 1-2 hour
+// sit. A wrong answer costs twice: it's studied then reproduced from memory
+// 4-10x (escalating), AND it adds minutes to the overall target (bounded, so
+// it's harsh but finite). The red timer under the photo lives only in a cookie
+// (never GitHub). Progress is recorded so SHE can rule the ±Betragen on
+// Monday — the screen itself never touches the score.
 
 let detentionTimer = null;
 function stopDetentionTimer() { if (detentionTimer) { clearInterval(detentionTimer); detentionTimer = null; } }
@@ -252,16 +254,22 @@ function readCookieSeconds() {
   return m ? Number(m[1]) : 0;
 }
 function writeCookieSeconds(n) { document.cookie = `${COOKIE}=${n};path=/;max-age=604800`; }
-function fmtClock(s) {
-  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-  const p = (x) => String(x).padStart(2, '0');
-  return `${p(h)}:${p(m)}:${p(sec)}`;
-}
-function startDetentionTimer() {
+function fmtMin(totalSeconds) { return `${Math.floor(totalSeconds / 60)}:${String(Math.floor(totalSeconds) % 60).padStart(2, '0')}`; }
+
+// Mirrors the persisted record locally so the timer can react instantly to a
+// miss (an extension) without waiting on a network round-trip.
+let liveCounts = { wrongCount: 0, correctCount: 0, itemsSeen: 0 };
+
+function startDetentionTimer(d) {
   stopDetentionTimer();
   const el = $('detention-timer');
+  const perWrong = d.extensionPerWrongMinutes ?? 2, cap = d.maxExtensionMinutes ?? 45, base = d.targetMinutes ?? 90;
   let s = readCookieSeconds();
-  const paint = () => { el.textContent = `Time in detention — ${fmtClock(s)}`; };
+  const paint = () => {
+    const extra = Math.min(cap, liveCounts.wrongCount * perWrong);
+    const targetSec = (base + extra) * 60;
+    el.textContent = `Time served — ${fmtMin(s)} of ${fmtMin(targetSec)}${extra ? ` (+${extra} min earned)` : ''}`;
+  };
   paint();
   detentionTimer = setInterval(() => { s += 1; if (s % 5 === 0) writeCookieSeconds(s); paint(); }, 1000);
 }
@@ -275,8 +283,12 @@ async function renderDetention(manifest) {
   document.querySelector('.topbar nav')?.classList.add('nav-dead'); // nothing but detention
 
   const st = detentionStatus(manifest);
-  $('detention-reason').textContent = st.reason || 'Some of this did not stick. It will, now — from memory.';
-  startDetentionTimer();
+  $('detention-reason').textContent = st.reason || 'Some of this did not stick. It will, now — from memory, for as long as it takes.';
+  liveCounts = { wrongCount: st.record.wrongCount || 0, correctCount: st.record.correctCount || 0, itemsSeen: st.record.itemsSeen || 0 };
+  // Resume from whichever clock is further ahead: this device's cookie, or a
+  // synced record from an earlier visit/another device — never regress.
+  writeCookieSeconds(Math.max(readCookieSeconds(), st.record.secondsSpent || 0));
+  startDetentionTimer(manifest.detention || {});
 
   const fig = $('detention-photo');
   if (!fig.querySelector('img')) {
@@ -286,7 +298,6 @@ async function renderDetention(manifest) {
     } catch { /* wrong password or missing asset */ }
   }
 
-  $('detention-progress').textContent = `Drills — ${st.doneCount} of ${st.drills.length} done.`;
   $('detention-drill').hidden = true;
   $('detention-home').hidden = false;
   const startBtn = $('detention-start');
@@ -294,19 +305,20 @@ async function renderDetention(manifest) {
 
   if (st.complete) {
     startBtn.hidden = true;
-    foot.textContent = 'Detention complete. It lifts on Monday. She sees what you did — and what you didn’t.';
+    $('detention-progress').textContent = `Served ${Math.round(st.elapsedMinutes)} of ${Math.round(st.effectiveMinutes)} min — done.`;
+    foot.textContent = 'Detention complete. It lifts on Monday. She sees what you did — and how long it took.';
     return;
   }
+  $('detention-progress').textContent = `From memory: ${st.modes.map((m) => m.label).join(', ')}.`;
   startBtn.hidden = false;
-  foot.textContent = 'Only this screen is open until Monday. Every wrong answer is written from memory until it holds.';
-  const next = st.remaining[0];
-  startBtn.textContent = `Start the next drill — ${next.label} (${st.remaining.length} left)`;
-  startBtn.onclick = () => runDetentionDrill(manifest, st, next);
+  foot.textContent = 'Only this screen is open until Monday. Every wrong answer costs reps AND time — the clock does not stop until it is served.';
+  startBtn.textContent = st.started ? 'Continue' : 'Begin detention';
+  startBtn.onclick = () => runDetentionQueue(manifest);
 }
 
 // The drill pool — reuses the same encrypted homework + vocab the practice tab
-// draws from, filtered by the drill's mode. Hardened to typing (produce, never
-// recognize), since detention is reproduction from memory.
+// draws from. Hardened to typing (produce, never recognize), since detention
+// is reproduction from memory.
 async function loadDetentionArchive(manifest) {
   const pool = [];
   const missed = new Map();
@@ -336,114 +348,134 @@ function hardenToTyping(q) {
   return { ...q, type: 'translate' };
 }
 
-function detentionPoolFor({ pool, missed, weak, vocab }, mode, count) {
-  let items;
+// All available items for one mode, hardened — the full pool, not a slice.
+// The queue recycles this (reshuffled) once exhausted, since repetition is the
+// entire point; a mode with nothing at all returns [].
+function detentionSourceFor({ pool, missed, weak, vocab }, mode) {
   if (mode === 'vocab') {
-    items = shuffleArr(vocab.filter((w) => w.de && w.en)).slice(0, count)
+    return vocab.filter((w) => w.de && w.en)
       .map((w) => ({ id: `v:${w.de}`, prompt: `„${w.de}“ — in English`, category: 'Vokabular', answers: vocabAnswers(w.en), acceptFuzzy: true, type: 'translate', note: w.note || '' }));
-    return items;
   }
   let base;
   if (mode === 'mistakes') base = pool.filter((e) => missed.has(e.key));
   else if (mode === 'weak') base = pool.filter((e) => weak.has(e.q.category));
   else if (mode && mode.startsWith('cat:')) { const cat = mode.slice(4); base = pool.filter((e) => (e.q.category || '') === cat); }
   else base = pool; // 'mixed' / unknown
-  if (base.length < Math.min(count, 3)) base = pool; // never strand him on an empty filter
-  return shuffleArr(base).slice(0, count).map((e) => hardenToTyping(e.q));
+  if (base.length < 3) base = pool; // never strand him on an empty filter
+  return base.map((e) => hardenToTyping(e.q));
 }
 
-async function runDetentionDrill(manifest, st, drill) {
+// A single, continuous session: round-robins the assigned modes (list order =
+// implicit weighting — repeat a mode in --mode to emphasize it), recycling
+// each mode's pool (reshuffled) once exhausted, until the effective time
+// target is met — checked only between items, never mid-question.
+async function runDetentionQueue(manifest) {
   $('detention-home').hidden = true;
   const area = $('detention-drill'); area.hidden = false;
   const meta = $('detention-drill-meta'), prompt = $('detention-drill-prompt'), input = $('detention-drill-input');
   const fb = $('detention-feedback'), fbHead = $('detention-feedback-head'), fbBody = $('detention-feedback-body'), fbNext = $('detention-feedback-next');
-  meta.textContent = `Drill — ${drill.label}`;
-  prompt.textContent = 'Loading…'; input.value = ''; fb.hidden = true;
+  prompt.textContent = 'Loading…'; input.value = ''; input.disabled = true; fb.hidden = true;
 
-  let questions;
-  try {
-    const archive = await loadDetentionArchive(manifest);
-    questions = detentionPoolFor(archive, drill.mode, drill.count);
-  } catch { questions = []; }
-  if (!questions.length) {
-    prompt.textContent = 'This drill has no material to draw from. It counts as done.';
-    await markDrillDone(manifest, drill.index);
-    return;
-  }
+  const d = manifest.detention;
+  const st = detentionStatus(manifest);
+  let archive;
+  try { archive = await loadDetentionArchive(manifest); } catch { archive = { pool: [], missed: new Map(), weak: new Set(), vocab: [] }; }
 
-  const queue = questions.slice();
+  const modeList = st.modes.map((m) => m.mode);
+  const pools = {}; // mode -> { items, idx }
+  let cursor = 0;
+  const nextItem = () => {
+    for (let tries = 0; tries < modeList.length; tries++) {
+      const mode = modeList[cursor % modeList.length];
+      cursor += 1;
+      let p = pools[mode];
+      if (!p || p.idx >= p.items.length) {
+        const items = shuffleArr(detentionSourceFor(archive, mode));
+        if (!items.length) continue;
+        p = pools[mode] = { items, idx: 0 };
+      }
+      return p.items[p.idx++];
+    }
+    return null; // nothing anywhere to draw from
+  };
+
   const missCount = new Map();
-  let solved = 0;
-  const total = questions.length;
 
+  const persist = async () => {
+    const seconds = readCookieSeconds();
+    const patch = { secondsSpent: seconds, ...liveCounts };
+    if (!gh.isConfigured()) {
+      manifest.detention.record = { startedAt: manifest.detention.record?.startedAt || new Date().toISOString(), ...manifest.detention.record, ...patch };
+      return manifest.detention.record;
+    }
+    try {
+      const { data: fresh } = await gh.readJson('data/manifest.json');
+      fresh.detention ||= manifest.detention;
+      fresh.detention.record = { startedAt: fresh.detention.record?.startedAt || new Date().toISOString(), ...fresh.detention.record, ...patch };
+      await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'detention: progress');
+      manifest.detention = fresh.detention;
+      return fresh.detention.record;
+    } catch { return manifest.detention.record; }
+  };
+  if (!st.started) await persist(); // stamp startedAt immediately
+
+  let current = null;
   const showQ = () => {
+    current = nextItem();
+    if (!current) {
+      prompt.textContent = 'No material left to draw from. This counts toward your time regardless — sit with it.';
+      input.disabled = true; meta.textContent = '';
+      return;
+    }
     fb.hidden = true; fbNext.hidden = true;
-    const q = queue[0];
-    meta.textContent = `Drill — ${drill.label} · ${solved}/${total}`;
-    prompt.textContent = q.prompt;
+    meta.textContent = current.category || '';
+    prompt.textContent = current.prompt;
     input.value = ''; input.disabled = false; input.focus();
   };
-  const finish = async () => {
-    area.hidden = true;
-    await markDrillDone(manifest, drill.index);
+
+  const checkDone = () => {
+    const extra = Math.min(d.maxExtensionMinutes ?? 45, liveCounts.wrongCount * (d.extensionPerWrongMinutes ?? 2));
+    const effectiveSec = ((d.targetMinutes ?? 90) + extra) * 60;
+    return readCookieSeconds() >= effectiveSec;
   };
-  const advance = () => { if (queue.length) showQ(); else finish(); };
+  const advance = async () => {
+    await persist();
+    if (checkDone()) {
+      const rec = await persist();
+      if (!rec.completedAt) { rec.completedAt = new Date().toISOString(); await persist(); }
+      area.hidden = true;
+      renderDetention(manifest);
+      return;
+    }
+    showQ();
+  };
 
   input.onkeydown = (e) => {
     if (e.key !== 'Enter' || input.disabled) return;
-    const q = queue[0];
+    const q = current;
     const { correct } = checkTextAnswerDetailed(q, input.value);
     input.disabled = true;
     fb.hidden = false;
     fbBody.innerHTML = '';
+    liveCounts.itemsSeen += 1;
     if (correct) {
+      liveCounts.correctCount += 1;
       fbHead.textContent = 'Richtig.';
       fb.className = 'feedback feedback-ok';
-      queue.shift(); solved += 1;
-      fbNext.hidden = false; fbNext.textContent = queue.length ? 'Next' : 'Finish drill';
-      fbNext.onclick = advance; fbNext.focus();
+      fbNext.hidden = false; fbNext.textContent = 'Next'; fbNext.onclick = advance; fbNext.focus();
     } else {
+      liveCounts.wrongCount += 1;
       fbHead.textContent = 'Falsch.';
       fb.className = 'feedback feedback-bad';
       const n = (missCount.get(q.key ?? q.id) || 0) + 1;
       missCount.set(q.key ?? q.id, n);
       const times = repsForMiss(n, st.repsMin, st.repsMax);
       // Study the answer + reason, then reproduce it from memory `times` times.
-      attachModelRepeat({
-        mount: fbBody, nextBtn: fbNext, model: q.answers[0], times, studyFirst: true, explanation: q.note || '',
-        onDone: () => {
-          const at = Math.min(3, queue.length); // spaced requeue — it returns until it sits
-          queue.splice(at, 0, queue.shift());
-        },
-      });
-      fbNext.hidden = false; fbNext.textContent = queue.length > 1 ? 'Next' : 'Continue';
-      fbNext.onclick = advance;
+      attachModelRepeat({ mount: fbBody, nextBtn: fbNext, model: q.answers[0], times, studyFirst: true, explanation: q.note || '' });
+      fbNext.hidden = false; fbNext.textContent = 'Next'; fbNext.onclick = advance;
     }
   };
   showQ();
-}
-
-async function markDrillDone(manifest, index) {
-  if (!gh.isConfigured()) {
-    // No token to record with — advance locally so he isn't stuck; she reconciles.
-    manifest.detention.record ||= { doneIndexes: [], startedAt: new Date().toISOString() };
-    if (!manifest.detention.record.doneIndexes.includes(index)) manifest.detention.record.doneIndexes.push(index);
-    renderDetention(manifest);
-    return;
-  }
-  try {
-    const { data: fresh } = await gh.readJson('data/manifest.json');
-    fresh.detention ||= {};
-    fresh.detention.record ||= { doneIndexes: [], startedAt: new Date().toISOString() };
-    const rec = fresh.detention.record;
-    if (!rec.doneIndexes.includes(index)) rec.doneIndexes.push(index);
-    const totalDrills = (fresh.detention.drills || []).length;
-    if (rec.doneIndexes.length >= totalDrills && !rec.completedAt) rec.completedAt = new Date().toISOString();
-    rec.secondsSpent = readCookieSeconds();
-    await gh.writeText('data/manifest.json', JSON.stringify(fresh, null, 2), 'detention: drill completed');
-    manifest.detention = fresh.detention;
-  } catch { /* leave local state; she reconciles Monday */ }
-  renderDetention(manifest);
 }
 
 // ---------- Korrektur panel ----------

@@ -1,21 +1,31 @@
 #!/usr/bin/env node
 // detention.js — assign the weekend detention (performance remediation), issued
-// ONLY in the Friday session, sized to the week's test/homework results. It
-// writes manifest.detention; the run's session-end.js publishes it (over the
-// API). The site locks the whole thing to a single detention screen on Sat/Sun
-// and goes inert Monday, finished or not.
+// ONLY in the Friday session. The point is TIME, not a checklist — a real 1–2
+// hour sit, tedious and repetitive, "if you will not learn, you will drill
+// until you have." It writes manifest.detention; the run's session-end.js
+// publishes it (over the API). The site locks the whole thing from Friday
+// 17:00 through Monday 00:00 and goes inert then, finished or not.
 //
-// Record-only by design: the site stores what was completed and the time spent,
-// and reads it back with --status on Monday — SHE rules the ±Betragen herself
-// (persona §6.5, "only her hand moves it"). No automatic score change.
+// The target is a FLOOR, not a fixed session: doing badly makes it worse two
+// ways at once — each wrong item costs more reproduction reps (repsMin..Max),
+// AND the overall target extends (extensionPerWrongMinutes per wrong item,
+// capped at maxExtensionMinutes so it's harsh but finite, never open-ended).
+//
+// Record-only by design: the site stores what was completed and the time
+// spent, and reads it back with --status on Monday — SHE rules the ±Betragen
+// herself (persona §6.5, "only her hand moves it"). No automatic score change.
 //
 // Usage:
 //   node scripts/detention.js --assign --reason "…" \
-//        --drill "weak:8" --drill "cat:Kasus:10" [--reps-min 4] [--reps-max 10] [--force]
+//        --mode weak [--mode "cat:Kasus"] --minutes 90 \
+//        [--extension-per-wrong 2] [--max-extension 45] \
+//        [--reps-min 4] [--reps-max 10] [--force]
 //   node scripts/detention.js --status        # progress + time spent (for Monday's ruling)
 //   node scripts/detention.js --clear         # remove it (Monday cleanup / manual lift)
 //
-// A drill is "mode:count": mode ∈ weak | mistakes | mixed | vocab | cat:<Kategorie>.
+// --mode is repeatable; mode ∈ weak | mistakes | mixed | vocab | cat:<Kategorie>.
+// List a mode twice for emphasis — items are drawn round-robin in list order,
+// recycling (reshuffled) once a pool is exhausted, since repetition is the point.
 // Publish it with the run: node scripts/session-end.js --message "…".
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -48,16 +58,23 @@ function detentionWindow(now) {
   return { startsAt: friday.toISOString(), expiresAt: monday.toISOString() };
 }
 
+function extensionMinutesFor(d) {
+  const wrong = d.record?.wrongCount || 0;
+  return Math.min(d.maxExtensionMinutes ?? 45, wrong * (d.extensionPerWrongMinutes ?? 2));
+}
+
 if (args.includes('--status')) {
   const d = manifest.detention;
   if (!d || !d.active) { console.log('No detention on file.'); process.exit(0); }
-  const rec = d.record || { doneIndexes: [] };
+  const rec = d.record || { secondsSpent: 0, itemsSeen: 0, correctCount: 0, wrongCount: 0 };
+  const extra = extensionMinutesFor(d);
+  const effective = (d.targetMinutes ?? 90) + extra;
+  const elapsed = Math.round((rec.secondsSpent || 0) / 60);
   console.log(`DETENTION — locks ${d.startsAt ? d.startsAt.slice(0, 16).replace('T', ' ') + ' (Fri 5pm)' : d.assignedAt?.slice(0, 10)} → ${d.expiresAt?.slice(0, 10)} (Mon 00:00)`);
   console.log(`  reason: ${d.reason}`);
-  (d.drills || []).forEach((dr, i) => console.log(`  ${rec.doneIndexes?.includes(i) ? '✓' : '·'} drill ${i + 1}: ${dr.mode} ×${dr.count}`));
-  const done = rec.doneIndexes?.length || 0;
-  console.log(`  progress: ${done}/${(d.drills || []).length} drills${rec.completedAt ? ' — COMPLETED ' + rec.completedAt.slice(0, 16) : ''}`);
-  if (rec.secondsSpent) console.log(`  time spent: ${Math.round(rec.secondsSpent / 60)} min`);
+  console.log(`  modes: ${(d.modes || []).join(', ') || '(none)'}`);
+  console.log(`  target: ${d.targetMinutes ?? 90} min floor${extra ? ` + ${extra} min earned by ${rec.wrongCount} wrong item(s) = ${effective} min effective` : ''}`);
+  console.log(`  progress: ${elapsed}/${effective} min · ${rec.itemsSeen || 0} items (${rec.correctCount || 0} right, ${rec.wrongCount || 0} wrong)${rec.completedAt ? ' — COMPLETED ' + rec.completedAt.slice(0, 16) : ''}`);
   console.log(`  → YOUR ruling on Monday: complete = a few points back, skipped = a few off (conduct.js). The site never moved the score.`);
   process.exit(0);
 }
@@ -75,19 +92,18 @@ if (args.includes('--clear')) {
     process.exit(1);
   }
   const reason = opt('--reason');
-  const rawDrills = multi('--drill');
-  if (!reason || !rawDrills.length) {
-    console.error('Usage: --assign --reason "…" --drill "weak:8" [--drill "cat:Kasus:10"] [--reps-min 4] [--reps-max 10]');
+  const modes = multi('--mode');
+  if (!reason || !modes.length) {
+    console.error('Usage: --assign --reason "…" --mode weak [--mode "cat:Kasus"] --minutes 90 [--extension-per-wrong 2] [--max-extension 45] [--reps-min 4] [--reps-max 10]');
     process.exit(1);
   }
-  const drills = rawDrills.map((raw) => {
-    const i = raw.lastIndexOf(':');
-    const mode = raw.slice(0, i), count = Number(raw.slice(i + 1));
-    if (!mode || !Number.isInteger(count) || count < 1) { console.error(`Bad drill "${raw}" — expected "mode:count", e.g. "weak:8" or "cat:Kasus:10".`); process.exit(1); }
-    return { mode, count };
-  });
+  const targetMinutes = opt('--minutes') ? Number(opt('--minutes')) : 90;
+  const extensionPerWrongMinutes = opt('--extension-per-wrong') ? Number(opt('--extension-per-wrong')) : 2;
+  const maxExtensionMinutes = opt('--max-extension') ? Number(opt('--max-extension')) : 45;
   const repsMin = opt('--reps-min') ? Number(opt('--reps-min')) : 4;
   const repsMax = opt('--reps-max') ? Number(opt('--reps-max')) : 10;
+  if (!(targetMinutes >= 15 && targetMinutes <= 240)) { console.error('--minutes should be a real sit, 15–240.'); process.exit(1); }
+  if (!(extensionPerWrongMinutes >= 0 && maxExtensionMinutes >= 0)) { console.error('--extension-per-wrong/--max-extension must be ≥ 0.'); process.exit(1); }
   if (!(repsMin >= 1 && repsMax >= repsMin && repsMax <= 20)) { console.error('--reps-min/--reps-max must satisfy 1 ≤ min ≤ max ≤ 20.'); process.exit(1); }
   const { startsAt, expiresAt } = detentionWindow(now);
   manifest.detention = {
@@ -96,14 +112,18 @@ if (args.includes('--clear')) {
     startsAt,
     expiresAt,
     reason,
-    drills,
+    modes,
+    targetMinutes,
+    extensionPerWrongMinutes,
+    maxExtensionMinutes,
     repsMin,
     repsMax,
     record: null,
   };
-  commitMsg = `detention: assigned (${drills.length} drill(s))`;
+  commitMsg = `detention: assigned (${targetMinutes} min floor, ${modes.length} mode(s))`;
   console.log(`Detention assigned — locks the site from Fri ${startsAt.slice(0, 16).replace('T', ' ')} (5pm) until Mon ${expiresAt.slice(0, 10)} 00:00.`);
-  drills.forEach((d, i) => console.log(`  drill ${i + 1}: ${d.mode} ×${d.count}`));
+  console.log(`  ${targetMinutes} min floor, drawing from: ${modes.join(', ')}`);
+  console.log(`  wrong items add ${extensionPerWrongMinutes} min each (cap +${maxExtensionMinutes} min) — a bad session runs longer, not just harder.`);
   console.log(`  wrong answers reproduced ${repsMin}–${repsMax}× from memory (escalating).`);
 } else {
   console.error('Usage: --assign … | --status | --clear   (see file header)');
