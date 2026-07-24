@@ -800,6 +800,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 9
+    },
+    {
+      "date": "2026-07-24T17:09:53.047Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 1,
+      "durationSec": 20
     }
   ],
   "corrections": [
@@ -994,9 +1001,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-24T10:56:40.546Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-24T10:57:01.751Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-24T17:09:53.047Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-24T17:09:53.047Z"
     }
   ],
   "conduct": {
