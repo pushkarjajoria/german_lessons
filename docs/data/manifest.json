@@ -2,11 +2,11 @@
   "currentLessonId": "0007",
   "currentHomeworkId": "0007",
   "counters": {
-    "lessonsCompleted": 5,
-    "totalQuestions": 56,
-    "totalCorrect": 40,
+    "lessonsCompleted": 6,
+    "totalQuestions": 67,
+    "totalCorrect": 50,
     "streakDays": 1,
-    "lastPracticed": "2026-07-21T14:30:15.178Z"
+    "lastPracticed": "2026-07-24T10:56:40.546Z"
   },
   "history": [
     {
@@ -392,6 +392,77 @@
         "Produktion",
         "Wortstellung",
         "Konjugation"
+      ]
+    },
+    {
+      "reportId": "0007",
+      "homeworkId": "0007",
+      "title": "Der Akkusativ von Grund auf — doer, receiver & the one change",
+      "date": "2026-07-24T10:56:40.546Z",
+      "startedAt": "2026-07-24T10:52:25.903Z",
+      "durationSec": 255,
+      "totalQuestions": 11,
+      "firstTryCorrect": 10,
+      "eventualCorrect": 11,
+      "totalAttempts": 12,
+      "reworkRatio": 1.09,
+      "avgFirstAnswerLatencySec": 15.5,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 2,
+      "categoryAttempts": {
+        "Kasus": {
+          "attempts": 6,
+          "count": 6
+        },
+        "Vokabular": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Konjugation": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Wortstellung": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Produktion": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Hörverstehen": {
+          "attempts": 2,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Kasus": {
+          "correct": 6,
+          "total": 6
+        },
+        "Vokabular": {
+          "correct": 1,
+          "total": 1
+        },
+        "Konjugation": {
+          "correct": 1,
+          "total": 1
+        },
+        "Wortstellung": {
+          "correct": 1,
+          "total": 1
+        },
+        "Produktion": {
+          "correct": 1,
+          "total": 1
+        },
+        "Hörverstehen": {
+          "correct": 0,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Hörverstehen"
       ]
     }
   ],
@@ -899,6 +970,19 @@
       "lastPassedAt": "2026-07-22T16:58:06.453Z",
       "status": "cleared",
       "clearedAt": "2026-07-22T16:58:06.453Z"
+    },
+    {
+      "key": "0007:q10",
+      "hwId": "0007",
+      "qid": "q10",
+      "category": "Hörverstehen",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-24T10:56:40.546Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ],
   "conduct": {
