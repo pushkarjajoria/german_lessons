@@ -786,6 +786,13 @@
       "items": 12,
       "firstTry": 8,
       "durationSec": 259
+    },
+    {
+      "date": "2026-07-24T10:56:59.772Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 1,
+      "durationSec": 7
     }
   ],
   "corrections": [
@@ -980,8 +987,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-24T10:56:40.546Z",
       "required": 3,
-      "doneCount": 0,
-      "lastPassedAt": null,
+      "doneCount": 1,
+      "lastPassedAt": "2026-07-24T10:56:59.772Z",
       "status": "open"
     }
   ],
