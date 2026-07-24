@@ -8,6 +8,7 @@ import { decryptString } from './crypto.js';
 import { readJson } from './github.js';
 import { conductScore, conductTier, conductLocked } from './conduct.js';
 import { disciplineActive } from './discipline.js';
+import { detentionActive } from './detention.js';
 import { navBadge } from './inbox.js';
 import { mountShameBanner, mountDisciplineBanner } from './shame.js';
 
@@ -89,6 +90,23 @@ function showDisciplineBlock(password) {
   mountDisciplineBanner(password); // the image stays here too
 }
 
+// Weekend detention bars every page but the dashboard. Stand a block with the
+// one way back; the detention screen and its drills live on the dashboard.
+function showDetentionBlock() {
+  const main = document.querySelector('main');
+  const topbar = main.querySelector('.topbar');
+  for (const el of [...main.children]) if (el !== topbar) el.hidden = true;
+  if (!main.querySelector('.detention-block')) {
+    const block = document.createElement('section');
+    block.className = 'panel detention-block';
+    block.innerHTML = `
+      <h2>Nachsitzen.</h2>
+      <p>You are in detention for the weekend — the site is closed to everything else.
+      Serve it on the <a href="index.html">dashboard</a>. It lifts on Monday.</p>`;
+    (topbar || main).insertAdjacentElement(topbar ? 'afterend' : 'afterbegin', block);
+  }
+}
+
 // form only renders if that unlock fails.
 export function initLock(onUnlock) {
   const el = document.getElementById('lock');
@@ -104,7 +122,7 @@ export function initLock(onUnlock) {
     // In the cone, the Schande image (curtsy) hangs at the top of every page —
     // but NOT while a lock is up: the Betragen lock shows its own image, and the
     // discipline lock shows the no-entry image. One image per screen.
-    if (document.body.dataset.tier === 'cone' && !conductLocked(manifest) && !disciplineActive(manifest)) {
+    if (document.body.dataset.tier === 'cone' && !conductLocked(manifest) && !disciplineActive(manifest) && !detentionActive(manifest)) {
       mountShameBanner(sessionPassword);
     }
     // Nachweis (no-practice) lockdown: the course closes to the Lessons page and
@@ -117,6 +135,13 @@ export function initLock(onUnlock) {
       const onLessons = page === 'lessons.html';
       if (onLessons) mountDisciplineBanner(sessionPassword); // the image stays while you study
       if (!onDashboard && !onLessons) { showDisciplineBlock(sessionPassword); return; }
+    }
+    // Weekend detention: the whole site closes to the dashboard detention screen.
+    // Every other page is barred outright; the nav goes fully dead.
+    if (detentionActive(manifest)) {
+      document.querySelector('.topbar nav')?.classList.add('nav-dead');
+      const page = location.pathname.split('/').pop() || 'index.html';
+      if (page !== '' && page !== 'index.html') { showDetentionBlock(); return; }
     }
     await onUnlock(manifest);
   };

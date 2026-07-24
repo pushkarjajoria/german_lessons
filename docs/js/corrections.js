@@ -110,7 +110,13 @@ export function freezeQuestionArea() {
 // receive the correct model N times before `nextBtn` unlocks. Checking uses
 // the same normalization as answers (umlaut folding, case, punctuation).
 
-export function attachModelRepeat({ mount, nextBtn, model, times, onDone }) {
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// `studyFirst` (homework + detention): the correct answer and its explanation are
+// shown to memorize, then HIDDEN, and the reproduction is typed from memory — a
+// wrong rep never counts but never resets the tally (you keep going until it's
+// right). Without it (voluntary drills) the model stays visible while typed.
+export function attachModelRepeat({ mount, nextBtn, model, times, onDone, studyFirst = false, explanation = '' }) {
   if (!times || times < 1) return null;
   nextBtn.disabled = true;
 
@@ -122,18 +128,18 @@ export function attachModelRepeat({ mount, nextBtn, model, times, onDone }) {
   input.className = 'text-answer model-repeat-input';
   input.autocapitalize = 'off';
   input.autocomplete = 'off';
-  input.placeholder = 'Type the correction…';
+  input.placeholder = studyFirst ? 'From memory…' : 'Type the correction…';
   const status = document.createElement('p');
   status.className = 'model-repeat-status';
 
   let done = 0;
   const update = () => {
+    const from = studyFirst ? ' from memory' : '';
     label.textContent = times > 1
-      ? `Type the correction — ${times} times, correctly. (${done}/${times})`
-      : 'Type the correction — once, correctly.';
+      ? `Type it${from} — ${times} times, correctly. (${done}/${times})`
+      : `Type it${from} — once, correctly.`;
     status.textContent = '';
   };
-  update();
 
   input.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
@@ -153,11 +159,39 @@ export function attachModelRepeat({ mount, nextBtn, model, times, onDone }) {
         status.textContent = 'Again.';
       }
     } else {
-      status.textContent = 'Not the correction. Look at it, then type it exactly.';
+      // The count never resets — but the miss doesn't count either.
+      status.textContent = studyFirst
+        ? 'Not quite — from memory. Try again.'
+        : 'Not the correction. Look at it, then type it exactly.';
       input.select();
     }
   });
 
+  if (studyFirst) {
+    // 1) Study: show the answer + reason to memorize; 2) hide and reproduce.
+    const study = document.createElement('div');
+    study.className = 'model-repeat-study';
+    study.innerHTML = `<p class="model-repeat-answer"><span class="mr-label">Die Antwort</span><strong>„${esc(model)}“</strong></p>`
+      + (explanation ? `<p class="model-repeat-explanation">${esc(explanation)}</p>` : '');
+    const go = document.createElement('button');
+    go.className = 'btn model-repeat-hide';
+    go.textContent = 'I have it — hide it and write from memory';
+    study.appendChild(go);
+
+    label.textContent = 'Read the answer and the reason, and fix them in memory — they hide next.';
+    input.disabled = true;
+    wrap.append(label, study, input, status);
+    mount.appendChild(wrap);
+    go.addEventListener('click', () => {
+      study.remove();
+      input.disabled = false;
+      update();
+      input.focus();
+    });
+    return wrap;
+  }
+
+  update();
   wrap.append(label, input, status);
   mount.appendChild(wrap);
   input.focus();

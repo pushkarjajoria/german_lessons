@@ -675,6 +675,19 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .model-repeat-status { color: var(--ink); font-size: 0.9rem; min-height: 1.2em; margin: 0.35rem 0 0; }
 .model-repeat-done .model-repeat-label { color: var(--text-dim); }
 
+/* Study panel (studyFirst): the answer + reason to memorize, then it hides. */
+.model-repeat-study {
+  margin: 0.5rem 0 0.2rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-raised);
+  border-left: 3px solid var(--ink);
+  border-radius: var(--radius);
+}
+.model-repeat-answer { font-family: var(--serif); font-size: 1.08rem; margin: 0 0 0.3rem; }
+.model-repeat-answer .mr-label { display: block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.1rem; }
+.model-repeat-explanation { color: var(--text-dim); font-size: 0.9rem; line-height: 1.45; margin: 0 0 0.6rem; }
+.model-repeat-hide { margin-top: 0.2rem; }
+
 /* ---------- Betragen: the rank held ---------- */
 
 .conduct-layout { display: flex; gap: 1.6rem; align-items: center; flex-wrap: wrap; }
@@ -896,6 +909,28 @@ body.lockdown main > [hidden] { display: none !important; }
 .dquiz-prompt { font-family: var(--serif); font-size: 1.02rem; margin: 0 0 0.3rem; }
 .dquiz-input { width: 100%; }
 .lockdown-panel #dlock-foot { max-width: 640px; margin: 0.8rem auto 0; }
+
+/* Detention (weekend remediation). Red timer under the photo; a single drill
+   area. Sterner-classroom register, not the cone's shame theater. */
+.detention-timer {
+  text-align: center;
+  color: var(--ink);
+  font-family: var(--mono, monospace);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0.1rem 0 0.6rem;
+}
+.detention-lock .lockdown-title { letter-spacing: 0.12em; }
+#detention-home { text-align: center; margin: 0.4rem 0; }
+#detention-drill { max-width: 640px; margin: 0 auto; text-align: left; }
+.detention-drill-meta { text-align: center; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin: 0 0 0.5rem; }
+.detention-prompt { font-family: var(--serif); font-size: 1.12rem; line-height: 1.4; margin: 0 0 0.6rem; }
+.detention-drill-input { width: 100%; }
+.detention-lock .feedback { margin-top: 0.8rem; }
+.lockdown-panel #detention-foot { max-width: 640px; margin: 0.9rem auto 0; }
+.detention-block { text-align: center; }
+.detention-block h2 { color: var(--ink); letter-spacing: 0.1em; }
+.detention-block a { color: var(--ink); font-weight: 600; }
 
 /* ---------- Deeds: real-world spoken tasks (FR-004) ---------- */
 

@@ -48,7 +48,17 @@ const STATES = {
   'Discipline — apology': (m) => { m.conduct = conduct(74); m.discipline = disc({ linesDoneAt: iso() }); },
   'Discipline — quiz': (m) => { m.conduct = conduct(74); m.discipline = disc({ linesDoneAt: iso(), apology: fakeEnc }); },
   'Discipline — cooldown': (m) => { m.conduct = conduct(74); m.discipline = { ...disc(null), retryAfter: iso(2) }; },
+  'Detention — drills to do': (m) => { m.conduct = conduct(68); m.detention = det(null); },
+  'Detention — complete': (m) => { m.conduct = conduct(68); m.detention = det({ doneIndexes: [0, 1, 2], completedAt: iso(), secondsSpent: 1830 }); },
 };
+
+// Weekend detention fixture (dev harness stubs the day to Saturday — see injection).
+const det = (record) => ({
+  active: true, assignedAt: iso(-1), expiresAt: iso(7),
+  reason: 'Test 0007 came apart on Kasus. You will drill it until it holds.',
+  drills: [{ mode: 'weak', count: 3 }, { mode: 'cat:Kasus', count: 3 }, { mode: 'vocab', count: 3 }],
+  repsMin: 4, repsMax: 10, record,
+});
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.ico': 'image/x-icon', '.enc': 'application/json', '.woff2': 'font/woff2' };
 
@@ -68,6 +78,7 @@ function manifestFor(state) {
 // early classic script (runs before the app's deferred modules).
 function injection(current) {
   return `<script>(function(){
+  ${current.indexOf('Detention')===0 ? 'Date.prototype.getDay=function(){return 6;};/* dev: pretend it is Saturday so the weekend lock renders */' : ''}
   var of=window.fetch;
   window.fetch=function(u){try{var s=(typeof u==='string')?u:(u&&u.url)||'';if(s.indexOf('api.github.com')>=0)return Promise.reject(new Error('dev: github blocked'));}catch(e){}return of.apply(this,arguments);};
   var STATES=${JSON.stringify(Object.keys(STATES))},cur=${JSON.stringify(current)};

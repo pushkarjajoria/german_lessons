@@ -17,12 +17,14 @@ function feedbackCorrect(q, attempts) {
   return { head, note: q.note || '' };
 }
 
-function feedbackWrong(q, attempts, correctShown) {
+function feedbackWrong(q, attempts) {
   let head;
   if (attempts === 1) head = 'Falsch.';
-  else if (attempts === 2) head = `Wrong again. The answer is: “${correctShown}”. Read it. The question comes back.`;
-  else head = `Wrong for the ${attempts}. time. The answer: “${correctShown}”. Exactly these repetitions are how errors set like concrete — so it returns until it sits.`;
-  return { head, note: q.note || '' };
+  else if (attempts === 2) head = 'Wrong again. Study it once more — then from memory.';
+  else head = `Wrong for the ${attempts}. time. Exactly these repetitions are how errors set like concrete — so it returns until it sits.`;
+  // The answer + explanation now live in the study panel of the model-repeat
+  // (shown to memorize, then hidden), so they are NOT put in the feedback here.
+  return { head, note: '' };
 }
 
 function correctDisplay(q) {
@@ -339,7 +341,7 @@ function handleAnswer(q, given, isCorrect, matchType = null) {
     // Spaced requeue in the same session — errors don't get to rest.
     const at = Math.min(REQUEUE_GAP, state.queue.length);
     state.queue.splice(at, 0, q);
-    fb = feedbackWrong(q, rec.attempts, correctDisplay(q));
+    fb = feedbackWrong(q, rec.attempts);
   }
   showFeedback(fb, isCorrect, q);
 }
@@ -402,6 +404,7 @@ function showFeedback(fb, isCorrect, q) {
     if (policy.enabled && policy.modelRepeat > 0) {
       attachModelRepeat({
         mount: el, nextBtn: btn, model: correctDisplay(q), times: policy.modelRepeat,
+        studyFirst: true, explanation: q.note || '',   // read the answer + reason, then reproduce it hidden
         onDone: needsJustify ? () => attachJustify(el, btn, rec) : undefined,
       });
       return;

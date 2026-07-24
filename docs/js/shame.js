@@ -26,6 +26,9 @@ export function lockdownPhotoUrl(password) { return encImageUrl('data/img/lockdo
 // The discipline (Nachweis / no-practice) lockdown image — its own asset.
 export function disciplinePhotoUrl(password) { return encImageUrl('data/img/no-entry.enc', 'no-entry', password); }
 
+// The weekend detention image — its own asset.
+export function detentionPhotoUrl(password) { return encImageUrl('data/img/detention.enc', 'detention', password); }
+
 // Hang the Schande image at the top of the main frame — the first thing seen on
 // every page, cone tier only. Sits directly under the topbar so navigation
 // still works; the picture dominates the fold.

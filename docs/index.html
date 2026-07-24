@@ -138,6 +138,40 @@
       </div>
     </section>
 
+    <!-- Detention (weekend remediation): assigned only in the Friday session, it
+         locks the whole site to this screen on Sat/Sun and goes inert Monday.
+         A tedious, repeat-heavy run of her drills; wrong answers are reproduced
+         from memory 4–10×. Record-only — she rules the ±Betragen on Monday. -->
+    <section class="lockdown-panel detention-lock" id="detention-lock-panel" hidden>
+      <figure class="lockdown-photo lockdown-photo--portrait" id="detention-photo"></figure>
+      <p class="detention-timer" id="detention-timer"></p>
+      <div class="lockdown-controls">
+        <h2 class="lockdown-title">Nachsitzen.</h2>
+        <p class="discipline-reason" id="detention-reason"></p>
+        <p class="note-label" id="detention-progress"></p>
+
+        <!-- Between drills: the single button + how many remain. -->
+        <div id="detention-home">
+          <button class="btn btn-primary btn-big" id="detention-start"></button>
+        </div>
+
+        <!-- An active drill: one question at a time, typed. -->
+        <div id="detention-drill" hidden>
+          <p class="detention-drill-meta" id="detention-drill-meta"></p>
+          <p class="detention-prompt" id="detention-drill-prompt"></p>
+          <input type="text" class="text-answer detention-drill-input" id="detention-drill-input"
+            autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Answer…" />
+          <div class="feedback" id="detention-feedback" hidden>
+            <p class="feedback-head" id="detention-feedback-head"></p>
+            <div id="detention-feedback-body"></div>
+            <button class="btn" id="detention-feedback-next" hidden>Next</button>
+          </div>
+        </div>
+
+        <p class="muted" id="detention-foot"></p>
+      </div>
+    </section>
+
     <section id="cta" class="cta"></section>
 
     <!-- Deeds (FR-004): real-world spoken tasks. No proof, no upload — verified
