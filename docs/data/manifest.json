@@ -902,7 +902,7 @@
     }
   ],
   "conduct": {
-    "score": 68,
+    "score": 69,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -945,9 +945,15 @@
         "delta": -8,
         "score": 68,
         "reason": "Deliberate review of the 10–23 Jul log against the tightened §6.5 (see correction notice): four bonuses over-credited — +3/+4 (10,13 Jul) sat above even the old +2 ceiling → +1 each; +2 (20 Jul) rewarded catching up on overdue Berichte/queue → +0; +2 (20 Jul) remediation → +1. The −2 (15 Jul) and the real-world deed +2 (23 Jul) stand. This corrects my drift, not his conduct. 76 → 68."
+      },
+      {
+        "date": "2026-07-24T10:19:57.751Z",
+        "delta": 1,
+        "score": 69,
+        "reason": "Friday: the Gym-Auftrag is completed (Bericht 0006) — cold German to a stranger, produced under real social pressure and reported honestly, including his own uncertainty about the word. Real-world field production is the flagship behaviour of the course and is credited, not treated as +0 homework (cf. the preserved Supermarkt +2). +1 not +2: this deed was done as instructed on a training day, with no avoidance-pattern broken as there was at the Supermarkt. Not the sustained-streak reward — post-19-Jul there are only 2 clean sessions (0005, 0006), not a confirmed 3-4 stretch. No lapse, nothing overdue: no deduction."
       }
     ],
-    "updatedAt": "2026-07-23T14:57:30.288Z"
+    "updatedAt": "2026-07-24T10:19:57.751Z"
   },
   "requests": [
     {
@@ -1025,7 +1031,8 @@
         "salt": "48e6/Yad1Louuu8BWG3lzg==",
         "iv": "ARCXjXejc0s4gMJt",
         "ct": "kqjjtY/V6BphP4xDaXCU/wA8iOVzbTWrY/cgwARmIUXTCDqUsENvme3X4X/+/qvQO4wMi8F4UgRjDL0VH47OFjCP7HV7tLyCyCD/7XC8EDEi8xgq+1mHog7d6fJPc6+MN6vxpWHUg3J5+fSNP/tmrAtIPZghAbKb/iyHklNhQTi6G7A9agdB7M4QUDbp9vNEvQ2+QdZzjBQhjDuCTHKY6GkQXFIMUeun5Mj/BlNMRO4Crg2gM1cAEoodWz0/4ad6IlzYSqipjO5OX8tdWnA251yfzmcI+oZ6lzstBuxNadd3m4E8HfdH0d1dARNegZ8em4saL6thp5SoRGLu7077csdT+DPmVGtZ9K2w2//V5Ne7VEzl80DXS68lO65EiChL/m5oKAJ7UjaAnmRl26MJTuiuzSlGMpx6+isJ6NceRBEB/xojkGMCOshWfsOx22YxMaJOz9W5jWybJBFyImhX4TVdwbeKWBL2bfDfV6L2IcGKiqFwHJADKDSmKIR3vVAiJAKgCRHQYPrx6vk7DYdR8rurBw64l3z/wVL3j2dSAbuK"
-      }
+      },
+      "readByTeacher": "2026-07-24T10:20:26.934Z"
     }
   },
   "messages": [
@@ -1063,6 +1070,17 @@
         "ct": "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"
       },
       "readByLearner": "2026-07-23T10:57:18.725Z"
+    },
+    {
+      "id": "m1784888391055",
+      "date": "2026-07-24T10:19:51.055Z",
+      "from": "richter",
+      "enc": {
+        "v": 1,
+        "salt": "KfUGupVUErKjOhMtrVNkwA==",
+        "iv": "UisOjUJsDn2Gwgen",
+        "ct": "VCnKGR+k8T/73gYQncU3eXYIu00iDICpw1Nu52p0nDrX6epr1FHpHWwDPfTUNpK9Yh3UnkDE90pHaSOxiqd1h1TtBNSZO0h4P/iV+Xa8iIL35fuLe7XzMUN0Q2/LzC/qYfu3z78oK9+Jilcf6OtvtYwgAAZPlyaxgqHpTmXyIMZBoTc4hbTnn7NS7IPYWmjJFlOCVKyh+LsjwfncGCm2pRYfROwkrSJaUw+2o2e0XSPxutD5XoFkONOyjzimUVohBagGIYDEdRxy9AlbueoB2bOZR9iiV3CgsK4yDdlM2TGcL9KIqT4hFd1Kcg7XTM60cjotIEpdWW1sZn81ObV7lO+iHuqQzHeSWNHlPfV1DPyXuy1+PGd/2Br1FBvVmJ2kOGL8rO2OGmGa0WcbfLj+u1G5zSFLfqNnXz9W1u1dBjPciAgJsu13uc8SSuKoaum9fzAzLXOgzisF+ebhK6Ub18MuzwrZKAqqVs2hCIXe9kElNa9Jo0e6kQg/QGD2b+khJm20LetntW0fLAZPK41c0b5WdnCYMyGOgl/nxm6Wf66lR4IQMmrcA4vZOgARnhzXp4D+QNjwmmVB14TkOTjAocX4/cq/c0gftBC9k6tp8QKxFU7lvs/LlI1l9nTRa22YSsZ0qQZmqWmgbRMwqOfRJIj1aHJIwRN2gefr/GHTrC5zqESVK4J7ciyadd+LkGyzkv2ezv1ZCPlITBkrSOi+OW/1T27v2r4TbBSRZxvuZ4bZv50kb73lPJ8DUR/xd8SRWC3Y7uzNcCQ3gAZMGTQppkcXEvctQPkLT5VufwSOoLkgkeGPjJ70JmRkkiN8wOhbXkqAu6SbSvZjckrz/0K94VqmrLobgqsPqhUwT7ZT5d5nO9D2T8quW7UCnhXZaBr4FfhHKpH5p/DwwRzjPqjXCECihzzY3f0tgDKUPirXE+4pgAaS9MkgmjZnbK5qFLx1ncsoAiYEHysrlgCOxe/pRPxMbKfXD4G4cBDdMumsS3KZWk/n2SwGI5VnJjp0XlB4hpiB8+hllX/uZ2KcfWQs360IvEqzNDeVAUbbzB0ilrs1FGJXw3bQYJ1lxJFf1e1xDG/iGbc1jMA5vJngPvZuwgEStNSciDHiIWtBmLyHn+eIBQiSGszp+4APFL1D71Yg/hhI9QTePFN9xjGwp2xlIXueF/VXVg4hUcjxvb8p7rcwstw/Wx5sqcYW8BT0j5Gm9t1wuR1vgYvTQ9dRdke4+Q=="
+      }
     }
   ],
   "correctionNotices": [
