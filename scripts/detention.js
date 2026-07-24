@@ -39,11 +39,20 @@ function nextMonday(d) {
   return t;
 }
 
+// The active window: from Friday 17:00 (after work) to the Monday 00:00 lift.
+function detentionWindow(now) {
+  const monday = nextMonday(now);
+  const friday = new Date(monday);
+  friday.setDate(friday.getDate() - 3); // the Friday before that Monday
+  friday.setHours(17, 0, 0, 0);         // 17:00, after work hours
+  return { startsAt: friday.toISOString(), expiresAt: monday.toISOString() };
+}
+
 if (args.includes('--status')) {
   const d = manifest.detention;
   if (!d || !d.active) { console.log('No detention on file.'); process.exit(0); }
   const rec = d.record || { doneIndexes: [] };
-  console.log(`DETENTION since ${d.assignedAt?.slice(0, 10)} — lifts ${d.expiresAt?.slice(0, 10)} (Monday)`);
+  console.log(`DETENTION — locks ${d.startsAt ? d.startsAt.slice(0, 16).replace('T', ' ') + ' (Fri 5pm)' : d.assignedAt?.slice(0, 10)} → ${d.expiresAt?.slice(0, 10)} (Mon 00:00)`);
   console.log(`  reason: ${d.reason}`);
   (d.drills || []).forEach((dr, i) => console.log(`  ${rec.doneIndexes?.includes(i) ? '✓' : '·'} drill ${i + 1}: ${dr.mode} ×${dr.count}`));
   const done = rec.doneIndexes?.length || 0;
@@ -80,10 +89,12 @@ if (args.includes('--clear')) {
   const repsMin = opt('--reps-min') ? Number(opt('--reps-min')) : 4;
   const repsMax = opt('--reps-max') ? Number(opt('--reps-max')) : 10;
   if (!(repsMin >= 1 && repsMax >= repsMin && repsMax <= 20)) { console.error('--reps-min/--reps-max must satisfy 1 ≤ min ≤ max ≤ 20.'); process.exit(1); }
+  const { startsAt, expiresAt } = detentionWindow(now);
   manifest.detention = {
     active: true,
     assignedAt: now.toISOString(),
-    expiresAt: nextMonday(now).toISOString(),
+    startsAt,
+    expiresAt,
     reason,
     drills,
     repsMin,
@@ -91,7 +102,7 @@ if (args.includes('--clear')) {
     record: null,
   };
   commitMsg = `detention: assigned (${drills.length} drill(s))`;
-  console.log(`Detention assigned — locks the site Sat/Sun, lifts ${nextMonday(now).toISOString().slice(0, 10)} (Monday).`);
+  console.log(`Detention assigned — locks the site from Fri ${startsAt.slice(0, 16).replace('T', ' ')} (5pm) until Mon ${expiresAt.slice(0, 10)} 00:00.`);
   drills.forEach((d, i) => console.log(`  drill ${i + 1}: ${d.mode} ×${d.count}`));
   console.log(`  wrong answers reproduced ${repsMin}–${repsMax}× from memory (escalating).`);
 } else {

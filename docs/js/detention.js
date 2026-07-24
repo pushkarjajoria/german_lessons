@@ -9,9 +9,13 @@
 export function detentionActive(manifest, now = new Date()) {
   const d = manifest.detention;
   if (!d?.active) return false;
-  if (d.expiresAt && now >= new Date(d.expiresAt)) return false; // Monday onward: inert
-  const day = now.getDay();                                       // 0 = Sun, 6 = Sat
-  return day === 6 || day === 0;                                  // locks only on the weekend
+  const starts = d.startsAt ? new Date(d.startsAt) : null;   // Friday 17:00
+  const expires = d.expiresAt ? new Date(d.expiresAt) : null; // Monday 00:00
+  if (starts && now < starts) return false;                  // before Friday 5pm: not yet
+  if (expires && now >= expires) return false;               // Monday onward: inert
+  if (starts || expires) return true;                        // inside the stored window
+  const day = now.getDay();                                  // fallback (no window): weekend only
+  return day === 6 || day === 0;
 }
 
 export function detentionStatus(manifest, now = new Date()) {

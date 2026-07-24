@@ -52,9 +52,10 @@ const STATES = {
   'Detention — complete': (m) => { m.conduct = conduct(68); m.detention = det({ doneIndexes: [0, 1, 2], completedAt: iso(), secondsSpent: 1830 }); },
 };
 
-// Weekend detention fixture (dev harness stubs the day to Saturday — see injection).
+// Detention fixture — window brackets "now" (startsAt in the past, expiresAt in
+// the future) so the lock renders on any day the harness is opened.
 const det = (record) => ({
-  active: true, assignedAt: iso(-1), expiresAt: iso(7),
+  active: true, assignedAt: iso(-1), startsAt: iso(-1), expiresAt: iso(7),
   reason: 'Test 0007 came apart on Kasus. You will drill it until it holds.',
   drills: [{ mode: 'weak', count: 3 }, { mode: 'cat:Kasus', count: 3 }, { mode: 'vocab', count: 3 }],
   repsMin: 4, repsMax: 10, record,
@@ -78,7 +79,6 @@ function manifestFor(state) {
 // early classic script (runs before the app's deferred modules).
 function injection(current) {
   return `<script>(function(){
-  ${current.indexOf('Detention')===0 ? 'Date.prototype.getDay=function(){return 6;};/* dev: pretend it is Saturday so the weekend lock renders */' : ''}
   var of=window.fetch;
   window.fetch=function(u){try{var s=(typeof u==='string')?u:(u&&u.url)||'';if(s.indexOf('api.github.com')>=0)return Promise.reject(new Error('dev: github blocked'));}catch(e){}return of.apply(this,arguments);};
   var STATES=${JSON.stringify(Object.keys(STATES))},cur=${JSON.stringify(current)};
