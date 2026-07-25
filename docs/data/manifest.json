@@ -807,6 +807,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 20
+    },
+    {
+      "date": "2026-07-25T18:31:05.312Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 9,
+      "durationSec": 117
     }
   ],
   "corrections": [
