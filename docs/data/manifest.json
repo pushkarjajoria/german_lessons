@@ -1105,6 +1105,17 @@
         "ct": "y1+Xsaeb9alV9xhdsu1DtjLrAVUAn6HkIZXyYNYCj+bq87sibGXlDIGdId0nU584EaorwB/grZ1re5RDALK8wNmFM+EbMdl9Srnl84bAbwi4dMwEcE4fuY6y0oNB9dLpbdfhdG8A9wPZh3Os15y4rmopEavpM7E5yGI//C9F2QN3Zt0iVFRY9YxznqLMlReYiGPN4NmnKO4="
       },
       "status": "pending"
+    },
+    {
+      "id": "r1785083454111",
+      "date": "2026-07-26T16:30:54.111Z",
+      "enc": {
+        "v": 1,
+        "salt": "ARrARB8Z2AlRJt99qRtcUA==",
+        "iv": "upccYNFKdSZrFVp6",
+        "ct": "BiyoVD6N5wCf6qJ/kX+l6O0oHUt3+TMYPrBG23WJZzI/gfimk3iq9YsIbbeluYyEXJ8x9m/rAVS+TvfhLcIN+ayi2nz9D70q2J9YsmzHLbrBHq7qJ/VJUeodmbZbwFEoRX1mvaEF7wvl02Kn015jv0ySqM8VIfAUsUWBwZgE8KOdSDJDadrzMiKpPtUCtUXiQqLiGc//5ynj6Rm0K8mgkpWNNAJLbHKSCZuPWopYS4W4vdDrKUc3vUWL5lBLynVM31MK8ng7rTG2SUchWFuwmCjipAg2dytywp7TXrbLLwwPQ/8NANpgJ+b7GCD7pna2CXprV/xj9S/QUrthlE41pQl95SxAudyRBQytoNqR5Nas+caLMSOiuy2EN5NK456JXBGM/3Z42DzF238UYBs+UC6CJ1iO+IHcdIxs3+nkd5KsJ2SC68MdLhW61FEmBFVtVnfvy8qec7vP6nXHLOqnMM5gQYfUl0FwJM5PA4XCh7jziajv0EeK+PIUprve1jUbCgOduuFGYSkzvm5Oh0Je3g=="
+      },
+      "status": "pending"
     }
   ],
   "assignmentReports": {
