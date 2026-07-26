@@ -602,6 +602,17 @@ function renderVocabNext() {
         recordConfusion(dir, asked, opt);
         vocabRun.wrongPairs.push({ asked, picked: opt, correct: target });
       }
+      const advance = () => { vocabRun.index += 1; renderVocabNext(); };
+
+      // Right on the first pick: a quick flash, then straight to the next word —
+      // no second click. The gauntlet is a speed drill; a click that confirms
+      // what was already confirmed by picking correctly just slows it down.
+      if (ok && !grid.dataset.missed) {
+        b.classList.add('vocab-option-correct');
+        setTimeout(advance, 420);
+        return;
+      }
+
       const el = $('feedback');
       el.hidden = false;
       el.className = `feedback ${ok ? 'feedback-ok' : 'feedback-bad'}`;
@@ -613,7 +624,7 @@ function renderVocabNext() {
       const btn = $('feedback-next');
       btn.disabled = false;
       btn.textContent = vocabRun.index + 1 < vocabRun.items.length ? 'Next' : 'Finish';
-      btn.onclick = () => { vocabRun.index += 1; renderVocabNext(); };
+      btn.onclick = advance;
       // Wrong pick with a German target → the German gets typed, not just seen
       // (persona §2.5). DE→EN stays click-through: typing English drills nothing.
       const policy = getPolicy(archive.manifest);

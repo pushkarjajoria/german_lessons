@@ -1085,6 +1085,8 @@ body.lockdown main > [hidden] { display: none !important; }
   gap: 0.5rem;
 }
 .vocab-option { text-align: left; padding: 0.55rem 0.8rem; font-size: 0.95rem; }
+/* A correct first pick flashes and auto-advances — no confirmation click. */
+.vocab-option-correct { border-color: var(--approve); color: var(--approve); }
 .confusion-row { font-size: 0.95rem; margin: 0.3rem 0; }
 
 /* ---------- assignments ledger ---------- */
