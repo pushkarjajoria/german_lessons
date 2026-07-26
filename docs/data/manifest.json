@@ -1094,6 +1094,17 @@
       "status": "granted",
       "response": "Stattgegeben. Lektion 0007 ist diese Extra-Stunde: doer und receiver von Grund auf, mit eigener Hausaufgabe, die das Konzept prüft — nicht die Tabelle. Erst der Boden, dann der Rest.",
       "respondedAt": "2026-07-23T08:36:29.190Z"
+    },
+    {
+      "id": "r1785083318841",
+      "date": "2026-07-26T16:28:38.841Z",
+      "enc": {
+        "v": 1,
+        "salt": "w7Uy8sLGFZp5xreAm3aLHw==",
+        "iv": "CES7Lu5SJzOTfIss",
+        "ct": "y1+Xsaeb9alV9xhdsu1DtjLrAVUAn6HkIZXyYNYCj+bq87sibGXlDIGdId0nU584EaorwB/grZ1re5RDALK8wNmFM+EbMdl9Srnl84bAbwi4dMwEcE4fuY6y0oNB9dLpbdfhdG8A9wPZh3Os15y4rmopEavpM7E5yGI//C9F2QN3Zt0iVFRY9YxznqLMlReYiGPN4NmnKO4="
+      },
+      "status": "pending"
     }
   ],
   "assignmentReports": {
