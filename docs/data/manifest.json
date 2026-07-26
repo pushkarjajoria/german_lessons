@@ -814,6 +814,13 @@
       "items": 10,
       "firstTry": 9,
       "durationSec": 117
+    },
+    {
+      "date": "2026-07-26T21:45:04.698Z",
+      "mode": "vocab",
+      "items": 10,
+      "firstTry": 7,
+      "durationSec": 86
     }
   ],
   "corrections": [
