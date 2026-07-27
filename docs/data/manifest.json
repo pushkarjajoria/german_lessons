@@ -1191,6 +1191,15 @@
         "ct": "kqjjtY/V6BphP4xDaXCU/wA8iOVzbTWrY/cgwARmIUXTCDqUsENvme3X4X/+/qvQO4wMi8F4UgRjDL0VH47OFjCP7HV7tLyCyCD/7XC8EDEi8xgq+1mHog7d6fJPc6+MN6vxpWHUg3J5+fSNP/tmrAtIPZghAbKb/iyHklNhQTi6G7A9agdB7M4QUDbp9vNEvQ2+QdZzjBQhjDuCTHKY6GkQXFIMUeun5Mj/BlNMRO4Crg2gM1cAEoodWz0/4ad6IlzYSqipjO5OX8tdWnA251yfzmcI+oZ6lzstBuxNadd3m4E8HfdH0d1dARNegZ8em4saL6thp5SoRGLu7077csdT+DPmVGtZ9K2w2//V5Ne7VEzl80DXS68lO65EiChL/m5oKAJ7UjaAnmRl26MJTuiuzSlGMpx6+isJ6NceRBEB/xojkGMCOshWfsOx22YxMaJOz9W5jWybJBFyImhX4TVdwbeKWBL2bfDfV6L2IcGKiqFwHJADKDSmKIR3vVAiJAKgCRHQYPrx6vk7DYdR8rurBw64l3z/wVL3j2dSAbuK"
       },
       "readByTeacher": "2026-07-24T10:20:26.934Z"
+    },
+    "0007": {
+      "date": "2026-07-27T10:12:42.884Z",
+      "enc": {
+        "v": 1,
+        "salt": "Jm3JpVt5vB1T3dS3I2z2FA==",
+        "iv": "aD6TSIL8mckTpfcW",
+        "ct": "e3jlqfS/2p4UwDmQyq3ugGxI+3Za40BkHo5NbbgcEuZURDodjH1CavrN6id8UKZ20kjlPN3tuLMuajWTLKxp00+XzuvWheq3bhbKd1L9KSy+vNy9x+9ukI+YHqYeVSj2xRLqV5SU6eQjigP+ORNcivTwsjXk77qG4hTmqCmLXH7Hua5ExNEmowBu4VvQDUEbUD8roYRpFMOChUPMJgCD+/6fVYTA1m6XSKg0g5MxX6aGLX6eL0deDLAb8Uhgtsi1GF4AaGQdhDXuZXEmoaNd6A5GaAB4lJTRfAsrOO5MkNhN0zfd45Deji7At8qCE8/seGk40jZPelcY4Nk60jKfbmnYtg4IVKk2RopCYABWAaTWgpcd/5uIWiEWGFSPTqOcJmaTiWxj0NLXsYwGbyRoLkHvajBVelP9FixOZ3ZLGDUYGZeCYsdyYA=="
+      }
     }
   },
   "messages": [
