@@ -2,11 +2,11 @@
   "currentLessonId": "0008",
   "currentHomeworkId": "0008",
   "counters": {
-    "lessonsCompleted": 6,
-    "totalQuestions": 67,
-    "totalCorrect": 50,
+    "lessonsCompleted": 7,
+    "totalQuestions": 79,
+    "totalCorrect": 59,
     "streakDays": 1,
-    "lastPracticed": "2026-07-24T10:56:40.546Z"
+    "lastPracticed": "2026-07-27T11:25:08.793Z"
   },
   "history": [
     {
@@ -462,6 +462,94 @@
         }
       },
       "weakCategories": [
+        "Hörverstehen"
+      ]
+    },
+    {
+      "reportId": "0008",
+      "homeworkId": "0008",
+      "title": "Der Paketbote — ein Paket annehmen",
+      "date": "2026-07-27T11:25:08.793Z",
+      "startedAt": "2026-07-27T11:14:46.786Z",
+      "durationSec": 622,
+      "totalQuestions": 12,
+      "firstTryCorrect": 9,
+      "eventualCorrect": 12,
+      "totalAttempts": 16,
+      "reworkRatio": 1.33,
+      "avgFirstAnswerLatencySec": 15.6,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 3,
+      "categoryAttempts": {
+        "Redemittel": {
+          "attempts": 2,
+          "count": 2
+        },
+        "Vokabular": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Wortstellung": {
+          "attempts": 2,
+          "count": 1
+        },
+        "Hörverstehen": {
+          "attempts": 5,
+          "count": 2
+        },
+        "Kasus": {
+          "attempts": 3,
+          "count": 3
+        },
+        "Produktion": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Konjugation": {
+          "attempts": 1,
+          "count": 1
+        },
+        "Negation": {
+          "attempts": 1,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Redemittel": {
+          "correct": 2,
+          "total": 2
+        },
+        "Vokabular": {
+          "correct": 1,
+          "total": 1
+        },
+        "Wortstellung": {
+          "correct": 0,
+          "total": 1
+        },
+        "Hörverstehen": {
+          "correct": 0,
+          "total": 2
+        },
+        "Kasus": {
+          "correct": 3,
+          "total": 3
+        },
+        "Produktion": {
+          "correct": 1,
+          "total": 1
+        },
+        "Konjugation": {
+          "correct": 1,
+          "total": 1
+        },
+        "Negation": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Wortstellung",
         "Hörverstehen"
       ]
     }
@@ -1025,6 +1113,45 @@
       "lastPassedAt": "2026-07-24T17:09:53.047Z",
       "status": "cleared",
       "clearedAt": "2026-07-24T17:09:53.047Z"
+    },
+    {
+      "key": "0008:q3",
+      "hwId": "0008",
+      "qid": "q3",
+      "category": "Wortstellung",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-27T11:25:08.793Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0008:q4",
+      "hwId": "0008",
+      "qid": "q4",
+      "category": "Hörverstehen",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-27T11:25:08.793Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0008:q7",
+      "hwId": "0008",
+      "qid": "q7",
+      "category": "Hörverstehen",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-27T11:25:08.793Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ],
   "conduct": {
