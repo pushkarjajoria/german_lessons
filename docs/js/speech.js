@@ -29,17 +29,29 @@ export function setPreferredVoiceName(name) {
   try { name ? localStorage.setItem(VOICE_KEY, name) : localStorage.removeItem(VOICE_KEY); } catch { /* private mode */ }
 }
 
+// macOS ships a set of NOVELTY voices in every locale (Ventura+). They are
+// deliberately characterful — Grandma/Grandpa sound elderly, Rocko is gruff,
+// Bahh bleats — and they are all pitch/character variants over the same compact
+// engine. That is why they sound alike AND robotic, and why they are the worst
+// possible model for pronunciation. Rank them last, however "German" they claim
+// to be.
+const NOVELTY = /^(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|albert|bad news|good news|bahh|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|junior|ralph|fred|kathy)\b/;
+
 // Higher score = better. Quality varies wildly by platform, so this is a
 // best-effort ordering; the Settings picker is the real answer when it's wrong.
-function score(v) {
+export function score(v) {
   const n = (v.name || '').toLowerCase();
-  if (/google/.test(n)) return 100;                                   // Chrome network voices — best available
-  if (/premium|enhanced|neural/.test(n)) return 90;                   // macOS/Edge high-quality downloads
-  if (/katja|conrad|petra|markus|helena|yannick|amala/.test(n)) return 80; // known-good German neural voices
-  if (!v.localService) return 70;                                     // network voices generally beat compact ones
-  if (/anna/.test(n)) return 10;                                      // legacy macOS compact German — intelligible but robotic
-  return 40;
+  if (/google/.test(n)) return 100;                                   // Chrome network voices — clearly the best here
+  if (/premium|enhanced|neural|siri/.test(n)) return 95;              // downloaded high-quality macOS/Edge data
+  if (/katja|conrad|petra|markus|helena|yannick|amala/.test(n)) return 85; // proper German neural voices
+  if (!v.localService) return 75;                                     // network voices generally beat compact ones
+  if (NOVELTY.test(n)) return 5;                                      // character voices — similar-sounding, bad models
+  return 50;                                                          // standard locale voice (e.g. Anna) — the sane default
 }
+
+// Is this one of the compact character voices? Used to label the picker, so the
+// learner can see why several options sound identical.
+export function isNovelty(v) { return NOVELTY.test((v.name || '').toLowerCase()); }
 
 export function pickGermanVoice() {
   const voices = germanVoices();
@@ -68,14 +80,19 @@ export function voicesReady() {
 
 // Speak German. Always German-tagged, always a German voice when the machine
 // has one — never the default English voice reading German text.
-export async function speakGerman(text, { rate = 0.88 } = {}) {
+//
+// `voice` forces a specific SpeechSynthesisVoice, which is what the Settings
+// preview needs: it must NOT go through the stored preference, because this
+// function is async and any caller that set-then-restored the preference around
+// the call would have its restore land first (await yields before the pick).
+export async function speakGerman(text, { rate = 0.88, voice = null } = {}) {
   if (!('speechSynthesis' in window) || !text) return;
   speechSynthesis.cancel();
   await voicesReady();                                                // kills the cold-load race
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'de-DE';
   u.rate = rate;
-  const voice = pickGermanVoice();
-  if (voice) { u.voice = voice; u.lang = voice.lang || 'de-DE'; }
+  const v = voice || pickGermanVoice();
+  if (v) { u.voice = v; u.lang = v.lang || 'de-DE'; }
   speechSynthesis.speak(u);
 }

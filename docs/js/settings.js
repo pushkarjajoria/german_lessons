@@ -6,7 +6,7 @@ import { encryptString, decryptString } from './crypto.js';
 import { CANARY_VALUE, initLockButton } from './auth.js';
 import * as gh from './github.js';
 import * as store from './storage.js';
-import { speakGerman, germanVoices, voicesReady, pickGermanVoice, getPreferredVoiceName, setPreferredVoiceName } from './speech.js';
+import { speakGerman, germanVoices, voicesReady, pickGermanVoice, getPreferredVoiceName, setPreferredVoiceName, score, isNovelty } from './speech.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -148,20 +148,36 @@ async function initVoice() {
   const auto = pickGermanVoice();
   const chosen = getPreferredVoiceName();
   sel.innerHTML = '';
-  for (const v of voices) {
+  // Sorted best-first, and the character voices are labelled — several of them
+  // sound nearly identical because they share one compact engine.
+  for (const v of [...voices].sort((a, b) => score(b) - score(a))) {
     const o = document.createElement('option');
     o.value = v.name;
-    o.textContent = `${v.name} (${v.lang})${v.name === auto?.name && !chosen ? ' — auto-picked' : ''}`;
+    const tags = [];
+    if (isNovelty(v)) tags.push('character voice — robotic');
+    if (!v.localService) tags.push('online, higher quality');
+    if (v.name === auto?.name && !chosen) tags.push('auto-picked');
+    o.textContent = `${v.name} (${v.lang})${tags.length ? ' — ' + tags.join(', ') : ''}`;
     if (v.name === (chosen || auto?.name)) o.selected = true;
     sel.appendChild(o);
   }
-  $('voice-test').addEventListener('click', () => {
-    // Preview the highlighted voice without committing to it yet.
-    const prev = getPreferredVoiceName();
-    setPreferredVoiceName(sel.value);
-    speakGerman('Möchtest du einen Kaffee?');
-    setPreferredVoiceName(prev);
+  // If everything on offer is a compact character voice, say so plainly rather
+  // than letting the learner hunt for a good one that isn't there.
+  if (voices.every(isNovelty) || voices.every((v) => v.localService && score(v) <= 50)) {
+    setStatus('voice-status',
+      'All of these are the built-in compact voices — they will sound flat, and several sound nearly identical. For real German pronunciation, download a high-quality voice: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices… → German → pick one marked Enhanced or Premium. In Chrome, "Google Deutsch" is also excellent and needs no download.',
+      false);
+  }
+  // Preview the highlighted voice without committing to it. The voice is passed
+  // explicitly — routing it through the stored preference would race with
+  // speakGerman's await and always play the previously-selected voice instead.
+  $('voice-test').addEventListener('click', async () => {
+    await voicesReady();
+    const v = germanVoices().find((x) => x.name === sel.value) || null;
+    speakGerman('Möchtest du einen Kaffee? Ich hätte gern einen Kaffee mit Hafermilch, bitte.', { voice: v });
   });
+  // Hearing it as you arrow through the list is the whole point of the picker.
+  sel.addEventListener('change', () => $('voice-test').click());
   $('voice-save').addEventListener('click', () => {
     setPreferredVoiceName(sel.value);
     setStatus('voice-status', `Saved. "${sel.value}" will read the listening questions in this browser.`);
