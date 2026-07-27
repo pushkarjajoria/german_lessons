@@ -915,6 +915,13 @@
       "items": 10,
       "firstTry": 7,
       "durationSec": 86
+    },
+    {
+      "date": "2026-07-27T11:31:13.676Z",
+      "mode": "korrektur",
+      "items": 3,
+      "firstTry": 0,
+      "durationSec": 324
     }
   ],
   "corrections": [
