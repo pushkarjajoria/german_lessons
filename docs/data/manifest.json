@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0007",
-  "currentHomeworkId": "0007",
+  "currentLessonId": "0008",
+  "currentHomeworkId": "0008",
   "counters": {
     "lessonsCompleted": 6,
     "totalQuestions": 67,
@@ -503,6 +503,13 @@
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Grammatik-Grundlagen",
       "createdAt": "2026-07-23T08:35:15.769Z"
+    },
+    {
+      "id": "0008",
+      "title": "Der Paketbote — ein Paket annehmen (taking a delivery)",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Paket",
+      "createdAt": "2026-07-27T09:46:35.431Z"
     }
   ],
   "tests": [],
@@ -513,11 +520,10 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-23T08:37:29.901Z",
-    "text": "Lesson 0007: der Akkusativ from the ground up — what 'doer' and 'receiver' actually mean, because the mechanics without the concept are only table-lookup. You asked for this lesson; granted. Progress on plurals: the English -s is gone, only the Umlaut still slips. The du ending holds on one verb but not yet cold on a new one. Consolidate first — a short, strictly timed test follows, not this week.",
+    "date": "2026-07-27T09:47:46.210Z",
+    "text": "0007: your cleanest set yet — the Akkusativ concept holds, not just the table, and the buried trap held. Betragen +1. Monday is new ground: the delivery domain, with the ear trained on purpose — Hörverstehen is the one weak spot, so two listening items. The timed test you asked for still waits behind your Bericht for 0007. File it.",
     "weakAreas": [
-      "Kasus",
-      "Konjugation"
+      "Hörverstehen"
     ]
   },
   "practiceLog": [
@@ -1022,7 +1028,7 @@
     }
   ],
   "conduct": {
-    "score": 69,
+    "score": 70,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -1071,9 +1077,15 @@
         "delta": 1,
         "score": 69,
         "reason": "Friday: the Gym-Auftrag is completed (Bericht 0006) — cold German to a stranger, produced under real social pressure and reported honestly, including his own uncertainty about the word. Real-world field production is the flagship behaviour of the course and is credited, not treated as +0 homework (cf. the preserved Supermarkt +2). +1 not +2: this deed was done as instructed on a training day, with no avoidance-pattern broken as there was at the Supermarkt. Not the sustained-streak reward — post-19-Jul there are only 2 clean sessions (0005, 0006), not a confirmed 3-4 stretch. No lapse, nothing overdue: no deduction."
+      },
+      {
+        "date": "2026-07-27T09:47:38.833Z",
+        "delta": 1,
+        "score": 70,
+        "reason": "Homework 0007: cleanest report to date — 10/11 first try, 0 hints, 4 min. The Akkusativ concept landed (justification named both conditions, not just gender); neuter and feminine left unchanged; buried einen-Kaffee trap not tripped. One clean session = +1 (persona §6.5)."
       }
     ],
-    "updatedAt": "2026-07-24T10:19:57.751Z"
+    "updatedAt": "2026-07-27T09:47:38.833Z"
   },
   "requests": [
     {
@@ -1111,7 +1123,9 @@
         "iv": "CES7Lu5SJzOTfIss",
         "ct": "y1+Xsaeb9alV9xhdsu1DtjLrAVUAn6HkIZXyYNYCj+bq87sibGXlDIGdId0nU584EaorwB/grZ1re5RDALK8wNmFM+EbMdl9Srnl84bAbwi4dMwEcE4fuY6y0oNB9dLpbdfhdG8A9wPZh3Os15y4rmopEavpM7E5yGI//C9F2QN3Zt0iVFRY9YxznqLMlReYiGPN4NmnKO4="
       },
-      "status": "pending"
+      "status": "granted",
+      "response": "Stattgegeben — heute 24 neue Wörter (Paket, Gym, Wege, Büro), jedes mit Artikel, damit du das Geschlecht gleich mitlernst.",
+      "respondedAt": "2026-07-27T09:47:26.364Z"
     },
     {
       "id": "r1785083454111",
@@ -1122,7 +1136,9 @@
         "iv": "upccYNFKdSZrFVp6",
         "ct": "BiyoVD6N5wCf6qJ/kX+l6O0oHUt3+TMYPrBG23WJZzI/gfimk3iq9YsIbbeluYyEXJ8x9m/rAVS+TvfhLcIN+ayi2nz9D70q2J9YsmzHLbrBHq7qJ/VJUeodmbZbwFEoRX1mvaEF7wvl02Kn015jv0ySqM8VIfAUsUWBwZgE8KOdSDJDadrzMiKpPtUCtUXiQqLiGc//5ynj6Rm0K8mgkpWNNAJLbHKSCZuPWopYS4W4vdDrKUc3vUWL5lBLynVM31MK8ng7rTG2SUchWFuwmCjipAg2dytywp7TXrbLLwwPQ/8NANpgJ+b7GCD7pna2CXprV/xj9S/QUrthlE41pQl95SxAudyRBQytoNqR5Nas+caLMSOiuy2EN5NK456JXBGM/3Z42DzF238UYBs+UC6CJ1iO+IHcdIxs3+nkd5KsJ2SC68MdLhW61FEmBFVtVnfvy8qec7vP6nXHLOqnMM5gQYfUl0FwJM5PA4XCh7jziajv0EeK+PIUprve1jUbCgOduuFGYSkzvm5Oh0Je3g=="
       },
-      "status": "pending"
+      "status": "granted",
+      "response": "Stattgegeben und als FR-009 eingetragen: eine eigene Artikel-Übung im Kontext, die dich zwingt, das Geschlecht zuerst zu prüfen.",
+      "respondedAt": "2026-07-27T09:47:26.386Z"
     }
   ],
   "assignmentReports": {
@@ -1234,6 +1250,17 @@
         "salt": "oDVuyPvd4hMBRtTkteuLsw==",
         "iv": "KDW37opHwXbPFlSN",
         "ct": "C+Be81mDGfckIBgWSWpYhuroK/CHwfmboxQIwgmSLvoYvyMSn2oHQB26lV0mE+k3FRFR0t7fPxEDvCYlmHG6JbR5xFbPKBanXusjKgHcMdq9tWPaRJvuLsTXD+rISu2nLfXiyNY86PdFQ9MQRaszUkb4g8J8SjeF1+Wgx0vv0nfpXnqAm7QShCvj7G7IMbYmrBq2lEdSD47EH90luEYmA+gWE23sbGtVgtvGX5u142i50SQfsZW0xYfXW54PcDs1Mz/4WjL37jcvYOuazaMIqHK5sdNWi3906u/l+s32uGmVpZPLeWJ3m4/wBBeZaqlQTvfcSLs48/bpgl8TfoClsU5qg+rhf21YZWxl5T8vzJUd/V+uanqnM8zahkY5WsRZ"
+      }
+    },
+    {
+      "id": "m1785145658796",
+      "date": "2026-07-27T09:47:38.796Z",
+      "from": "richter",
+      "enc": {
+        "v": 1,
+        "salt": "+gGlJuGCRlasNwtsH5aWNw==",
+        "iv": "OojKF+PaQ74CCegs",
+        "ct": "4PNtWC0Y0bp+d32IpApajaWjCks14lfnioctuf8nLJ8obc/MSqSk5kRF5rsDC175o5NfoWS+v0yRJdM4MTf7m8/1+e44MAy601lF7rUBOdShm4yPEZ5CfeIw7e4PwOzQrmXdvEfONIcYp5KR7o+WwWzFaEMCp5Dg97OuZcBk7HP/dHi9CqBEkFbMnkCS779/JdWpMnzNPh/bR0baVEV6nwYjUB2/5afYmcvvywjkHZdqE1UsnTHh6hqUdS/U667/ub8N+6FQTeDli81dqO2jR7W5hButdKLWh2XRnD9wBW8LYOCLi9nWlQaI46N9Gjioj4Tc97igBzWmlisNh3a97WJ6ynPWeTWOth2QrTPXVEUMO6xwoAdwn4jjoN3VLYOZgx766DFMMM4P6qz2Y67OY8xdEjKtve3ldnYgWBT4ijxkOG1ZXvZlD3jrPfL8yGjzHKVhthXfgf/ltneO8vdmtz4+Wwnw6tqJpg+oDGbP5ZdfpqJuRs6KgfoQb8v0enhIBjqsCp4bVm8G4btc/wSyW82riY/nz/WfFcf0x23tA3jr2lvtzJucAFBg41XCvXRLCL9IgCzr8Xs9fIzwKhXaxagQId55Ky3EJ4pxhFrk6n4iEzseAJoVd1A2t7FGaMVD9BLZqXrmPu/AKVVT2Kq/aYyBvffyRmUdEzApyqxs/tVxFTaZGxHyiYND9GZi4G4Fl1w2TbD0ojUfLoc6EToVxLKQ3O4S1f3OCI8QRYiQspizIorF4jmE45X4oH/CUfaCKWQUQq6hzIXfq5b0oELts39QvYdGqIGB44PV065PtRqDA/QOFT72ItB5XiGiTSHK61WYpbnNAIuwxa12GkoZCE+X29lBkds3ysCZhTp6R0RuRkW1PQ0KSkM/J1qzfx/oBiWPn1l8foBbCFH84WIThG/TKHYSuEIon0m10SWJbU+UX1VJUddryYZkwg8J9vEEEeDlRopwyXyPTKOAykUDRbwrSHMOPb67Uvs5L20N2ADjRf5Fv3U7FYqLMuTboeUpnmJtul4hDcHqj68Nfw4LKercpX2uK/KAzsRUNo3/vjc1EF6z6x3CBU70hkfbtA2GNzQBXwHxHjxoAWdrujHsczXYgl/FUHgeQglkemjQ/dyS2/lsl6gi+LoK3k0T7cQ69XFD2RQQ6ynf8GrBgj8DtnotaG4NnazZtQRGiY48SrdffE8qtAIqKHFEcZzUxgRZzkqBeY8bArjTn6lge856XIt38ysJinmYhj8KVU8sF8lFJ5fHjz+Q1o6TVq/J/UNuBCnk331Xkz0pWrKZFOHVgODNnkFArTeqbiz45XOnuPdY1E09zxFCZRAzu5chkjGkL9owQepdNAm/CDBR2Z7t19KJoqF974uKdfgc0Ay1pnmcA+cxk6VWo+aIeOxNx/0TVgTvoWMZdSRJm0lfdxZ2d5jwMDSNnQIzD75+OpHcXcX2OfEd2NTwUsl5NY1r+kLB1FrRYMlyoYvwsnP9yK9aWpN+GAAg/M1z8hhDAX+eFh1llZ5AtO6mqbPH7Lm5Ncolzaa04cJ9sfEKFVMqxsoNOhW8Rr04TH2fcvIpNNQA6ZH/XNZx8TiJrt6Hnw8tJI4IagzKXRjE3JTHg8ujtnRPjaaQ0wXOx/Au0fk="
       }
     }
   ],
