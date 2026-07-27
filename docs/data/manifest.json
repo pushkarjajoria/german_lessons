@@ -605,11 +605,14 @@
       "id": "0001",
       "title": "Quiz S1 — Akkusativ, du-Endung & Survival-Chunks",
       "deadline": "2026-07-29T20:00:00.000Z",
-      "status": "pending",
+      "status": "submitted",
       "createdAt": "2026-07-27T12:31:29.819Z",
       "questionCount": 8,
       "kind": "quiz",
-      "semester": "S1"
+      "semester": "S1",
+      "submittedAt": "2026-07-27T13:09:54.134Z",
+      "answered": 8,
+      "timedOut": 0
     }
   ],
   "canary": {
