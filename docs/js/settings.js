@@ -6,6 +6,7 @@ import { encryptString, decryptString } from './crypto.js';
 import { CANARY_VALUE, initLockButton } from './auth.js';
 import * as gh from './github.js';
 import * as store from './storage.js';
+import { speakGerman, germanVoices, voicesReady, pickGermanVoice, getPreferredVoiceName, setPreferredVoiceName } from './speech.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -128,7 +129,47 @@ function initReencrypt() {
   });
 }
 
+// ---------- German voice ----------
+// Browser TTS quality is machine-dependent, so the ranked default in speech.js
+// is only a guess — this lets the learner hear the options and settle it.
+async function initVoice() {
+  const sel = $('voice-select');
+  if (!sel) return;
+  await voicesReady();
+  const voices = germanVoices();
+  if (!voices.length) {
+    sel.innerHTML = '<option>No German voice installed</option>';
+    sel.disabled = true;
+    setStatus('voice-status',
+      'This browser has no German voice. On macOS: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices → add a German one (Anna, Petra, Markus). Until then German is read by an English voice.',
+      false);
+    return;
+  }
+  const auto = pickGermanVoice();
+  const chosen = getPreferredVoiceName();
+  sel.innerHTML = '';
+  for (const v of voices) {
+    const o = document.createElement('option');
+    o.value = v.name;
+    o.textContent = `${v.name} (${v.lang})${v.name === auto?.name && !chosen ? ' — auto-picked' : ''}`;
+    if (v.name === (chosen || auto?.name)) o.selected = true;
+    sel.appendChild(o);
+  }
+  $('voice-test').addEventListener('click', () => {
+    // Preview the highlighted voice without committing to it yet.
+    const prev = getPreferredVoiceName();
+    setPreferredVoiceName(sel.value);
+    speakGerman('Möchtest du einen Kaffee?');
+    setPreferredVoiceName(prev);
+  });
+  $('voice-save').addEventListener('click', () => {
+    setPreferredVoiceName(sel.value);
+    setStatus('voice-status', `Saved. "${sel.value}" will read the listening questions in this browser.`);
+  });
+}
+
 initGithub();
 initPassword();
 initReencrypt();
+initVoice();
 initLockButton();

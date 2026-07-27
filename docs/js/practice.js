@@ -17,28 +17,14 @@ import * as gh from './github.js';
 import { checkTextAnswerDetailed } from './checking.js';
 import { getPolicy, attachModelRepeat, openCorrections, eligibleNow, nextEligibleAt, freezeQuestionArea } from './corrections.js';
 import { conductLocked, conductScore } from './conduct.js';
+import { speakGerman } from './speech.js';
 
 const $ = (id) => document.getElementById(id);
 
 // ---------- speech (listen_type) ----------
-
-let germanVoice = null;
-function pickGermanVoice() {
-  const voices = speechSynthesis.getVoices();
-  germanVoice = voices.find((v) => v.lang === 'de-DE') || voices.find((v) => v.lang.startsWith('de')) || null;
-}
-if ('speechSynthesis' in window) {
-  pickGermanVoice();
-  speechSynthesis.onvoiceschanged = pickGermanVoice;
-}
-function speak(text) {
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'de-DE';
-  u.rate = 0.88;
-  if (germanVoice) u.voice = germanVoice;
-  speechSynthesis.speak(u);
-}
+// Shared with quiz.js/test.js — see speech.js for why the voice is resolved at
+// speak time (a cold-load race used to hand German text to an English voice).
+const speak = (text) => speakGerman(text);
 
 // ---------- archive loading ----------
 

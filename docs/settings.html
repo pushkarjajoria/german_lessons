@@ -65,6 +65,24 @@
       <p id="gh-status" class="status" hidden></p>
     </section>
 
+    <!-- German voice: the listen_type questions are spoken by the browser, and
+         voice quality varies a lot by machine. Pick the one that sounds most
+         like real German; the choice is local to this browser. -->
+    <section class="panel">
+      <h2>German voice (spoken questions)</h2>
+      <p class="muted">Listening questions are read aloud by your browser. Try the voices and keep
+      the one that sounds most like real German — flat, robotic ones are usually the older
+      built-ins. Stored in this browser only.</p>
+      <label>Voice
+        <select id="voice-select"></select>
+      </label>
+      <div class="btn-row">
+        <button class="btn" id="voice-test">Test: „Möchtest du einen Kaffee?“</button>
+        <button class="btn btn-primary" id="voice-save">Use this voice</button>
+      </div>
+      <p id="voice-status" class="status" hidden></p>
+    </section>
+
     <section class="panel">
       <h2>Change password</h2>
       <p class="muted">Re-encrypts the login canary. <strong>Existing content stays under the
