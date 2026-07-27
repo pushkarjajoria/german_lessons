@@ -600,7 +600,18 @@
       "createdAt": "2026-07-27T09:46:35.431Z"
     }
   ],
-  "tests": [],
+  "tests": [
+    {
+      "id": "0001",
+      "title": "Quiz S1 — Akkusativ, du-Endung & Survival-Chunks",
+      "deadline": "2026-07-29T20:00:00.000Z",
+      "status": "pending",
+      "createdAt": "2026-07-27T12:31:29.819Z",
+      "questionCount": 8,
+      "kind": "quiz",
+      "semester": "S1"
+    }
+  ],
   "canary": {
     "v": 1,
     "salt": "0gA2YkHEYWNRZA24a0MtXA==",
@@ -1486,5 +1497,20 @@
         "date": "2026-07-20T18:37:13.184Z"
       }
     }
+  },
+  "semester": {
+    "id": "S1",
+    "title": "Semester 1 — Phase 0/1",
+    "openedAt": "2026-07-27T12:31:29.627Z",
+    "attempt": 1,
+    "repeatCount": 0,
+    "weights": {
+      "quizzes": 40,
+      "final": 60
+    },
+    "passPct": 70,
+    "plannedLectures": 8,
+    "status": "active",
+    "rounds": []
   }
 }
