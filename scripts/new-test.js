@@ -136,8 +136,30 @@ if (test.kind && manifest.semester && test.semester !== manifest.semester.id) {
 // Duration guidance: quizzes are short checks, the final is the long sit.
 const totalSec = test.questions.reduce((s, q) => s + (q.timeLimitSec ?? test.defaultTimeLimitSec ?? 60), 0);
 const totalMin = Math.round(totalSec / 60);
-if (test.kind === 'quiz' && totalMin > 12) console.warn(`Warning: quiz runs ~${totalMin} min at full time — quizzes are ~10 min. Trim it.`);
-if (test.kind === 'final' && (totalMin < 15 || totalMin > 35)) console.warn(`Warning: final runs ~${totalMin} min at full time — the final should sit at 20–30 min.`);
+// Quizzes scale with the course: a quiz early in Phase 1 has little to test, but
+// by the end of a semester a 10-minute quiz is not a check, it is a gesture.
+const quizCap = Math.min(25, 10 + 2 * Math.max(0, (manifest.lessons || []).length - 4));
+if (test.kind === 'quiz' && totalMin > quizCap) {
+  console.warn(`Warning: quiz runs ~${totalMin} min at full time — the cap at ${(manifest.lessons || []).length} published lessons is ~${quizCap} min. Trim it.`);
+}
+if (test.kind === 'quiz' && test.questions.length < 8) {
+  console.warn(`Warning: only ${test.questions.length} questions on a quiz — 8 is the floor, and it should grow with the syllabus (see schema/tests.md §4.6).`);
+}
+// The final is a real sit: ~60 minutes, comprehensive, sectioned like a real
+// A2 paper. Not a long quiz.
+if (test.kind === 'final' && (totalMin < 45 || totalMin > 75)) {
+  console.warn(`Warning: final runs ~${totalMin} min at full time — a final is designed for ~60 min (45–75 acceptable). See schema/tests.md §4.6.`);
+}
+if (test.kind === 'final' && test.questions.length < 25) {
+  console.warn(`Warning: only ${test.questions.length} questions on a final — a 60-minute comprehensive paper needs ~25–35. See schema/tests.md §4.6.`);
+}
+// A comprehensive paper must actually exercise conversation, not just slots.
+if (test.kind === 'final') {
+  const convo = test.questions.filter((q) => ['dialogue', 'audio_response', 'listen_type'].includes(q.type)).length;
+  const withContext = test.questions.filter((q) => q.context).length;
+  if (convo < 5) console.warn(`Warning: only ${convo} listening/conversational question(s) on the final — a real paper is at least a third Hören/Sprechen. Add dialogue/audio_response.`);
+  if (!withContext) console.warn('Warning: no reading-comprehension items (a question with "context") on the final — a real paper has a Lesen section.');
+}
 
 // Repertoire discipline (SCHEMA §4.2): the FULL arsenal — negative marking and
 // a crowd of surprise types — belongs to Klausuren and finals. Quizzes get a
