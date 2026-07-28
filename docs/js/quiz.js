@@ -31,7 +31,7 @@ function feedbackWrong(q, attempts) {
 function correctDisplay(q) {
   if (q.type === 'multiple_choice') return q.options[q.answerIndex];
   if (q.type === 'reorder') return q.answer.join(' ');
-  return q.answers[0];
+  return (q.answers || [])[0] || '';
 }
 
 // ---------- speech (listen_type) ----------
@@ -141,6 +141,8 @@ function renderNext() {
   catEl.textContent = q.category || '';
   area.appendChild(catEl);
 
+  renderContext(q, area);   // reading passage / conversation so far, when present
+
   const promptEl = document.createElement('h2');
   promptEl.className = 'q-prompt';
   promptEl.textContent = q.type === 'fill_blank' ? '' : q.prompt;
@@ -151,7 +153,23 @@ function renderNext() {
   else if (q.type === 'reorder') renderReorder(q, area);
   else if (q.type === 'translate') renderTextInput(q, area, 'In German…');
   else if (q.type === 'listen_type') renderListenType(q, area);
+  else if (q.type === 'dialogue') renderDialogue(q, area);
+  else if (q.type === 'audio_response') renderAudioResponse(q, area);
   else { console.warn('Unknown question type', q.type); resolveMiss(q, '(unsupported type)'); }
+}
+
+// A German passage or the conversation so far, shown above the prompt. Optional
+// on ANY type — this is what turns a plain question into a comprehension item.
+function renderContext(q, area) {
+  if (!q.context) return;
+  const box = document.createElement('div');
+  box.className = 'q-context';
+  for (const line of String(q.context).split('\n')) {
+    const p = document.createElement('p');
+    p.textContent = line;
+    box.appendChild(p);
+  }
+  area.appendChild(box);
 }
 
 function submitBar(area, onSubmit) {
@@ -286,6 +304,61 @@ function renderTextInput(q, area, placeholder) {
   submitBar(area, submit);
   input.focus();
   return input;
+}
+
+// Conversation: the exchange is shown turn by turn, and the learner supplies
+// the turn marked `you`. This is the format real courses assess with — not
+// "translate this sentence" but "say the next thing, appropriately."
+function renderDialogue(q, area) {
+  const wrap = document.createElement('div');
+  wrap.className = 'dialogue';
+  for (const t of q.turns || []) {
+    const row = document.createElement('div');
+    row.className = `dialogue-turn${t.you ? ' dialogue-turn-you' : ''}`;
+    const who = document.createElement('span');
+    who.className = 'dialogue-speaker';
+    who.textContent = t.speaker || (t.you ? 'Du' : '');
+    row.appendChild(who);
+    if (t.you) {
+      const slot = document.createElement('span');
+      slot.className = 'dialogue-slot';
+      slot.textContent = '…';           // the gap the learner fills, shown in place
+      row.appendChild(slot);
+    } else {
+      const said = document.createElement('span');
+      said.className = 'dialogue-text';
+      said.textContent = t.text || '';
+      row.appendChild(said);
+    }
+    wrap.appendChild(row);
+  }
+  area.appendChild(wrap);
+  // Hearing the other side is half the skill; speak the last non-learner turn.
+  const spoken = [...(q.turns || [])].reverse().find((t) => !t.you && t.text);
+  if (spoken && q.speak !== false) {
+    const play = document.createElement('button');
+    play.className = 'btn play-btn';
+    play.textContent = '▶ Hear it';
+    play.addEventListener('click', () => speak(spoken.text));
+    area.appendChild(play);
+  }
+  renderTextInput(q, area, 'Your turn, in German…');
+}
+
+// TTS asks a question in German; the learner ANSWERS in German. Distinct from
+// listen_type, which is transcription — this one tests comprehension plus
+// production, which is what an examiner actually does.
+function renderAudioResponse(q, area) {
+  const play = document.createElement('button');
+  play.className = 'btn play-btn';
+  play.textContent = '▶ Play the question';
+  play.addEventListener('click', () => {
+    state.records.get(q.id).replays += 1;
+    speak(q.audioText);
+  });
+  area.appendChild(play);
+  renderTextInput(q, area, 'Answer in German…');
+  speak(q.audioText);
 }
 
 function renderListenType(q, area) {

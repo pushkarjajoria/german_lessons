@@ -1084,6 +1084,40 @@ body.lockdown main > [hidden] { display: none !important; }
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 0.5rem;
 }
+/* ---------- conversational question formats ---------- */
+/* A reading passage or the conversation so far, shown above the prompt. */
+.q-context {
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--bg-raised);
+  border-left: 3px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--serif);
+  line-height: 1.55;
+}
+.q-context p { margin: 0 0 0.45rem; }
+.q-context p:last-child { margin-bottom: 0; }
+
+/* A dialogue, turn by turn, with the learner's turn left open. */
+.dialogue { margin: 0 0 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.dialogue-turn {
+  display: flex; gap: 0.6rem; align-items: baseline;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+}
+.dialogue-speaker {
+  flex: 0 0 auto;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-dim);
+  min-width: 4.5em;
+}
+.dialogue-text { font-family: var(--serif); font-size: 1.02rem; }
+/* The learner's turn: her red, and visibly an empty seat at the table. */
+.dialogue-turn-you { border-left: 3px solid var(--ink); background: var(--ink-soft); }
+.dialogue-turn-you .dialogue-speaker { color: var(--ink); }
+.dialogue-slot { font-family: var(--serif); font-size: 1.02rem; color: var(--ink); letter-spacing: 0.15em; }
+
 /* While the archive decrypts: a spinner next to the progress count, so a
    multi-second load reads as work-in-progress rather than a hung page. */
 .pool-loading::before {

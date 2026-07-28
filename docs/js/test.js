@@ -271,6 +271,8 @@ function renderQuestion() {
   catEl.textContent = q.category || '';
   area.appendChild(catEl);
 
+  renderContext(q, area);   // reading passage / conversation so far, when present
+
   const promptEl = document.createElement('h2');
   promptEl.className = 'q-prompt';
   promptEl.textContent = q.type === 'fill_blank' ? '' : q.prompt;
@@ -286,6 +288,8 @@ function renderQuestion() {
   else if (q.type === 'subjective') getAnswer = renderSubjective(q, area);
   else if (q.type === 'multi_select') getAnswer = renderMultiSelect(q, area);
   else if (q.type === 'click_mistake') getAnswer = renderClickMistake(q, area);
+  else if (q.type === 'dialogue') getAnswer = renderDialogue(q, area);
+  else if (q.type === 'audio_response') getAnswer = renderAudioResponse(q, area);
   else { console.warn('Unknown type', q.type); record(null, false); return; }
 
   // Justify-your-answer: her flagged questions demand a one-line reason inside
@@ -444,6 +448,62 @@ function renderReorder(q, area) {
   area.append(answerRow, pool);
   rerender();
   return () => picked.join(' ');
+}
+
+// A German passage or the conversation so far, above the prompt. Optional on
+// ANY type — this is what makes a comprehension section possible.
+function renderContext(q, area) {
+  if (!q.context) return;
+  const box = document.createElement('div');
+  box.className = 'q-context';
+  for (const line of String(q.context).split('\n')) {
+    const p = document.createElement('p');
+    p.textContent = line;
+    box.appendChild(p);
+  }
+  area.appendChild(box);
+}
+
+// Conversation: the exchange is shown, the learner supplies the `you` turn.
+function renderDialogue(q, area) {
+  const wrap = document.createElement('div');
+  wrap.className = 'dialogue';
+  for (const t of q.turns || []) {
+    const row = document.createElement('div');
+    row.className = `dialogue-turn${t.you ? ' dialogue-turn-you' : ''}`;
+    const who = document.createElement('span');
+    who.className = 'dialogue-speaker';
+    who.textContent = t.speaker || (t.you ? 'Du' : '');
+    row.appendChild(who);
+    const span = document.createElement('span');
+    span.className = t.you ? 'dialogue-slot' : 'dialogue-text';
+    span.textContent = t.you ? '…' : (t.text || '');
+    row.appendChild(span);
+    wrap.appendChild(row);
+  }
+  area.appendChild(wrap);
+  const spoken = [...(q.turns || [])].reverse().find((t) => !t.you && t.text);
+  if (spoken && q.speak !== false) {
+    const play = document.createElement('button');
+    play.className = 'btn play-btn';
+    play.textContent = '▶ Hear it';
+    play.addEventListener('click', () => { state.replays += 1; speak(spoken.text); });
+    area.appendChild(play);
+  }
+  return renderText(q, area, 'Your turn, in German…');
+}
+
+// TTS asks a German question; the learner answers in German (comprehension +
+// production), as opposed to listen_type's transcription.
+function renderAudioResponse(q, area) {
+  const play = document.createElement('button');
+  play.className = 'btn play-btn';
+  play.textContent = '▶ Play the question';
+  play.addEventListener('click', () => { state.replays += 1; speak(q.audioText); });
+  area.appendChild(play);
+  const getAnswer = renderText(q, area, 'Answer in German…');
+  speak(q.audioText);
+  return getAnswer;
 }
 
 function renderText(q, area, placeholder) {

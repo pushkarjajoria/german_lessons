@@ -26,15 +26,23 @@ export function levenshtein(a, b) {
   return prev[n];
 }
 
+// Free German PRODUCTION types — the learner composes a whole utterance rather
+// than filling a slot. They share grading (answers[] + optional typo grace) and
+// are the conversational formats: answer a spoken question, take your turn in a
+// dialogue. Kept in one place so quiz.js/test.js/SCHEMA cannot drift apart.
+export const PRODUCTION_TYPES = ['translate', 'dialogue', 'audio_response'];
+
 // Reports whether the match was exact or only accepted via typo-forgiveness —
 // a real signal for whether an answer was known or half-guessed.
 export function checkTextAnswerDetailed(q, given) {
   const g = normalize(given);
   if (!g) return { correct: false, matchType: null };
-  const norms = q.answers.map(normalize);
+  const norms = (q.answers || []).map(normalize);
   if (norms.includes(g)) return { correct: true, matchType: 'exact' };
-  // Fuzzy (Levenshtein ≤ 1) only for longer translate answers — typo grace, not laxity.
-  if (q.type === 'translate' && q.acceptFuzzy && norms.some((a) => a.length > 10 && levenshtein(a, g) <= 1)) {
+  // Fuzzy (Levenshtein ≤ 1) only for longer produced answers — typo grace, not
+  // laxity. A conversational reply is long-form German; failing it over one
+  // slipped keystroke measures typing, not the language.
+  if (PRODUCTION_TYPES.includes(q.type) && q.acceptFuzzy && norms.some((a) => a.length > 10 && levenshtein(a, g) <= 1)) {
     return { correct: true, matchType: 'fuzzy' };
   }
   return { correct: false, matchType: null };
