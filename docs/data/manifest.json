@@ -966,11 +966,11 @@
       "durationSec": 18
     },
     {
-      "date": "2026-07-28T12:37:41.885Z",
+      "date": "2026-07-28T12:37:43.566Z",
       "mode": "korrektur",
       "items": 3,
       "firstTry": 2,
-      "durationSec": 99
+      "durationSec": 101
     }
   ],
   "corrections": [
@@ -1193,7 +1193,7 @@
       "addedAt": "2026-07-27T11:25:08.793Z",
       "required": 3,
       "doneCount": 2,
-      "lastPassedAt": "2026-07-28T12:37:41.885Z",
+      "lastPassedAt": "2026-07-28T12:37:43.566Z",
       "status": "open"
     },
     {
@@ -1206,9 +1206,9 @@
       "addedAt": "2026-07-27T11:25:08.793Z",
       "required": 3,
       "doneCount": 3,
-      "lastPassedAt": "2026-07-28T12:37:41.885Z",
+      "lastPassedAt": "2026-07-28T12:37:43.566Z",
       "status": "cleared",
-      "clearedAt": "2026-07-28T12:37:41.885Z"
+      "clearedAt": "2026-07-28T12:37:43.566Z"
     }
   ],
   "conduct": {
