@@ -645,6 +645,206 @@ function finishVocab() {
   logPractice('vocab', vocabRun.items.length, vocabRun.firstTry);
 }
 
+// ---------- Artikel drill (FR-009) ----------
+// Gender FIRST, then the case — the exact order lesson 0007 exposed him choosing
+// backwards. Nouns come from the vocabulary bank (each already welded to its
+// article) plus any past homework item whose answer WAS an article, so her own
+// sentences get reused. Nouns he has gendered wrongly before come back first.
+
+const ARTIKEL_ROUND = 12;
+const ARTIKEL_CONFUSION_KEY = 'gl_artikel_confusion_v1';
+
+const GENDER_OF = { der: 'm', die: 'f', das: 'n' };
+// The whole table the drill teaches, in one place.
+const DEF = { m: { nom: 'der', akk: 'den' }, f: { nom: 'die', akk: 'die' }, n: { nom: 'das', akk: 'das' } };
+const INDEF = { m: { nom: 'ein', akk: 'einen' }, f: { nom: 'eine', akk: 'eine' }, n: { nom: 'ein', akk: 'ein' } };
+const DEF_OPTIONS = ['der', 'den', 'die', 'das'];      // 4 options: tests gender AND case at once
+const INDEF_OPTIONS = ['ein', 'einen', 'eine'];
+const ALL_ARTICLES = new Set([...DEF_OPTIONS, ...INDEF_OPTIONS]);
+
+function artikelConfusion() {
+  try { return JSON.parse(localStorage.getItem(ARTIKEL_CONFUSION_KEY)) || {}; } catch { return {}; }
+}
+function recordArtikelMiss(noun) {
+  const map = artikelConfusion();
+  map[noun] = (map[noun] || 0) + 1;
+  try { localStorage.setItem(ARTIKEL_CONFUSION_KEY, JSON.stringify(map)); } catch { /* private mode */ }
+}
+
+// Nouns from the bank: "der Kaffee" -> { article, noun, gender }.
+function artikelNouns() {
+  const out = [];
+  const seen = new Set();
+  for (const w of archive.vocab || []) {
+    const m = /^(der|die|das)\s+(.+)$/i.exec((w.de || '').trim());
+    if (!m) continue;
+    const noun = m[2].trim();
+    if (seen.has(noun)) continue;
+    seen.add(noun);
+    out.push({ article: m[1].toLowerCase(), noun, gender: GENDER_OF[m[1].toLowerCase()], en: w.en || '' });
+  }
+  return out;
+}
+
+// Her own homework sentences whose answer was an article — authentic frames,
+// already in his domains, with the case signalled by a real verb.
+function artikelFromHomework() {
+  const out = [];
+  for (const e of archive.pool || []) {
+    const q = e.q;
+    if (q.type !== 'fill_blank' || !Array.isArray(q.answers) || q.answers.length !== 1) continue;
+    const ans = String(q.answers[0]).trim().toLowerCase();
+    if (!ALL_ARTICLES.has(ans)) continue;
+    if (!/_{2,}/.test(q.prompt || '')) continue;
+    out.push({
+      frame: q.prompt,
+      answer: ans,
+      options: INDEF_OPTIONS.includes(ans) ? INDEF_OPTIONS : DEF_OPTIONS,
+      label: 'Kasus · aus der Hausaufgabe',
+      note: q.note || '',
+      key: `hw:${e.key}`,
+    });
+  }
+  return out;
+}
+
+// Build a drill item from a bank noun. Weighted toward the accusative, which is
+// the live front — and where masculine is the only form that changes.
+function artikelItemFor(n) {
+  const forms = [
+    { w: 3, kind: 'akk-def', frame: `Ich nehme ___ ${n.noun}.`, answer: DEF[n.gender].akk, options: DEF_OPTIONS, label: 'Kasus · Akkusativ (bestimmt)' },
+    { w: 2, kind: 'akk-indef', frame: `Ich möchte ___ ${n.noun}.`, answer: INDEF[n.gender].akk, options: INDEF_OPTIONS, label: 'Kasus · Akkusativ (unbestimmt)' },
+    { w: 2, kind: 'nom-def', frame: `___ ${n.noun} ist da.`, answer: DEF[n.gender].nom, options: DEF_OPTIONS, label: 'Kasus · Nominativ (bestimmt)' },
+    { w: 1, kind: 'nom-indef', frame: `Das ist ___ ${n.noun}.`, answer: INDEF[n.gender].nom, options: INDEF_OPTIONS, label: 'Kasus · Nominativ (unbestimmt)' },
+  ];
+  const pool = forms.flatMap((f) => Array(f.w).fill(f));
+  const f = pool[Math.floor(Math.random() * pool.length)];
+  const genderWord = { m: 'maskulin', f: 'feminin', n: 'neutral' }[n.gender];
+  const changed = n.gender === 'm' && f.kind.startsWith('akk');
+  return {
+    frame: f.frame,
+    answer: f.answer,
+    options: f.options,
+    label: f.label,
+    key: `n:${n.noun}`,
+    noun: n.noun,
+    note: `${n.noun} ist ${genderWord} (${n.article}).` + (changed
+      ? ` Im Akkusativ wird ${DEF[n.gender].nom} → ${DEF[n.gender].akk} (bzw. ein → einen). Nur Maskulinum ändert sich.`
+      : ' Im Akkusativ bleibt die Form gleich — nur Maskulinum ändert sich.'),
+  };
+}
+
+const artikelRun = { items: [], index: 0, firstTry: 0, wrong: [], startedAt: 0 };
+
+function artikelPoolSize() {
+  return artikelNouns().length + artikelFromHomework().length;
+}
+
+function startArtikel() {
+  const nouns = artikelNouns();
+  const fromHw = artikelFromHomework();
+  if (!nouns.length && !fromHw.length) return;
+  const conf = artikelConfusion();
+  // Nouns already gendered wrongly come first — that is the whole weighting rule.
+  const troubled = shuffled(nouns.filter((n) => conf[n.noun]));
+  const rest = shuffled(nouns.filter((n) => !conf[n.noun]));
+  const generated = [...troubled, ...rest].map(artikelItemFor);
+  // Sprinkle her authentic homework frames through the generated ones.
+  const mixed = [...generated];
+  shuffled(fromHw).slice(0, Math.max(2, Math.round(ARTIKEL_ROUND / 4)))
+    .forEach((item, i) => mixed.splice(Math.min(mixed.length, 2 + i * 3), 0, item));
+
+  artikelRun.items = mixed.slice(0, ARTIKEL_ROUND);
+  artikelRun.index = 0;
+  artikelRun.firstTry = 0;
+  artikelRun.wrong = [];
+  artikelRun.startedAt = Date.now();
+  $('mode-select').hidden = true;
+  $('summary-area').hidden = true;
+  $('drill-area').hidden = false;
+  renderArtikelNext();
+}
+
+function renderArtikelNext() {
+  if (artikelRun.index >= artikelRun.items.length) return finishArtikel();
+  const item = artikelRun.items[artikelRun.index];
+  $('progress-label').textContent = `Artikel ${artikelRun.index + 1} of ${artikelRun.items.length}`;
+  $('progress-fill').style.width = `${(artikelRun.index / artikelRun.items.length) * 100}%`;
+  $('feedback').hidden = true;
+  const area = $('question-area');
+  area.innerHTML = '';
+
+  const catEl = document.createElement('p');
+  catEl.className = 'q-category';
+  catEl.textContent = item.label;
+  area.appendChild(catEl);
+
+  const promptEl = document.createElement('h2');
+  promptEl.className = 'q-prompt';
+  promptEl.textContent = item.frame;
+  area.appendChild(promptEl);
+
+  const grid = document.createElement('div');
+  grid.className = 'artikel-options';
+  for (const opt of item.options) {
+    const b = document.createElement('button');
+    b.className = 'btn artikel-option';
+    b.textContent = opt;
+    b.addEventListener('click', () => {
+      freezeQuestionArea();
+      const ok = opt === item.answer;
+      const advance = () => { artikelRun.index += 1; renderArtikelNext(); };
+      if (ok && !grid.dataset.missed) artikelRun.firstTry += 1;
+      // Right first time: flash and move on — no confirmation click (this drill
+      // lives or dies on rhythm).
+      if (ok && !grid.dataset.missed) {
+        b.classList.add('vocab-option-correct');
+        setTimeout(advance, 380);
+        return;
+      }
+      if (!ok) {
+        grid.dataset.missed = '1';
+        if (item.noun) recordArtikelMiss(item.noun);
+        artikelRun.wrong.push({ frame: item.frame, picked: opt, correct: item.answer });
+      }
+      const el = $('feedback');
+      el.hidden = false;
+      el.className = `feedback ${ok ? 'feedback-ok' : 'feedback-bad'}`;
+      $('feedback-head').textContent = ok ? 'Richtig.' : 'Falsch.';
+      $('feedback-note').textContent = ok ? (item.note || '') : `${item.frame.replace(/_{2,}/, item.answer)} — ${item.note || ''}`;
+      el.querySelector('.model-repeat')?.remove();
+      const btn = $('feedback-next');
+      btn.disabled = false;
+      btn.textContent = artikelRun.index + 1 < artikelRun.items.length ? 'Next' : 'Finish';
+      btn.onclick = advance;
+      // Wrong: the whole article+noun gets produced, not merely recognised (§2.5).
+      const policy = getPolicy(archive.manifest);
+      if (!ok && policy.enabled && policy.modelRepeat > 0) {
+        const model = item.noun ? `${item.answer} ${item.noun}` : item.answer;
+        attachModelRepeat({ mount: el, nextBtn: btn, model, times: policy.modelRepeat, studyFirst: true, explanation: item.note || '' });
+        return;
+      }
+      btn.focus();
+    });
+    grid.appendChild(b);
+  }
+  area.appendChild(grid);
+}
+
+function finishArtikel() {
+  const parts = [`${artikelRun.firstTry} of ${artikelRun.items.length} on first pick.`];
+  parts.push(artikelRun.firstTry === artikelRun.items.length
+    ? 'Gender first, then the case — that is the habit. Keep it.'
+    : 'Every noun you gendered wrongly is remembered, and comes back first next round.');
+  const html = artikelRun.wrong.length
+    ? '<p class="note-label">Wrong this round</p>' + artikelRun.wrong
+        .map((w) => `<p class="confusion-row">„${w.frame}“ — you chose <em>${w.picked}</em>, it is <strong>${w.correct}</strong></p>`)
+        .join('')
+    : '';
+  showSummary({ title: 'Artikel drill done.', text: parts.join(' '), extraHtml: html });
+  logPractice('artikel', artikelRun.items.length, artikelRun.firstTry);
+}
+
 // ---------- summary + log ----------
 
 let lastMode = null;
@@ -714,6 +914,7 @@ initLock(async (manifest) => {
   $('again-btn').addEventListener('click', () => {
     $('summary-area').hidden = true;
     if (lastMode === 'vocab') startVocab();
+    else if (lastMode === 'artikel') startArtikel();
     else if (lastMode === 'korrektur') { refreshKorrekturCard(); $('mode-select').hidden = false; }
     else if (lastMode) startDrill(lastMode);
     else $('mode-select').hidden = false;
@@ -737,14 +938,20 @@ initLock(async (manifest) => {
     harder: poolFor('harder').length,
     mixed: archive.pool.length,
     vocab: archive.vocab.length,
+    artikel: artikelPoolSize(),
   };
+  const EMPTY = { vocab: 'no word bank yet', artikel: 'no nouns with articles yet' };
+  const UNIT = { vocab: 'words', artikel: 'nouns & frames' };
   for (const [mode, n] of Object.entries(counts)) {
-    const label = mode === 'vocab' ? `${n} words` : `${n} questions`;
-    $(`count-${mode}`).textContent = n ? label : (mode === 'vocab' ? 'no word bank yet' : 'nothing here yet');
+    $(`count-${mode}`).textContent = n ? `${n} ${UNIT[mode] || 'questions'}` : (EMPTY[mode] || 'nothing here yet');
     const card = document.querySelector(`.mode-card[data-mode="${mode}"]`);
     card.disabled = !n;
     if (n) {
-      card.addEventListener('click', () => (mode === 'vocab' ? startVocab() : startDrill(mode)));
+      card.addEventListener('click', () => {
+        if (mode === 'vocab') startVocab();
+        else if (mode === 'artikel') startArtikel();
+        else startDrill(mode);
+      });
     }
   }
   $('vocab-direction').hidden = !archive.vocab.length;

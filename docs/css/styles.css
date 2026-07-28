@@ -1134,6 +1134,15 @@ body.lockdown main > [hidden] { display: none !important; }
 @keyframes pool-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .pool-loading::before { animation: none; } }
 
+/* Artikel drill: a few big targets — the point is speed and gender reflex. */
+.artikel-options { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.4rem; }
+.artikel-option {
+  flex: 1 1 6rem;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  padding: 0.7rem 1rem;
+}
+
 .vocab-option { text-align: left; padding: 0.55rem 0.8rem; font-size: 0.95rem; }
 /* A correct first pick flashes and auto-advances — no confirmation click. */
 .vocab-option-correct { border-color: var(--approve); color: var(--approve); }
