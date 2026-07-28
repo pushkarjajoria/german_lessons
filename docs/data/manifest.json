@@ -630,13 +630,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-06T21:29:23.657Z",
-      "mode": "vocab",
-      "items": 10,
-      "firstTry": 9,
-      "durationSec": 82
-    },
-    {
       "date": "2026-07-06T22:01:24.316Z",
       "mode": "vocab",
       "items": 10,
@@ -978,6 +971,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 9
+    },
+    {
+      "date": "2026-07-28T20:44:15.229Z",
+      "mode": "korrektur",
+      "items": 2,
+      "firstTry": 2,
+      "durationSec": 49
     }
   ],
   "corrections": [
@@ -1186,8 +1186,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-27T11:25:08.793Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-28T12:38:05.777Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-28T20:44:15.229Z",
       "status": "open"
     },
     {
@@ -1199,9 +1199,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-27T11:25:08.793Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-28T12:37:43.566Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-28T20:44:15.229Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-28T20:44:15.229Z"
     },
     {
       "key": "0008:q7",
