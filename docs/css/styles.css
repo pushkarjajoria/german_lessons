@@ -1084,6 +1084,22 @@ body.lockdown main > [hidden] { display: none !important; }
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 0.5rem;
 }
+/* While the archive decrypts: a spinner next to the progress count, so a
+   multi-second load reads as work-in-progress rather than a hung page. */
+.pool-loading::before {
+  content: "";
+  display: inline-block;
+  width: 0.8em; height: 0.8em;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
+  border: 2px solid var(--border);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: pool-spin 0.7s linear infinite;
+}
+@keyframes pool-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pool-loading::before { animation: none; } }
+
 .vocab-option { text-align: left; padding: 0.55rem 0.8rem; font-size: 0.95rem; }
 /* A correct first pick flashes and auto-advances — no confirmation click. */
 .vocab-option-correct { border-color: var(--approve); color: var(--approve); }

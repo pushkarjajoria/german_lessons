@@ -18,6 +18,7 @@ import { checkTextAnswerDetailed } from './checking.js';
 import { getPolicy, attachModelRepeat, openCorrections, eligibleNow, nextEligibleAt, freezeQuestionArea } from './corrections.js';
 import { conductLocked, conductScore } from './conduct.js';
 import { speakGerman } from './speech.js';
+import { decryptAllCached } from './enc-cache.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -42,50 +43,53 @@ const archive = {
   vocab: [],       // bank entries {de, en, category?, confusers?, note?}
 };
 
-async function decryptFile(path) {
-  const { text } = await gh.readText(path);
-  return JSON.parse(await decryptString(getPassword(), JSON.parse(text)));
-}
-
-async function loadArchive(manifest) {
+// Every past homework, every report, and the vocab bank — ~15 encrypted files.
+// Loaded CONCURRENTLY and served from the session plaintext cache when possible
+// (enc-cache.js). Previously this was a sequential await-per-file loop, which on
+// GitHub Pages meant ~15 network round trips in a row before anything rendered.
+async function loadArchive(manifest, onProgress) {
   archive.manifest = manifest;
   const hwIds = [...new Set([
     ...(manifest.lessons || []).map((l) => l.id),
     ...(manifest.history || []).map((h) => h.homeworkId),
   ])].sort();
+  const reportIds = (manifest.history || []).map((h) => h.reportId);
 
-  for (const id of hwIds) {
-    try {
-      const hw = await decryptFile(`data/homework/homework-${id}.json.enc`);
-      for (const q of hw.questions) {
-        archive.pool.push({ key: `${id}:${q.id}`, hwId: id, q });
-      }
-    } catch (e) {
-      console.warn(`homework ${id} unavailable:`, e.message);
-    }
-  }
+  const hwPaths = hwIds.map((id) => `data/homework/homework-${id}.json.enc`);
+  const repPaths = reportIds.map((id) => `data/reports/report-${id}.json.enc`);
+  const paths = [...hwPaths, ...repPaths, 'data/vocab.json.enc'];
 
-  for (const h of manifest.history || []) {
+  const results = await decryptAllCached(paths, getPassword(), decryptString, onProgress);
+  const byPath = new Map(results.map((r) => [r.path, r.text]));
+
+  hwIds.forEach((id, i) => {
+    const text = byPath.get(hwPaths[i]);
+    if (!text) { console.warn(`homework ${id} unavailable`); return; }
     try {
-      const rep = await decryptFile(`data/reports/report-${h.reportId}.json.enc`);
+      for (const q of JSON.parse(text).questions) archive.pool.push({ key: `${id}:${q.id}`, hwId: id, q });
+    } catch (e) { console.warn(`homework ${id} unreadable:`, e.message); }
+  });
+
+  reportIds.forEach((id, i) => {
+    const text = byPath.get(repPaths[i]);
+    if (!text) { console.warn(`report ${id} unavailable`); return; }
+    try {
+      const rep = JSON.parse(text);
       for (const p of rep.perQuestion || []) {
         if (p.attempts > 1 || !p.correct) {
           const key = `${rep.homeworkId}:${p.qid}`;
           archive.missedKeys.set(key, (archive.missedKeys.get(key) || 0) + Math.max(1, p.attempts - 1));
         }
       }
-    } catch (e) {
-      console.warn(`report ${h.reportId} unavailable:`, e.message);
-    }
-  }
+    } catch (e) { console.warn(`report ${id} unreadable:`, e.message); }
+  });
 
   const lastEntry = (manifest.history || [])[manifest.history.length - 1];
   (lastEntry?.weakCategories || []).forEach((c) => archive.weakCats.add(c));
   (manifest.teacherNote?.weakAreas || []).forEach((c) => archive.weakCats.add(c));
 
   try {
-    const bank = await decryptFile('data/vocab.json.enc');
-    archive.vocab = bank.words || [];
+    archive.vocab = JSON.parse(byPath.get('data/vocab.json.enc') || '{}').words || [];
   } catch {
     archive.vocab = [];
   }
@@ -715,7 +719,14 @@ initLock(async (manifest) => {
     else $('mode-select').hidden = false;
   });
 
-  await loadArchive(manifest);
+  // Progress while the archive decrypts — the mode cards are useless until it's
+  // in, and silence for a few seconds reads as a hung page.
+  const status = $('pool-status');
+  status.classList.add('pool-loading');
+  await loadArchive(manifest, (done, total) => {
+    status.textContent = `Decrypting the archive… ${done} of ${total}`;
+  });
+  status.classList.remove('pool-loading');
   refreshKorrekturCard();
   $('korrektur-card').addEventListener('click', startKorrektur);
 

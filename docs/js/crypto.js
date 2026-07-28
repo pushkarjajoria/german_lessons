@@ -24,17 +24,31 @@ function fromB64(str) {
   return out;
 }
 
+// Every file carries its own salt, so a key must be derived per file — 210k
+// PBKDF2 iterations each. Memoized IN MEMORY ONLY (never persisted, gone on
+// reload) so re-reading the same file in one page life is free. Keyed by
+// password+salt, and the CryptoKey is non-extractable, so the cache holds no
+// exportable secret.
+const keyCache = new Map();
+
 async function deriveKey(password, salt) {
-  const material = await crypto.subtle.importKey(
-    'raw', te.encode(password), 'PBKDF2', false, ['deriveKey']
-  );
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' },
-    material,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt', 'decrypt']
-  );
+  const cacheKey = `${password}|${toB64(salt)}`;
+  const hit = keyCache.get(cacheKey);
+  if (hit) return hit;
+  const promise = (async () => {
+    const material = await crypto.subtle.importKey(
+      'raw', te.encode(password), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' },
+      material,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  })();
+  keyCache.set(cacheKey, promise);          // cache the promise: concurrent callers share one derivation
+  try { return await promise; } catch (e) { keyCache.delete(cacheKey); throw e; }
 }
 
 export async function encryptString(password, plaintext) {
