@@ -23,14 +23,22 @@
 //   node scripts/detention.js --status        # progress + time spent (for Monday's ruling)
 //   node scripts/detention.js --clear         # remove it (Monday cleanup / manual lift)
 //
-// --mode is repeatable; mode ∈ weak | mistakes | mixed | vocab | cat:<Kategorie>.
+// --mode is repeatable; mode ∈ weak | mistakes | mixed | vocab | cat:<Kategorie>
+//                              | lesson:<NNNN>  (reproduce that lesson's own chunks
+//                                from their English meaning — for when the lesson
+//                                plainly did not stick, or was not read with care).
 // List a mode twice for emphasis — items are drawn round-robin in list order,
 // recycling (reshuffled) once a pool is exhausted, since repetition is the point.
 // Publish it with the run: node scripts/session-end.js --message "…".
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { decryptString, promptPassword } from './lib-crypto.js';
+
+// Only asked for when a lesson: mode needs validating (reads the lesson text).
+let _pw = null;
+const password = async () => (_pw ??= await promptPassword('Password (to read the lesson): '));
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MANIFEST = join(ROOT, 'docs', 'data', 'manifest.json');
@@ -94,8 +102,32 @@ if (args.includes('--clear')) {
   const reason = opt('--reason');
   const modes = multi('--mode');
   if (!reason || !modes.length) {
-    console.error('Usage: --assign --reason "…" --mode weak [--mode "cat:Kasus"] --minutes 90 [--extension-per-wrong 2] [--max-extension 45] [--reps-min 4] [--reps-max 10]');
+    console.error('Usage: --assign --reason "…" --mode weak [--mode "cat:Kasus"] [--mode "lesson:0008"] --minutes 90 [--extension-per-wrong 2] [--max-extension 45] [--reps-min 4] [--reps-max 10]');
     process.exit(1);
+  }
+  // A lesson: mode is only usable if that lesson actually has chunk lines with
+  // English glosses. Check now — a silent empty mode would quietly shrink the
+  // detention to the other modes and you would never know it did nothing.
+  for (const mode of modes.filter((m) => m.startsWith('lesson:'))) {
+    const id = mode.slice(7);
+    const file = join(ROOT, 'docs', 'data', 'lessons', `lesson-${id}.md.enc`);
+    if (!existsSync(file)) { console.error(`--mode ${mode}: no such lesson published (${file}).`); process.exit(1); }
+    let lines = [];
+    try {
+      const md = decryptString(await password(), JSON.parse(readFileSync(file, 'utf8')));
+      const CHUNK = /^\s*[-*]\s*(?:\*\*)?\s*[„"“]([^"“”]+)[""”]\s*(?:\*\*)?\s*[—–]\s*(.+)$/gm;
+      let m; while ((m = CHUNK.exec(md))) if (m[1].trim().split(/\s+/).length >= 2 && m[2].trim()) lines.push(m[1].trim());
+    } catch (e) {
+      console.error(`--mode ${mode}: could not read lesson ${id} (${e.message}).`); process.exit(1);
+    }
+    if (!lines.length) {
+      console.error(`--mode ${mode}: lesson ${id} has no drillable chunk lines.`);
+      console.error('  Expected the SCHEMA "Die Chunks" form, German in quotes + an English gloss:');
+      console.error('    - **„Ja, das ist für mich."** — Yes, that is for me.');
+      console.error('  Without a gloss there is no cue to drill from. Fix the lesson or drop this mode.');
+      process.exit(1);
+    }
+    console.log(`  ${mode}: ${lines.length} line(s) available.`);
   }
   const targetMinutes = opt('--minutes') ? Number(opt('--minutes')) : 90;
   const extensionPerWrongMinutes = opt('--extension-per-wrong') ? Number(opt('--extension-per-wrong')) : 2;

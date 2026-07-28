@@ -66,5 +66,6 @@ export function repsForMiss(missCount, repsMin = 4, repsMax = 10) {
 export function labelForMode(mode) {
   if (!mode) return 'drill';
   if (mode.startsWith('cat:')) return mode.slice(4);
+  if (mode.startsWith('lesson:')) return `Lektion ${mode.slice(7)} — the lines themselves`;
   return { mistakes: 'past mistakes', weak: 'weak spots', grammar: 'grammar & forms', mixed: 'everything', vocab: 'vocabulary' }[mode] || mode;
 }

@@ -338,7 +338,47 @@ async function loadDetentionArchive(manifest) {
   (manifest.teacherNote?.weakAreas || []).forEach((c) => weak.add(c));
   let vocab = [];
   try { vocab = (await decryptFile('data/vocab.json.enc')).words || []; } catch { /* none */ }
-  return { pool, missed, weak, vocab };
+
+  // Lesson text, for the `lesson:NNNN` drill — only fetched when a lesson mode
+  // is actually assigned, since it is dead weight otherwise.
+  const lessons = {};
+  const wanted = (manifest.detention?.modes || []).filter((m) => m.startsWith('lesson:')).map((m) => m.slice(7));
+  for (const id of [...new Set(wanted)]) {
+    try { lessons[id] = await decryptFileText(`data/lessons/lesson-${id}.md.enc`); } catch { /* unavailable */ }
+  }
+  return { pool, missed, weak, vocab, lessons };
+}
+
+async function decryptFileText(path) {
+  return decryptString(getPassword(), JSON.parse((await gh.readText(path)).text));
+}
+
+// Pull the teachable lines out of a lesson. Lessons write their chunks in one
+// consistent shape (SCHEMA "Die Chunks"):
+//     - **„Ja, das ist für mich."** — Yes, that is for me. *(aside)*
+// which gives a real production drill: English meaning in, German line out.
+//
+// An English gloss is REQUIRED, deliberately. Without one there is no cue to
+// drill from, and a looser scrape returns vocabulary fragments ("das Sandwich.",
+// "more / another") that make nonsense items. A lesson that yields nothing is
+// reported as nothing — scripts/detention.js refuses to assign it — rather than
+// filling an hour of detention with garbage.
+export function lessonLines(markdown) {
+  const out = [];
+  const seen = new Set();
+  const push = (de, en) => {
+    de = (de || '').trim().replace(/^[„"“]|[""”]$/g, '').trim();
+    en = (en || '').replace(/\*\(.*?\)\*/g, '').replace(/[*_`]/g, '').trim().replace(/[.\s]+$/, '');
+    if (!de || !en || seen.has(de)) return;
+    if (de.split(/\s+/).length < 2) return;          // a single word is vocab, not a line
+    seen.add(de);
+    out.push({ de, en });
+  };
+  // Bulleted chunk, bold or plain, German in quotes, then — the English meaning.
+  const CHUNK = /^\s*[-*]\s*(?:\*\*)?\s*[„"“]([^"“”]+)[""”]\s*(?:\*\*)?\s*[—–]\s*(.+)$/gm;
+  let m;
+  while ((m = CHUNK.exec(markdown))) push(m[1], m[2]);
+  return out;
 }
 
 // Any question type → "type the answer" (produce it).
@@ -351,10 +391,26 @@ function hardenToTyping(q) {
 // All available items for one mode, hardened — the full pool, not a slice.
 // The queue recycles this (reshuffled) once exhausted, since repetition is the
 // entire point; a mode with nothing at all returns [].
-function detentionSourceFor({ pool, missed, weak, vocab }, mode) {
+function detentionSourceFor({ pool, missed, weak, vocab, lessons }, mode) {
   if (mode === 'vocab') {
     return vocab.filter((w) => w.de && w.en)
       .map((w) => ({ id: `v:${w.de}`, prompt: `„${w.de}“ — in English`, category: 'Vokabular', answers: vocabAnswers(w.en), acceptFuzzy: true, type: 'translate', note: w.note || '' }));
+  }
+  // `lesson:NNNN` — reproduce the lesson's own lines from their English meaning.
+  // For when a lesson plainly did not stick, or was not read with any care: the
+  // text he skimmed is the text he now writes out.
+  if (mode && mode.startsWith('lesson:')) {
+    const id = mode.slice(7);
+    const lines = lessonLines(lessons?.[id] || '');
+    return lines.map((l, i) => ({
+      id: `l${id}:${i}`,
+      prompt: l.en ? `Lektion ${id} — say it in German: “${l.en}”` : `Lektion ${id} — write the line exactly as it was taught.`,
+      category: 'Redemittel',
+      answers: [l.de],
+      acceptFuzzy: true,
+      type: 'translate',
+      note: `Aus der Lektion ${id}. Genau so stand es dort — ganze Wendung, nicht Wort für Wort gebaut.`,
+    }));
   }
   let base;
   if (mode === 'mistakes') base = pool.filter((e) => missed.has(e.key));
