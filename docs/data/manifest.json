@@ -630,13 +630,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-06T22:01:24.316Z",
-      "mode": "vocab",
-      "items": 10,
-      "firstTry": 9,
-      "durationSec": 104
-    },
-    {
       "date": "2026-07-07T11:42:52.600Z",
       "mode": "weak",
       "items": 8,
@@ -978,6 +971,13 @@
       "items": 2,
       "firstTry": 2,
       "durationSec": 49
+    },
+    {
+      "date": "2026-07-28T20:48:56.239Z",
+      "mode": "grammar",
+      "items": 12,
+      "firstTry": 12,
+      "durationSec": 150
     }
   ],
   "corrections": [
