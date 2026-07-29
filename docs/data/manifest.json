@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0008",
-  "currentHomeworkId": "0008",
+  "currentLessonId": "0009",
+  "currentHomeworkId": "0009",
   "counters": {
     "lessonsCompleted": 7,
     "totalQuestions": 79,
@@ -598,6 +598,13 @@
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Paket",
       "createdAt": "2026-07-27T09:46:35.431Z"
+    },
+    {
+      "id": "0009",
+      "title": "Wiederholung — was der Test entlarvt hat (consolidation)",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Wiederholung",
+      "createdAt": "2026-07-29T08:41:19.132Z"
     }
   ],
   "tests": [
@@ -605,14 +612,17 @@
       "id": "0001",
       "title": "Quiz S1 — Akkusativ, du-Endung & Survival-Chunks",
       "deadline": "2026-07-29T20:00:00.000Z",
-      "status": "submitted",
+      "status": "graded",
       "createdAt": "2026-07-27T12:31:29.819Z",
       "questionCount": 8,
       "kind": "quiz",
       "semester": "S1",
       "submittedAt": "2026-07-27T13:09:54.134Z",
       "answered": 8,
-      "timedOut": 0
+      "timedOut": 0,
+      "score": "1/8",
+      "gradedAt": "2026-07-29T08:36:43.538Z",
+      "comment": "Der Test hat entlarvt, was die Hausaufgabe verdeckt: das Konzept steht, die Automatik nicht — daran arbeiten wir jetzt."
     }
   ],
   "canary": {
@@ -622,10 +632,11 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-27T09:47:46.210Z",
-    "text": "0007: your cleanest set yet — the Akkusativ concept holds, not just the table, and the buried trap held. Betragen +1. Monday is new ground: the delivery domain, with the ear trained on purpose — Hörverstehen is the one weak spot, so two listening items. The timed test you asked for still waits behind your Bericht for 0007. File it.",
+    "date": "2026-07-29T08:41:42.825Z",
+    "text": "Your first timed test stripped the props: the Akkusativ concept held under the clock, the reflexes did not — the ear (Hörverstehen), the verb endings (stem + ending), noch-placement. No new ground this week; we repair exactly those. Betragen holds at 70: no slackness, but the automatic is not there yet. Run the new Artikel drill — three clean rounds.",
     "weakAreas": [
-      "Hörverstehen"
+      "Hörverstehen",
+      "Konjugation"
     ]
   },
   "practiceLog": [
