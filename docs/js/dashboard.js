@@ -882,6 +882,44 @@ function renderDeeds(manifest) {
   }
 }
 
+// ---------- practice assignments ----------
+// An ordinary assigned practice goal (e.g. "the Artikel drill until 3 clean
+// rounds") — distinct from Deeds (self-reported) and Detention (a lockdown
+// consequence). Auto-verified from real drill results as practice.js logs them
+// (see logPractice), so nobody has to take his word for it, and nothing here
+// locks the site. Read-only display; there is nothing to click — it completes
+// itself the moment the criterion is met.
+
+const PRACTICE_MODE_LABEL = {
+  mistakes: 'Previous mistakes', weak: 'Weak areas', grammar: 'Tenses & forms',
+  harder: 'Harder drills', mixed: 'Mixed review', vocab: 'Vocabulary gauntlet', artikel: 'Artikel drill',
+};
+
+function renderPracticeAssignments(manifest) {
+  const panel = $('practice-assign-panel');
+  const all = manifest.practiceAssignments || [];
+  const open = all.filter((a) => a.status === 'open');
+  if (!open.length) { panel.hidden = true; return; }
+  panel.hidden = false;
+  const list = $('practice-assign-list');
+  list.innerHTML = '';
+  for (const a of open) {
+    const rounds = a.rounds || [];
+    const cleanCount = rounds.filter((r) => r.firstTry === r.total).length;
+    const row = document.createElement('div');
+    row.className = 'deed-row';
+    const dueBit = a.dueAt ? ` · due ${fmtDate(a.dueAt)}` : '';
+    const lastRound = rounds[rounds.length - 1];
+    const lastBit = lastRound ? ` · last round: ${lastRound.firstTry}/${lastRound.total}` : ' · not started yet';
+    row.innerHTML = `
+      <p class="deed-text">${PRACTICE_MODE_LABEL[a.mode] || a.mode} — until ${a.requireCleanRounds} clean round(s)</p>
+      <p class="muted deed-meta">${cleanCount} of ${a.requireCleanRounds} clean${lastBit}</p>
+      <p class="muted deed-meta">assigned ${fmtDate(a.assignedAt)}${dueBit}${a.reason ? ` — ${a.reason}` : ''}</p>
+      <div class="practice-assign-bar"><div class="practice-assign-fill" style="width:${Math.min(100, (cleanCount / a.requireCleanRounds) * 100)}%"></div></div>`;
+    list.appendChild(row);
+  }
+}
+
 // ---------- semester panel ----------
 // Quizzes (40%) + one long final (60%), her weights. Standing shown as it
 // accumulates; a failed final shows the retake countdown; a second failure
@@ -974,6 +1012,7 @@ function render(manifest) {
 
   renderConduct(manifest);
   renderDeeds(manifest);
+  renderPracticeAssignments(manifest);
   renderKorrektur(manifest);
   renderSemester(manifest);
 

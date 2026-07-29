@@ -146,7 +146,10 @@ if (lessonMeta.subsection && lessonMeta.subsection.startsWith('<')) delete lesso
 
 // Validate homework JSON before it gets sealed
 const hw = JSON.parse(hwText);
-const KNOWN_TYPES = new Set(['fill_blank', 'multiple_choice', 'reorder', 'translate', 'listen_type']);
+// FR-010: dialogue/audio_response were renderable (quiz.js/test.js) but this
+// allowlist predated them, so homework authoring rejected the exact
+// conversational items schema/question-types.md §2.0 tells you to use.
+const KNOWN_TYPES = new Set(['fill_blank', 'multiple_choice', 'reorder', 'translate', 'listen_type', 'dialogue', 'audio_response']);
 if (!Array.isArray(hw.questions) || !hw.questions.length) {
   console.error('Homework has no questions.');
   process.exit(1);
@@ -154,6 +157,15 @@ if (!Array.isArray(hw.questions) || !hw.questions.length) {
 for (const q of hw.questions) {
   if (!KNOWN_TYPES.has(q.type)) { console.error(`Unknown question type "${q.type}" (${q.id})`); process.exit(1); }
   if (!q.id || !q.prompt || !q.category) { console.error(`Question missing id/prompt/category: ${JSON.stringify(q).slice(0, 80)}`); process.exit(1); }
+  if (q.type === 'dialogue') {
+    if (!Array.isArray(q.turns) || !q.turns.length) { console.error(`dialogue ${q.id}: needs a non-empty "turns" array.`); process.exit(1); }
+    if (q.turns.filter((t) => t.you).length !== 1) { console.error(`dialogue ${q.id}: needs exactly one turn marked {you:true} — the gap he fills.`); process.exit(1); }
+    if (!Array.isArray(q.answers) || !q.answers.length) { console.error(`dialogue ${q.id}: needs "answers" — every fair reply for his turn.`); process.exit(1); }
+  }
+  if (q.type === 'audio_response' && (!q.audioText || !Array.isArray(q.answers) || !q.answers.length)) {
+    console.error(`audio_response ${q.id}: needs "audioText" and a non-empty "answers" array.`);
+    process.exit(1);
+  }
 }
 if (hw.id !== nextId) {
   console.warn(`Note: homework JSON id "${hw.id}" ≠ next id "${nextId}" — rewriting to ${nextId}.`);

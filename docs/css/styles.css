@@ -937,6 +937,22 @@ body.lockdown main > [hidden] { display: none !important; }
 .deeds-panel .deed-row + .deed-row { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
 .deed-text { font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.2rem; }
 .deed-meta { margin: 0 0 0.5rem; font-size: 0.8rem; }
+
+.practice-assign-panel .deed-row + .deed-row { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+.practice-assign-bar { height: 6px; border-radius: 3px; background: var(--rule); overflow: hidden; }
+.practice-assign-fill { height: 100%; background: var(--ink); border-radius: 3px; transition: width 0.3s ease; }
+
+.mode-assigned-badge {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  background: var(--ink-soft, rgba(150, 25, 12, 0.12));
+  border-radius: var(--radius);
+}
 .deed-note { margin-bottom: 0.5rem; }
 .deed-actions { flex-wrap: wrap; }
 

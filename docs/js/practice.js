@@ -871,6 +871,20 @@ async function logPractice(mode, items, firstTry) {
       firstTry,
       durationSec: Math.round((Date.now() - (mode === 'vocab' ? vocabRun.startedAt : run.startedAt)) / 1000),
     });
+    // An assigned practice goal (scripts/practice-assignment.js) is auto-verified
+    // from this same round, not self-reported — record it and close the
+    // assignment itself the moment the required number of clean rounds is hit.
+    // No lockdown, no separate report; the drill result IS the evidence.
+    const open = (manifest.practiceAssignments || []).find((a) => a.status === 'open' && a.mode === mode);
+    if (open) {
+      open.rounds ||= [];
+      open.rounds.push({ at: new Date().toISOString(), firstTry, total: items });
+      const cleanCount = open.rounds.filter((r) => r.firstTry === r.total).length;
+      if (cleanCount >= open.requireCleanRounds) {
+        open.status = 'done';
+        open.completedAt = new Date().toISOString();
+      }
+    }
     await gh.writeText('data/manifest.json', JSON.stringify(manifest, null, 2), `practice: ${mode} ${firstTry}/${items}`);
   } catch (e) {
     console.warn('practice log not written:', e.message);
@@ -953,6 +967,19 @@ initLock(async (manifest) => {
         else startDrill(mode);
       });
     }
+  }
+  // A badge on the assigned mode's own card — right where the drill is chosen,
+  // not only on the dashboard. Auto-clears itself once the card re-renders
+  // after the assignment closes.
+  document.querySelectorAll('.mode-card .mode-assigned-badge').forEach((el) => el.remove());
+  for (const a of (manifest.practiceAssignments || []).filter((x) => x.status === 'open')) {
+    const card = document.querySelector(`.mode-card[data-mode="${a.mode}"]`);
+    if (!card) continue;
+    const clean = (a.rounds || []).filter((r) => r.firstTry === r.total).length;
+    const badge = document.createElement('span');
+    badge.className = 'mode-assigned-badge';
+    badge.textContent = `Assigned — ${clean}/${a.requireCleanRounds} clean`;
+    card.appendChild(badge);
   }
   $('vocab-direction').hidden = !archive.vocab.length;
   $('pool-status').textContent = archive.pool.length
