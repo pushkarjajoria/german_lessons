@@ -641,13 +641,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-07T11:42:52.600Z",
-      "mode": "weak",
-      "items": 8,
-      "firstTry": 7,
-      "durationSec": 169
-    },
-    {
       "date": "2026-07-08T09:46:34.195Z",
       "mode": "korrektur",
       "items": 2,
@@ -989,6 +982,13 @@
       "items": 12,
       "firstTry": 12,
       "durationSec": 150
+    },
+    {
+      "date": "2026-07-29T08:57:54.065Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 1,
+      "durationSec": 12
     }
   ],
   "corrections": [
@@ -1197,9 +1197,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-27T11:25:08.793Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-28T20:44:15.229Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-29T08:57:54.065Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-29T08:57:54.065Z"
     },
     {
       "key": "0008:q4",
