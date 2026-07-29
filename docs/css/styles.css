@@ -703,7 +703,7 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 .rank-glyph { font-size: 3.4rem; line-height: 1; }
 .rank-glyph.star-gold { color: #d4af37; text-shadow: 0 0 14px rgba(212, 175, 55, 0.5); }
 .rank-glyph.star-silver { color: #b9bcc4; text-shadow: 0 0 8px rgba(185, 188, 196, 0.35); }
-.rank-glyph.star-black { color: var(--text); }
+.rank-glyph.star-black { color: #0a0a0a; -webkit-text-stroke: 1px var(--text-dim); }
 .rank-glyph.star-cone { color: var(--ink); transform: rotate(180deg); }
 .rank-name { font-family: var(--serif); font-size: 1.15rem; text-align: center; }
 .conduct-gold .rank-name { color: #d4af37; }
