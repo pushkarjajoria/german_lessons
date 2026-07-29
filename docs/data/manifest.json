@@ -641,13 +641,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-08T09:46:34.195Z",
-      "mode": "korrektur",
-      "items": 2,
-      "firstTry": 1,
-      "durationSec": 48
-    },
-    {
       "date": "2026-07-08T09:49:04.873Z",
       "mode": "korrektur",
       "items": 1,
@@ -989,6 +982,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 12
+    },
+    {
+      "date": "2026-07-29T09:03:39.977Z",
+      "mode": "artikel",
+      "items": 12,
+      "firstTry": 7,
+      "durationSec": 1785315820
     }
   ],
   "corrections": [
