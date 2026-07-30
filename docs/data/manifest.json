@@ -715,13 +715,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-09T08:02:38.636Z",
-      "mode": "korrektur",
-      "items": 2,
-      "firstTry": 2,
-      "durationSec": 11
-    },
-    {
       "date": "2026-07-09T09:57:24.680Z",
       "mode": "korrektur",
       "items": 1,
@@ -1063,6 +1056,13 @@
       "items": 12,
       "firstTry": 7,
       "durationSec": 1785410545
+    },
+    {
+      "date": "2026-07-30T11:31:33.107Z",
+      "mode": "artikel",
+      "items": 12,
+      "firstTry": 7,
+      "durationSec": 1785411093
     }
   ],
   "corrections": [
@@ -1710,6 +1710,11 @@
         },
         {
           "at": "2026-07-30T11:22:24.856Z",
+          "firstTry": 7,
+          "total": 12
+        },
+        {
+          "at": "2026-07-30T11:31:33.107Z",
           "firstTry": 7,
           "total": 12
         }
