@@ -715,13 +715,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-08T10:06:03.861Z",
-      "mode": "vocab",
-      "items": 10,
-      "firstTry": 8,
-      "durationSec": 117
-    },
-    {
       "date": "2026-07-08T13:32:38.379Z",
       "mode": "korrektur",
       "items": 2,
@@ -1063,6 +1056,13 @@
       "items": 1,
       "firstTry": 1,
       "durationSec": 9
+    },
+    {
+      "date": "2026-07-30T11:10:29.961Z",
+      "mode": "artikel",
+      "items": 12,
+      "firstTry": 4,
+      "durationSec": 1785409830
     }
   ],
   "corrections": [
@@ -1702,7 +1702,13 @@
       "reason": "Cure for the Schlüssel-type gender guess: run the Artikel drill until 3 clean rounds, report which nouns caught you (lesson 0009 §5).",
       "assignedAt": "2026-07-29T11:28:44.810Z",
       "dueAt": null,
-      "rounds": [],
+      "rounds": [
+        {
+          "at": "2026-07-30T11:10:29.961Z",
+          "firstTry": 4,
+          "total": 12
+        }
+      ],
       "status": "open",
       "completedAt": null
     }
