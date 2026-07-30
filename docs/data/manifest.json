@@ -2,11 +2,11 @@
   "currentLessonId": "0009",
   "currentHomeworkId": "0009",
   "counters": {
-    "lessonsCompleted": 7,
-    "totalQuestions": 79,
-    "totalCorrect": 59,
+    "lessonsCompleted": 8,
+    "totalQuestions": 92,
+    "totalCorrect": 67,
     "streakDays": 1,
-    "lastPracticed": "2026-07-27T11:25:08.793Z"
+    "lastPracticed": "2026-07-30T10:59:53.784Z"
   },
   "history": [
     {
@@ -551,6 +551,80 @@
       "weakCategories": [
         "Wortstellung",
         "Hörverstehen"
+      ]
+    },
+    {
+      "reportId": "0009",
+      "homeworkId": "0009",
+      "title": "Wiederholung — der Test, repariert",
+      "date": "2026-07-30T10:59:53.784Z",
+      "startedAt": "2026-07-30T10:50:59.016Z",
+      "durationSec": 535,
+      "totalQuestions": 13,
+      "firstTryCorrect": 8,
+      "eventualCorrect": 13,
+      "totalAttempts": 19,
+      "reworkRatio": 1.46,
+      "avgFirstAnswerLatencySec": 19,
+      "hintsUsedCount": 1,
+      "audioReplaysTotal": 4,
+      "categoryAttempts": {
+        "Hörverstehen": {
+          "attempts": 7,
+          "count": 4
+        },
+        "Kasus": {
+          "attempts": 2,
+          "count": 2
+        },
+        "Konjugation": {
+          "attempts": 4,
+          "count": 3
+        },
+        "Wortstellung": {
+          "attempts": 3,
+          "count": 2
+        },
+        "Redemittel": {
+          "attempts": 2,
+          "count": 1
+        },
+        "Produktion": {
+          "attempts": 1,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Hörverstehen": {
+          "correct": 2,
+          "total": 4
+        },
+        "Kasus": {
+          "correct": 2,
+          "total": 2
+        },
+        "Konjugation": {
+          "correct": 2,
+          "total": 3
+        },
+        "Wortstellung": {
+          "correct": 1,
+          "total": 2
+        },
+        "Redemittel": {
+          "correct": 0,
+          "total": 1
+        },
+        "Produktion": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Hörverstehen",
+        "Konjugation",
+        "Wortstellung",
+        "Redemittel"
       ]
     }
   ],
@@ -1229,6 +1303,71 @@
       "lastPassedAt": "2026-07-28T12:37:43.566Z",
       "status": "cleared",
       "clearedAt": "2026-07-28T12:37:43.566Z"
+    },
+    {
+      "key": "0009:q4",
+      "hwId": "0009",
+      "qid": "q4",
+      "category": "Hörverstehen",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-30T10:59:53.784Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0009:q6",
+      "hwId": "0009",
+      "qid": "q6",
+      "category": "Redemittel",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-30T10:59:53.784Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0009:q8",
+      "hwId": "0009",
+      "qid": "q8",
+      "category": "Konjugation",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-30T10:59:53.784Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0009:q11",
+      "hwId": "0009",
+      "qid": "q11",
+      "category": "Hörverstehen",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-30T10:59:53.784Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
+    },
+    {
+      "key": "0009:q12",
+      "hwId": "0009",
+      "qid": "q12",
+      "category": "Wortstellung",
+      "reason": "first-try miss",
+      "missedCount": 1,
+      "addedAt": "2026-07-30T10:59:53.784Z",
+      "required": 3,
+      "doneCount": 0,
+      "lastPassedAt": null,
+      "status": "open"
     }
   ],
   "conduct": {
