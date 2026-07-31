@@ -1371,7 +1371,7 @@
     }
   ],
   "conduct": {
-    "score": 64,
+    "score": 63,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -1432,9 +1432,15 @@
         "delta": -6,
         "score": 64,
         "reason": "Quiz 0001 (Semester S1, graded 1/8 = 13% — a fail against the 70% bar) — the first WEIGHTED assessment (quizzes are 40% of the semester), and it cratered. The 07-29 run held the score reasoning 'conduct was clean,' but §6.5's quiz band (−6..12) is a PERFORMANCE cost the score owes regardless of honest effort, and it was missed. Applied now at the band FLOOR (−6): his first quiz, an honest serious attempt (0 blurs, 9 replays fighting the listening item, no gaming), on freshly-taught material, and the 0009 consolidation is already landing. Honest effort spares the discipline stick, not the scoreboard. Into the Kegel der Schande (64); the way back over 65 is one clean quiz."
+      },
+      {
+        "date": "2026-07-31T09:15:43.706Z",
+        "delta": -1,
+        "score": 63,
+        "reason": "Score-pressing, occurrence #1 after the 07-31 warning: asked to 'do detention to earn a few extra points' — bargaining to move the number (§6.5/6.7, closed subject). Detention is a teacher-assigned consequence for a crater, not a points purchase, and it is record-only. Warned last turn that further pressing costs; press-ladder engaged at -1 -> 63. The number rises only on the work — one clean quiz clears 65. (Genuine distress about the cone stays care, not a dock.)"
       }
     ],
-    "updatedAt": "2026-07-31T09:00:06.935Z"
+    "updatedAt": "2026-07-31T09:15:43.706Z"
   },
   "requests": [
     {
