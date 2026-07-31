@@ -26,15 +26,15 @@ export function detentionActive(manifest, now = new Date()) {
 // stays harsh but finite rather than open-ended.
 export function extensionMinutes(record, opts) {
   const wrong = record?.wrongCount || 0;
-  const perWrong = opts?.extensionPerWrongMinutes ?? 2;
-  const cap = opts?.maxExtensionMinutes ?? 45;
+  const perWrong = opts?.extensionPerWrongMinutes ?? 1;
+  const cap = opts?.maxExtensionMinutes ?? 15;
   return Math.min(cap, wrong * perWrong);
 }
 
 export function detentionStatus(manifest, now = new Date()) {
   const d = manifest.detention || null;
   const record = d?.record || { secondsSpent: 0, itemsSeen: 0, correctCount: 0, wrongCount: 0, startedAt: null, completedAt: null };
-  const baseMinutes = d?.targetMinutes ?? 90;
+  const baseMinutes = d?.targetMinutes ?? 45;
   const extraMinutes = extensionMinutes(record, d);
   const effectiveMinutes = baseMinutes + extraMinutes;
   const elapsedMinutes = (record.secondsSpent || 0) / 60;

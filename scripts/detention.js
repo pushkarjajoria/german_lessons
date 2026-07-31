@@ -1,15 +1,26 @@
 #!/usr/bin/env node
 // detention.js — assign the weekend detention (performance remediation), issued
-// ONLY in the Friday session. The point is TIME, not a checklist — a real 1–2
-// hour sit, tedious and repetitive, "if you will not learn, you will drill
+// ONLY in the Friday session. The point is TIME, not a checklist — a genuine
+// sit-down, tedious and repetitive, "if you will not learn, you will drill
 // until you have." It writes manifest.detention; the run's session-end.js
 // publishes it (over the API). The site locks the whole thing from Friday
 // 17:00 through Monday 00:00 and goes inert then, finished or not.
 //
-// The target is a FLOOR, not a fixed session: doing badly makes it worse two
-// ways at once — each wrong item costs more reproduction reps (repsMin..Max),
-// AND the overall target extends (extensionPerWrongMinutes per wrong item,
-// capped at maxExtensionMinutes so it's harsh but finite, never open-ended).
+// LENGTH IS YOURS TO SET. The floor is 40 minutes — below that it is a drill,
+// not a sit-down — and 45 is the default. Size it to the evidence: a first
+// crater on fresh material is not a repeat offence after two prior detentions.
+// Every penalty is a parameter (--minutes, --extension-per-wrong,
+// --max-extension, --reps-min, --reps-max); the defaults are a starting point,
+// not a policy.
+//
+// The target is a FLOOR: doing badly makes it worse two ways at once — each
+// wrong item costs more reproduction reps (repsMin..Max), AND the overall
+// target extends (extensionPerWrongMinutes per wrong item, capped at
+// maxExtensionMinutes so it is harsh but finite, never open-ended).
+//
+// The clock only runs while an exercise is on screen and being worked. Leaving
+// the page or going idle REVERTS the current item's time to the last banked
+// value — it cannot be parked in a background tab (docs/js/dashboard.js).
 //
 // Record-only by design: the site stores what was completed and the time
 // spent, and reads it back with --status on Monday — SHE rules the ±Betragen
@@ -17,8 +28,8 @@
 //
 // Usage:
 //   node scripts/detention.js --assign --reason "…" \
-//        --mode weak [--mode "cat:Kasus"] --minutes 90 \
-//        [--extension-per-wrong 2] [--max-extension 45] \
+//        --mode weak [--mode "cat:Kasus"] --minutes 45 \
+//        [--extension-per-wrong 1] [--max-extension 15] \
 //        [--reps-min 4] [--reps-max 10] [--force]
 //   node scripts/detention.js --status        # progress + time spent (for Monday's ruling)
 //   node scripts/detention.js --clear         # remove it (Monday cleanup / manual lift)
@@ -68,7 +79,7 @@ function detentionWindow(now) {
 
 function extensionMinutesFor(d) {
   const wrong = d.record?.wrongCount || 0;
-  return Math.min(d.maxExtensionMinutes ?? 45, wrong * (d.extensionPerWrongMinutes ?? 2));
+  return Math.min(d.maxExtensionMinutes ?? 15, wrong * (d.extensionPerWrongMinutes ?? 1));
 }
 
 if (args.includes('--status')) {
@@ -76,12 +87,12 @@ if (args.includes('--status')) {
   if (!d || !d.active) { console.log('No detention on file.'); process.exit(0); }
   const rec = d.record || { secondsSpent: 0, itemsSeen: 0, correctCount: 0, wrongCount: 0 };
   const extra = extensionMinutesFor(d);
-  const effective = (d.targetMinutes ?? 90) + extra;
+  const effective = (d.targetMinutes ?? 45) + extra;
   const elapsed = Math.round((rec.secondsSpent || 0) / 60);
   console.log(`DETENTION — locks ${d.startsAt ? d.startsAt.slice(0, 16).replace('T', ' ') + ' (Fri 5pm)' : d.assignedAt?.slice(0, 10)} → ${d.expiresAt?.slice(0, 10)} (Mon 00:00)`);
   console.log(`  reason: ${d.reason}`);
   console.log(`  modes: ${(d.modes || []).join(', ') || '(none)'}`);
-  console.log(`  target: ${d.targetMinutes ?? 90} min floor${extra ? ` + ${extra} min earned by ${rec.wrongCount} wrong item(s) = ${effective} min effective` : ''}`);
+  console.log(`  target: ${d.targetMinutes ?? 45} min floor${extra ? ` + ${extra} min earned by ${rec.wrongCount} wrong item(s) = ${effective} min effective` : ''}`);
   console.log(`  progress: ${elapsed}/${effective} min · ${rec.itemsSeen || 0} items (${rec.correctCount || 0} right, ${rec.wrongCount || 0} wrong)${rec.completedAt ? ' — COMPLETED ' + rec.completedAt.slice(0, 16) : ''}`);
   console.log(`  → YOUR ruling on Monday: complete = a few points back, skipped = a few off (conduct.js). The site never moved the score.`);
   process.exit(0);
@@ -102,7 +113,7 @@ if (args.includes('--clear')) {
   const reason = opt('--reason');
   const modes = multi('--mode');
   if (!reason || !modes.length) {
-    console.error('Usage: --assign --reason "…" --mode weak [--mode "cat:Kasus"] [--mode "lesson:0008"] --minutes 90 [--extension-per-wrong 2] [--max-extension 45] [--reps-min 4] [--reps-max 10]');
+    console.error('Usage: --assign --reason "…" --mode weak [--mode "cat:Kasus"] [--mode "lesson:0008"] --minutes 45 [--extension-per-wrong 1] [--max-extension 15] [--reps-min 4] [--reps-max 10]');
     process.exit(1);
   }
   // A lesson: mode is only usable if that lesson actually has chunk lines with
@@ -129,12 +140,12 @@ if (args.includes('--clear')) {
     }
     console.log(`  ${mode}: ${lines.length} line(s) available.`);
   }
-  const targetMinutes = opt('--minutes') ? Number(opt('--minutes')) : 90;
-  const extensionPerWrongMinutes = opt('--extension-per-wrong') ? Number(opt('--extension-per-wrong')) : 2;
-  const maxExtensionMinutes = opt('--max-extension') ? Number(opt('--max-extension')) : 45;
+  const targetMinutes = opt('--minutes') ? Number(opt('--minutes')) : 45;
+  const extensionPerWrongMinutes = opt('--extension-per-wrong') ? Number(opt('--extension-per-wrong')) : 1;
+  const maxExtensionMinutes = opt('--max-extension') ? Number(opt('--max-extension')) : 15;
   const repsMin = opt('--reps-min') ? Number(opt('--reps-min')) : 4;
   const repsMax = opt('--reps-max') ? Number(opt('--reps-max')) : 10;
-  if (!(targetMinutes >= 15 && targetMinutes <= 240)) { console.error('--minutes should be a real sit, 15–240.'); process.exit(1); }
+  if (!(targetMinutes >= 40 && targetMinutes <= 240)) { console.error('--minutes must be at least 40 — below that it is not a sit-down (and at most 240).'); process.exit(1); }
   if (!(extensionPerWrongMinutes >= 0 && maxExtensionMinutes >= 0)) { console.error('--extension-per-wrong/--max-extension must be ≥ 0.'); process.exit(1); }
   if (!(repsMin >= 1 && repsMax >= repsMin && repsMax <= 20)) { console.error('--reps-min/--reps-max must satisfy 1 ≤ min ≤ max ≤ 20.'); process.exit(1); }
   const { startsAt, expiresAt } = detentionWindow(now);

@@ -260,18 +260,83 @@ function fmtMin(totalSeconds) { return `${Math.floor(totalSeconds / 60)}:${Strin
 // miss (an extension) without waiting on a network round-trip.
 let liveCounts = { wrongCount: 0, correctCount: 0, itemsSeen: 0 };
 
+// THE CLOCK — it is a sit-down, not a stopwatch left running in a tab.
+//
+//   * Time accrues ONLY while an exercise is on screen and being worked. The
+//     home screen between drills does not count.
+//   * Time on the CURRENT item is provisional (`active`). It banks into
+//     `committed` only when that item is finished.
+//   * Leaving the page (tab switch, another window) or going idle REVERTS the
+//     provisional time — the clock drops back to the last banked value. You
+//     cannot park it in a background tab and walk away.
+//
+// Only `committed` is ever written to the cookie or the record, so a revert
+// cannot be undone by reloading.
+const IDLE_MS = 90000;   // 90s with no key, click or movement = not working
+const clock = { committed: 0, active: 0, running: false, lastActivity: Date.now(), notice: '', noticeUntil: 0 };
+
+function bankClock() {
+  if (!clock.active) return;
+  clock.committed += clock.active;
+  clock.active = 0;
+  writeCookieSeconds(clock.committed);
+}
+function revertClock(why) {
+  const lost = clock.active;
+  clock.active = 0;
+  clock.running = false;
+  if (lost > 3) {                       // ignore trivial blips
+    clock.notice = `${Math.floor(lost / 60)}:${String(lost % 60).padStart(2, '0')} lost — ${why}.`;
+    clock.noticeUntil = Date.now() + 8000;
+  }
+}
+const markActivity = () => {
+  clock.lastActivity = Date.now();
+  if (!clock.running && !document.hidden && $('detention-drill') && !$('detention-drill').hidden) clock.running = true;
+};
+
+let clockGuardsAttached = false;
+function attachClockGuards() {
+  if (clockGuardsAttached) return;
+  clockGuardsAttached = true;
+  document.addEventListener('visibilitychange', () => { if (document.hidden) revertClock('you left the page'); else markActivity(); });
+  window.addEventListener('blur', () => revertClock('you left the page'));
+  window.addEventListener('focus', markActivity);
+  for (const ev of ['keydown', 'mousedown', 'mousemove', 'touchstart']) {
+    document.addEventListener(ev, markActivity, { passive: true });
+  }
+}
+
+function effectiveTargetSec(d) {
+  const perWrong = d.extensionPerWrongMinutes ?? 1;
+  const cap = d.maxExtensionMinutes ?? 15;
+  const base = d.targetMinutes ?? 45;
+  return (base + Math.min(cap, liveCounts.wrongCount * perWrong)) * 60;
+}
+
 function startDetentionTimer(d) {
   stopDetentionTimer();
+  attachClockGuards();
   const el = $('detention-timer');
-  const perWrong = d.extensionPerWrongMinutes ?? 2, cap = d.maxExtensionMinutes ?? 45, base = d.targetMinutes ?? 90;
-  let s = readCookieSeconds();
+  clock.committed = readCookieSeconds();
+  clock.active = 0;
   const paint = () => {
-    const extra = Math.min(cap, liveCounts.wrongCount * perWrong);
-    const targetSec = (base + extra) * 60;
-    el.textContent = `Time served — ${fmtMin(s)} of ${fmtMin(targetSec)}${extra ? ` (+${extra} min earned)` : ''}`;
+    const extra = Math.min(d.maxExtensionMinutes ?? 15, liveCounts.wrongCount * (d.extensionPerWrongMinutes ?? 1));
+    const served = clock.committed + clock.active;
+    const notice = Date.now() < clock.noticeUntil ? ` · ${clock.notice}` : '';
+    el.textContent = `Time served — ${fmtMin(served)} of ${fmtMin(effectiveTargetSec(d))}`
+      + (extra ? ` (+${extra} min earned)` : '')
+      + (clock.running ? '' : ' · paused')
+      + notice;
   };
   paint();
-  detentionTimer = setInterval(() => { s += 1; if (s % 5 === 0) writeCookieSeconds(s); paint(); }, 1000);
+  detentionTimer = setInterval(() => {
+    if (clock.running) {
+      if (Date.now() - clock.lastActivity > IDLE_MS) revertClock('you went idle');
+      else clock.active += 1;
+    }
+    paint();
+  }, 1000);
 }
 
 async function renderDetention(manifest) {
@@ -487,14 +552,15 @@ async function runDetentionQueue(manifest) {
     meta.textContent = current.category || '';
     prompt.textContent = current.prompt;
     input.value = ''; input.disabled = false; input.focus();
+    // The exercise is on screen: the clock runs, and this item's time is
+    // provisional until the item is finished.
+    clock.running = true;
+    clock.lastActivity = Date.now();
   };
 
-  const checkDone = () => {
-    const extra = Math.min(d.maxExtensionMinutes ?? 45, liveCounts.wrongCount * (d.extensionPerWrongMinutes ?? 2));
-    const effectiveSec = ((d.targetMinutes ?? 90) + extra) * 60;
-    return readCookieSeconds() >= effectiveSec;
-  };
+  const checkDone = () => readCookieSeconds() >= effectiveTargetSec(d);
   const advance = async () => {
+    bankClock();          // this item is finished — its time is now banked
     await persist();
     if (checkDone()) {
       const rec = await persist();
