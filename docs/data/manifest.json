@@ -715,13 +715,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-10T07:49:31.774Z",
-      "mode": "korrektur",
-      "items": 2,
-      "firstTry": 2,
-      "durationSec": 20
-    },
-    {
       "date": "2026-07-10T07:51:04.295Z",
       "mode": "vocab",
       "items": 10,
@@ -1063,6 +1056,13 @@
       "items": 12,
       "firstTry": 12,
       "durationSec": 1785493439
+    },
+    {
+      "date": "2026-07-31T14:46:25.109Z",
+      "mode": "korrektur",
+      "items": 5,
+      "firstTry": 5,
+      "durationSec": 52
     }
   ],
   "corrections": [
@@ -1313,9 +1313,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-31T10:14:22.370Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-31T14:46:25.109Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-31T14:46:25.109Z"
     },
     {
       "key": "0009:q6",
@@ -1326,8 +1327,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-31T10:14:54.606Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-31T14:46:25.109Z",
       "status": "open"
     },
     {
@@ -1339,8 +1340,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-31T10:14:54.606Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-31T14:46:25.109Z",
       "status": "open"
     },
     {
@@ -1352,9 +1353,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-31T10:14:22.370Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-07-31T14:46:25.109Z",
+      "status": "cleared",
+      "clearedAt": "2026-07-31T14:46:25.109Z"
     },
     {
       "key": "0009:q12",
@@ -1365,8 +1367,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 1,
-      "lastPassedAt": "2026-07-31T10:14:54.606Z",
+      "doneCount": 2,
+      "lastPassedAt": "2026-07-31T14:46:25.109Z",
       "status": "open"
     }
   ],
