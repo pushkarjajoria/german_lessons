@@ -1371,7 +1371,7 @@
     }
   ],
   "conduct": {
-    "score": 63,
+    "score": 69,
     "log": [
       {
         "date": "2026-07-10T10:47:58.358Z",
@@ -1438,9 +1438,15 @@
         "delta": -1,
         "score": 63,
         "reason": "Score-pressing, occurrence #1 after the 07-31 warning: asked to 'do detention to earn a few extra points' — bargaining to move the number (§6.5/6.7, closed subject). Detention is a teacher-assigned consequence for a crater, not a points purchase, and it is record-only. Warned last turn that further pressing costs; press-ladder engaged at -1 -> 63. The number rises only on the work — one clean quiz clears 65. (Genuine distress about the cone stays care, not a dock.)"
+      },
+      {
+        "date": "2026-07-31T14:41:37.857Z",
+        "delta": 6,
+        "score": 69,
+        "reason": "Reversing the −6 of 2026-07-31 (quiz 0001, 13%). Its stated grounds — §6.5's result-based quiz band — were dissolved by the revised §6.5 (2026-07-31): a bad result, honestly attempted, no longer docks the score; it buys detention. The revised rule names this ruling as one that 'would not have landed: a first crater, on freshly-taught material, honestly attempted, with no detention assigned or skipped.' Restored on the same principle as the 2026-07-23 self-correction, applied symmetrically — an instrument that reaches back to claw over-credit must also restore an over-dock when the rule removes its basis. The −1 score-pressing dock (07-31) stands; that rule is untouched. 63 → 69, out of the cone."
       }
     ],
-    "updatedAt": "2026-07-31T09:15:43.706Z"
+    "updatedAt": "2026-07-31T14:41:37.857Z"
   },
   "requests": [
     {
@@ -1650,6 +1656,11 @@
       "id": "c1784818650306",
       "date": "2026-07-23T14:57:30.306Z",
       "text": "Review of my six Betragen rulings (10–23 Jul) against §6.5: I over-credited. Two bonuses broke even the old +2 ceiling; two on 20 Jul paid for catching up on overdue work, which is +0. The drift was mine, not your conduct — your drilling, your deed, and the −2 of 15 Jul stand. Corrected 76 → 68."
+    },
+    {
+      "id": "c1785508912819",
+      "date": "2026-07-31T14:41:52.819Z",
+      "text": "Correction (07-31): the −6 for quiz 0001 is reversed (+6 → 69). It was faithful to §6.5 as it stood, but §6.5 was revised today — an honestly-attempted bad result buys detention, not a dock. Grounds gone, so the dock is undone and a detention replaces it. The −1 for pressing stands."
     }
   ],
   "deeds": [
@@ -1739,5 +1750,23 @@
       "status": "open",
       "completedAt": null
     }
-  ]
+  ],
+  "detention": {
+    "active": true,
+    "assignedAt": "2026-07-31T14:41:37.879Z",
+    "startsAt": "2026-07-31T15:00:00.000Z",
+    "expiresAt": "2026-08-02T22:00:00.000Z",
+    "reason": "Quiz 0001 cratered (13%) on the ear and the verb engine under the clock. Under revised §6.5 a crater buys remediation, not a dock: a real weekend sit on exactly those fronts. Sized at the FLOOR (first crater, freshly-taught, honestly attempted, and he is already drilling voluntarily) — not escalated. Record-only: served properly on Monday's --status → the crater costs nothing; skipped/half-served → the negligence dock lands.",
+    "modes": [
+      "cat:Hörverstehen",
+      "cat:Konjugation",
+      "weak"
+    ],
+    "targetMinutes": 45,
+    "extensionPerWrongMinutes": 1,
+    "maxExtensionMinutes": 15,
+    "repsMin": 4,
+    "repsMax": 10,
+    "record": null
+  }
 }
