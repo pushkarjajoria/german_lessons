@@ -554,7 +554,7 @@ img.portrait-photo { height: auto; width: auto; max-height: 190px; }
 }
 .correction-notice .note-label { color: var(--text-dim); }
 
-/* ---------- lockdown (Betragen below 60) ---------- */
+/* ---------- lockdown (Betragen below 50) ---------- */
 /* MOBILE (default): the image is a big cover hero (50vh, edge to edge, no
    letterbox), controls below it. DESKTOP (>=900px): the panel is locked to the
    viewport height and never scrolls — the image is shown WHOLE (object-fit:
@@ -857,7 +857,7 @@ body[data-tier="cone"] h1, body[data-tier="cone"] h2 { color: var(--text); }
   body[data-tier="cone"]::after, .rank-glyph { animation: none !important; }
 }
 
-/* Lockdown (below 60): the backdrop stops being words and becomes a lock,
+/* Lockdown (below 50): the backdrop stops being words and becomes a lock,
    tiled at the same size as the SCHANDE watermark. Comes after the cone rule
    (equal specificity) so it wins. */
 body.lockdown {

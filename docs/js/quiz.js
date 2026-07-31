@@ -664,12 +664,12 @@ function offerDownloads(report, reportEnc, manifestText) {
 
 initLockButton();
 initLock(async (manifest) => {
-  // Conduct lock: Betragen below 60 closes the course entirely.
+  // Conduct lock: Betragen below 50 closes the course entirely.
   if (conductLocked(manifest)) {
     $('hw-panel').hidden = false;
     $('hw-title').textContent = 'Gesperrt.';
     $('question-area').innerHTML =
-      `<p class="lock-error">Betragen ${conductScore(manifest)}/100 — below 60 the course is closed. ` +
+      `<p class="lock-error">Betragen ${conductScore(manifest)}/100 — below 50 the course is closed. ` +
       'The apologies are written on the dashboard, one per day, three days in a row. Then I decide.</p>';
     return;
   }

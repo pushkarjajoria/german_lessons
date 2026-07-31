@@ -572,7 +572,7 @@ function renderKorrektur(manifest) {
 
 // ---------- Betragen: the star ladder ----------
 // Only her hand moves the score (scripts/conduct.js). The site renders the
-// ladder, and below 60 it closes the course until the apologies are written
+// ladder, and below 50 it closes the course until the apologies are written
 // and she has ruled on them.
 
 function fmtLecture(d) {
@@ -590,7 +590,7 @@ function renderConduct(manifest) {
   glyph.textContent = info.glyph;
   glyph.className = `rank-glyph ${info.cls}`;
   $('rank-name').textContent = info.label;
-  const nextUp = { cone: 'Schwarzer Stern begins at 65.', black: 'Silberner Stern begins at 80.', silver: 'Goldener Stern begins at 95.', gold: 'There is nothing above. Hold it.' };
+  const nextUp = { cone: 'Schwarzer Stern begins at 65.', black: 'Silberner Stern begins at 80.', silver: 'Goldener Stern begins at 90.', gold: 'There is nothing above. Hold it.' };
   $('rank-next').textContent = nextUp[tier];
   $('conduct-score').textContent = score;
   // Cone tier's face is the Schande banner at the top of the page (shame.js) —
@@ -600,11 +600,11 @@ function renderConduct(manifest) {
   $('conduct-last').textContent = last
     ? `Last ruling: ${last.delta > 0 ? '+' : ''}${last.delta} — ${last.reason} (${fmtDate(last.date)})`
     : 'No rulings yet. The score starts at 65 — everything above it is earned, nothing is given.';
-  // The lock screen (below 60) is handled by renderLockdown() before the normal
+  // The lock screen (below 50) is handled by renderLockdown() before the normal
   // dashboard renders — renderConduct only ever runs when NOT locked.
 }
 
-// ---------- lockdown (Betragen below 60) ----------
+// ---------- lockdown (Betragen below 50) ----------
 // The site closes to a single screen: a full-size image and nothing else — the
 // nav is dead, the backdrop is a lock, and the only thing that works is the
 // sequence back. That sequence is: two days straight of writing her assigned
@@ -995,7 +995,7 @@ function render(manifest) {
   LANG = voiceLang(manifest);
   const S = STRINGS[LANG];
 
-  // Betragen below 60: the dashboard collapses to the lockdown screen alone —
+  // Betragen below 50: the dashboard collapses to the lockdown screen alone —
   // the full-size image and the gated, typed apology, nothing else.
   if (conductLocked(manifest)) { renderLockdown(manifest); return; }
   $('conduct-lock-panel').hidden = true;

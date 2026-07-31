@@ -2,11 +2,11 @@
 // moves (scripts/conduct.js), rendered as the star ladder at the top of the
 // dashboard. It starts at 65 and is earned upward slowly:
 //
-//   95–100     Goldener Stern
-//   80–94      Silberner Stern
+//   90–100     Goldener Stern
+//   80–89      Silberner Stern
 //   65–79      Schwarzer Stern
-//   below 65   Kegel der Schande — with comments on behaviour and performance
-//   below 60   the site LOCKS: two days straight of writing her assigned lines,
+//   50–64      Kegel der Schande — with comments on behaviour and performance
+//   below 50   the site LOCKS: two days straight of writing her assigned lines,
 //              then on the third day the apology opens; a filed apology buys
 //              eligibility for review on the next lecture day; she accepts
 //              (score back to 65) or rejects with extra tasks.
@@ -15,7 +15,7 @@
 // she reads them (scripts/conduct.js --show).
 
 export const START_SCORE = 65;
-export const LOCK_BELOW = 60;
+export const LOCK_BELOW = 50;
 export const APOLOGIES_NEEDED = 3;
 
 export function conductScore(manifest) {
@@ -23,17 +23,17 @@ export function conductScore(manifest) {
 }
 
 export function conductTier(score) {
-  if (score >= 95) return 'gold';
+  if (score >= 90) return 'gold';
   if (score >= 80) return 'silver';
   if (score >= 65) return 'black';
   return 'cone';
 }
 
 export const TIERS = [
-  { key: 'gold', label: 'Goldener Stern', rule: '95–100', glyph: '★', cls: 'star-gold' },
-  { key: 'silver', label: 'Silberner Stern', rule: '80–94', glyph: '★', cls: 'star-silver' },
+  { key: 'gold', label: 'Goldener Stern', rule: '90–100', glyph: '★', cls: 'star-gold' },
+  { key: 'silver', label: 'Silberner Stern', rule: '80–89', glyph: '★', cls: 'star-silver' },
   { key: 'black', label: 'Schwarzer Stern', rule: '65–79', glyph: '★', cls: 'star-black' },
-  { key: 'cone', label: 'Kegel der Schande', rule: 'below 65', glyph: '▲', cls: 'star-cone' },
+  { key: 'cone', label: 'Kegel der Schande', rule: '50–64', glyph: '▲', cls: 'star-cone' },
 ];
 
 export function conductLocked(manifest) {

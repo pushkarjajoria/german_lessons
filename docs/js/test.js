@@ -116,7 +116,7 @@ function endScreen(title, text, statusMsg = '', ok = true) {
 
 initLock(async (manifest) => {
   state.manifest = manifest;
-  // Conduct lock: Betragen below 60 closes everything, tests included.
+  // Conduct lock: Betragen below 50 closes everything, tests included.
   if (conductLocked(manifest)) {
     endScreen('Gesperrt.',
       `Betragen ${conductScore(manifest)}/100. No tests while the course is closed. The apologies come first — dashboard, one per day, three days.`,

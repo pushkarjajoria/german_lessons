@@ -20,7 +20,7 @@ async function encImageUrl(path, key, password) {
 // The Schande banner image (curtsy) hung at the top of every page in the cone.
 export function schandePhotoUrl(password) { return encImageUrl('data/img/schande.enc', 'schande', password); }
 
-// The Betragen-lockdown image (below 60), full-size on the lockdown screen.
+// The Betragen-lockdown image (below 50), full-size on the lockdown screen.
 export function lockdownPhotoUrl(password) { return encImageUrl('data/img/lockdown.enc', 'lockdown', password); }
 
 // The discipline (Nachweis / no-practice) lockdown image — its own asset.

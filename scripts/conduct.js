@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // conduct.js — Frau Richter's hand on the Betragen score (0–100, starts 65).
-// The site renders it as the star ladder and closes below 60; only this
+// The site renders it as the star ladder and closes below 50; only this
 // script moves the number.
 //
-//   95-100  Goldener Stern      80+  Silberner Stern
-//   65+     Schwarzer Stern     <65  Kegel der Schande
-//   <60     site locked — two days straight of writing HER lines (her text, her
+//   90-100  Goldener Stern      80-89  Silberner Stern
+//   65-79   Schwarzer Stern     50-64  Kegel der Schande
+//   <50     site locked — two days straight of writing HER lines (her text, her
 //           count), then on the third day the apology opens; a filed apology
 //           buys a review on the next lecture day; accept → 65, reject → restart.
 //
@@ -46,11 +46,11 @@ const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 manifest.conduct ||= { score: 65, log: [] };
 const c = manifest.conduct;
 
-const tierOf = (s) => (s >= 95 ? 'Goldener Stern' : s >= 80 ? 'Silberner Stern' : s >= 65 ? 'Schwarzer Stern' : 'Kegel der Schande');
+const tierOf = (s) => (s >= 90 ? 'Goldener Stern' : s >= 80 ? 'Silberner Stern' : s >= 65 ? 'Schwarzer Stern' : 'Kegel der Schande');
 const DEFAULT_LINES = { text: 'Ich vernachlässige meine Pflichten nicht wieder.', translation: 'I will not neglect my duties again.', times: 20 };
 
 if (args.includes('--show')) {
-  console.log(`Betragen: ${c.score}/100 — ${tierOf(c.score)}${c.score < 60 ? ' — SITE LOCKED' : ''}`);
+  console.log(`Betragen: ${c.score}/100 — ${tierOf(c.score)}${c.score < 50 ? ' — SITE LOCKED' : ''}`);
   for (const l of (c.log || []).slice(-10)) {
     console.log(`  ${l.date.slice(0, 10)}  ${l.delta > 0 ? '+' : ''}${l.delta} → ${l.score}  ${l.reason}`);
   }
@@ -96,16 +96,16 @@ if (adj !== null) {
   const reason = opt('--reason');
   if (!Number.isFinite(delta) || !delta) { console.error('--adjust needs a non-zero number, e.g. +2 or -5.'); process.exit(1); }
   if (!reason) { console.error('Every ruling carries a reason — --reason "…" (plaintext, category-level).'); process.exit(1); }
-  if (c.score < 60 && delta > 0) {
-    console.error('The score is locked below 60. Upward movement goes through the apology review, nothing else.');
+  if (c.score < 50 && delta > 0) {
+    console.error('The score is locked below 50. Upward movement goes through the apology review, nothing else.');
     process.exit(1);
   }
   c.score = Math.max(0, Math.min(100, c.score + delta));
   c.updatedAt = new Date().toISOString();
   c.log = [...(c.log || []).slice(-19), { date: c.updatedAt, delta, score: c.score, reason }];
-  if (c.score < 60 && !c.lock) {
+  if (c.score < 50 && !c.lock) {
     c.lock = { active: true, since: c.updatedAt, lines: DEFAULT_LINES, lineDays: [], apologies: [] };
-    console.log('The score fell below 60 — the site locks. Two days of lines, then the apology.');
+    console.log('The score fell below 50 — the site locks. Two days of lines, then the apology.');
     console.log(`Lines default to „${DEFAULT_LINES.text}“ ×${DEFAULT_LINES.times} — set yours: conduct.js --set-lines "…" --times N`);
   }
   commitMsg = `conduct: ${delta > 0 ? '+' : ''}${delta} → ${c.score} (${tierOf(c.score)})`;

@@ -106,7 +106,7 @@ function renderTree(manifest) {
 
 initLockButton();
 initLock(async (manifest) => {
-  // Conduct lock: below 60 the whole site closes — reading included.
+  // Conduct lock: below 50 the whole site closes — reading included.
   if (conductLocked(manifest)) {
     $('lesson-tree').innerHTML =
       `<p class="lock-error">Gesperrt. Betragen ${conductScore(manifest)}/100 — the course is closed until the apologies are written and reviewed (dashboard).</p>`;

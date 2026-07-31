@@ -917,7 +917,7 @@ function refreshKorrekturCard() {
 
 initLockButton();
 initLock(async (manifest) => {
-  // Conduct lock: below 60 even the drills close — the apologies come first.
+  // Conduct lock: below 50 even the drills close — the apologies come first.
   if (conductLocked(manifest)) {
     $('mode-select').innerHTML =
       `<h1 class="hw-title">Gesperrt.</h1>
