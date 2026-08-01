@@ -449,7 +449,20 @@ export function lessonLines(markdown) {
 
 // Any question type → "type the answer" (produce it).
 function hardenToTyping(q) {
-  if (q.type === 'multiple_choice') return { id: q.id, prompt: q.prompt, category: q.category, answers: [q.options[q.answerIndex]], note: q.note, acceptFuzzy: false, type: 'translate' };
+  if (q.type === 'multiple_choice') {
+    // The options are gone, but the prompt still says "Which one…?" / "Choose…",
+    // which reads as a pick-from-a-list question in front of a bare text box.
+    // Say plainly that there is nothing to pick from and the answer is produced.
+    return {
+      id: q.id,
+      prompt: `${q.prompt} — no options here: write the answer out in full.`,
+      category: q.category,
+      answers: [q.options[q.answerIndex]],
+      note: q.note,
+      acceptFuzzy: true,      // a produced phrase should not die on one keystroke
+      type: 'translate',
+    };
+  }
   if (q.type === 'reorder') return { id: q.id, prompt: `${q.prompt} — type the full sentence`, category: q.category, answers: [q.answer.join(' ')], note: q.note, acceptFuzzy: true, type: 'translate' };
   return { ...q, type: 'translate' };
 }

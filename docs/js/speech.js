@@ -85,10 +85,18 @@ export function voicesReady() {
 // preview needs: it must NOT go through the stored preference, because this
 // function is async and any caller that set-then-restored the preference around
 // the call would have its restore land first (await yields before the pick).
+// Bumped on every call. Because there is an `await` between cancel() and
+// speak(), two rapid calls can interleave: the FIRST resumes after the SECOND
+// has already cancelled, and speaks its stale text over the new question —
+// audio that does not match what is on screen. The newest call always wins.
+let speakSeq = 0;
+
 export async function speakGerman(text, { rate = 0.88, voice = null } = {}) {
   if (!('speechSynthesis' in window) || !text) return;
+  const mySeq = ++speakSeq;
   speechSynthesis.cancel();
   await voicesReady();                                                // kills the cold-load race
+  if (mySeq !== speakSeq) return;                                     // superseded while awaiting
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'de-DE';
   u.rate = rate;

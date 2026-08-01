@@ -112,8 +112,11 @@ function harden(q) {
     return {
       ...q,
       type: 'translate',
+      // The options are stripped, so a "Which one…?" prompt would sit in front of
+      // a bare text box still implying a list to pick from. Say it plainly.
+      prompt: `${q.prompt} — no options here: write the answer out in full.`,
       answers: [q.options[q.answerIndex]],
-      acceptFuzzy: false,
+      acceptFuzzy: true,   // produced phrase — a single typo should not fail it
       hint: undefined,
       _hardened: true,
     };

@@ -20,6 +20,13 @@
 
 * { box-sizing: border-box; }
 
+/* The `hidden` ATTRIBUTE must actually hide. The UA rule is only
+   `[hidden] { display: none }`, which any author rule setting `display` beats —
+   so `.btn { display: inline-block }` silently kept every hidden button on
+   screen (the detention Play/Next buttons, the discipline quiz submit). Same
+   trap the lockdown panels hit. One guard, so it cannot recur. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--bg);
