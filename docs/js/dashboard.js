@@ -15,6 +15,7 @@ import { lockdownPhotoUrl, disciplinePhotoUrl, detentionPhotoUrl } from './shame
 import { disciplineActive, disciplineStatus, retryAfterDate } from './discipline.js';
 import { detentionActive, detentionStatus, repsForMiss, labelForMode } from './detention.js';
 import { checkTextAnswer, checkTextAnswerDetailed } from './checking.js';
+import { speakGerman } from './speech.js';
 import * as gh from './github.js';
 
 const $ = (id) => document.getElementById(id);
@@ -546,11 +547,24 @@ async function runDetentionQueue(manifest) {
     if (!current) {
       prompt.textContent = 'No material left to draw from. This counts toward your time regardless — sit with it.';
       input.disabled = true; meta.textContent = '';
+      $('detention-play').hidden = true;
       return;
     }
     fb.hidden = true; fbNext.hidden = true;
     meta.textContent = current.category || '';
     prompt.textContent = current.prompt;
+    // Listening items survive hardenToTyping with their audioText intact, but the
+    // type is rewritten to 'translate' — so they must be spoken here or the prompt
+    // ("you will hear…") is text with nothing behind it.
+    const play = $('detention-play');
+    if (current.audioText) {
+      play.hidden = false;
+      play.onclick = () => speakGerman(current.audioText);
+      speakGerman(current.audioText);          // once automatically, replays on demand
+    } else {
+      play.hidden = true;
+      play.onclick = null;
+    }
     input.value = ''; input.disabled = false; input.focus();
     // The exercise is on screen: the clock runs, and this item's time is
     // provisional until the item is finished.

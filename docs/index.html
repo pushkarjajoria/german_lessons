@@ -159,6 +159,10 @@
         <div id="detention-drill" hidden>
           <p class="detention-drill-meta" id="detention-drill-meta"></p>
           <p class="detention-prompt" id="detention-drill-prompt"></p>
+          <!-- Listening items (listen_type / audio_response) keep their audioText
+               through the drill's typing-hardening, so they need a way to be heard —
+               without this the prompt is unanswerable text ("you will hear…"). -->
+          <button class="btn play-btn" id="detention-play" hidden>▶ Play</button>
           <input type="text" class="text-answer detention-drill-input" id="detention-drill-input"
             autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Answer…" />
           <div class="feedback" id="detention-feedback" hidden>
