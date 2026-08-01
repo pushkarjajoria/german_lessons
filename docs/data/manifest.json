@@ -1771,10 +1771,10 @@
     "repsMax": 10,
     "record": {
       "startedAt": "2026-07-31T18:12:06.645Z",
-      "secondsSpent": 342,
-      "wrongCount": 6,
+      "secondsSpent": 405,
+      "wrongCount": 7,
       "correctCount": 2,
-      "itemsSeen": 8
+      "itemsSeen": 9
     }
   }
 }
