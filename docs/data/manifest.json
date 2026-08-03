@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0009",
-  "currentHomeworkId": "0009",
+  "currentLessonId": "0010",
+  "currentHomeworkId": "0010",
   "counters": {
     "lessonsCompleted": 8,
     "totalQuestions": 92,
@@ -679,6 +679,13 @@
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Wiederholung",
       "createdAt": "2026-07-29T08:41:19.132Z"
+    },
+    {
+      "id": "0010",
+      "title": "Trennbare Verben — der Vorsatz fliegt ans Ende",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Trennbare Verben",
+      "createdAt": "2026-08-03T15:41:02.836Z"
     }
   ],
   "tests": [
@@ -706,11 +713,10 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-07-29T08:41:42.825Z",
-    "text": "Your first timed test stripped the props: the Akkusativ concept held under the clock, the reflexes did not — the ear (Hörverstehen), the verb endings (stem + ending), noch-placement. No new ground this week; we repair exactly those. Betragen holds at 70: no slackness, but the automatic is not there yet. Run the new Artikel drill — three clean rounds.",
+    "date": "2026-08-03T15:41:28.400Z",
+    "text": "The ear turned a corner: last week you heard the words right and lost them on spelling — a smaller, better problem. New this week: trennbare Verben — the front-piece flies to the END (…hier ab, not ab hier). The verb engine still slips: er nimmt -t, never -s. Friday's detention was defective, so it cost nothing; the repair is in the lesson. Two clean Artikel rounds owed. Betragen 69.",
     "weakAreas": [
-      "Hörverstehen",
-      "Konjugation"
+      "Wortstellung"
     ]
   },
   "practiceLog": [
@@ -1754,27 +1760,18 @@
     }
   ],
   "detention": {
-    "active": true,
-    "assignedAt": "2026-07-31T14:41:37.879Z",
-    "startsAt": "2026-07-31T15:00:00.000Z",
-    "expiresAt": "2026-08-02T22:00:00.000Z",
-    "reason": "Quiz 0001 cratered (13%) on the ear and the verb engine under the clock. Under revised §6.5 a crater buys remediation, not a dock: a real weekend sit on exactly those fronts. Sized at the FLOOR (first crater, freshly-taught, honestly attempted, and he is already drilling voluntarily) — not escalated. Record-only: served properly on Monday's --status → the crater costs nothing; skipped/half-served → the negligence dock lands.",
-    "modes": [
-      "cat:Hörverstehen",
-      "cat:Konjugation",
-      "weak"
-    ],
-    "targetMinutes": 45,
-    "extensionPerWrongMinutes": 1,
-    "maxExtensionMinutes": 15,
-    "repsMin": 4,
-    "repsMax": 10,
-    "record": {
-      "startedAt": "2026-07-31T18:12:06.645Z",
-      "secondsSpent": 1833,
-      "wrongCount": 20,
-      "correctCount": 28,
-      "itemsSeen": 48
+    "active": false,
+    "clearedAt": "2026-08-03T15:41:02.737Z",
+    "previous": {
+      "assignedAt": "2026-07-31T14:41:37.879Z",
+      "reason": "Quiz 0001 cratered (13%) on the ear and the verb engine under the clock. Under revised §6.5 a crater buys remediation, not a dock: a real weekend sit on exactly those fronts. Sized at the FLOOR (first crater, freshly-taught, honestly attempted, and he is already drilling voluntarily) — not escalated. Record-only: served properly on Monday's --status → the crater costs nothing; skipped/half-served → the negligence dock lands.",
+      "record": {
+        "startedAt": "2026-07-31T18:12:06.645Z",
+        "secondsSpent": 1833,
+        "wrongCount": 20,
+        "correctCount": 28,
+        "itemsSeen": 48
+      }
     }
   }
 }
