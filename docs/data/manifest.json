@@ -721,13 +721,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-10T07:51:04.295Z",
-      "mode": "vocab",
-      "items": 10,
-      "firstTry": 10,
-      "durationSec": 70
-    },
-    {
       "date": "2026-07-11T09:58:07.600Z",
       "mode": "harder",
       "items": 12,
@@ -1069,6 +1062,13 @@
       "items": 5,
       "firstTry": 5,
       "durationSec": 52
+    },
+    {
+      "date": "2026-08-03T15:52:10.318Z",
+      "mode": "korrektur",
+      "items": 3,
+      "firstTry": 1,
+      "durationSec": 88
     }
   ],
   "corrections": [
@@ -1333,8 +1333,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-31T14:46:25.109Z",
+      "doneCount": 0,
+      "lastPassedAt": null,
       "status": "open"
     },
     {
@@ -1346,8 +1346,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-31T14:46:25.109Z",
+      "doneCount": 0,
+      "lastPassedAt": null,
       "status": "open"
     },
     {
@@ -1373,9 +1373,10 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 2,
-      "lastPassedAt": "2026-07-31T14:46:25.109Z",
-      "status": "open"
+      "doneCount": 3,
+      "lastPassedAt": "2026-08-03T15:52:10.318Z",
+      "status": "cleared",
+      "clearedAt": "2026-08-03T15:52:10.318Z"
     }
   ],
   "conduct": {
