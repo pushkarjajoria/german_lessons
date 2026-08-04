@@ -721,13 +721,6 @@
   },
   "practiceLog": [
     {
-      "date": "2026-07-11T16:52:04.997Z",
-      "mode": "harder",
-      "items": 12,
-      "firstTry": 12,
-      "durationSec": 120
-    },
-    {
       "date": "2026-07-11T16:53:28.201Z",
       "mode": "vocab",
       "items": 10,
@@ -1069,6 +1062,13 @@
       "items": 2,
       "firstTry": 1,
       "durationSec": 24
+    },
+    {
+      "date": "2026-08-04T10:26:15.539Z",
+      "mode": "korrektur",
+      "items": 1,
+      "firstTry": 1,
+      "durationSec": 2
     }
   ],
   "corrections": [
@@ -1347,8 +1347,8 @@
       "missedCount": 1,
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
-      "doneCount": 0,
-      "lastPassedAt": null,
+      "doneCount": 1,
+      "lastPassedAt": "2026-08-04T10:26:15.539Z",
       "status": "open"
     },
     {
