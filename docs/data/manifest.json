@@ -1064,11 +1064,11 @@
       "durationSec": 24
     },
     {
-      "date": "2026-08-04T10:26:15.539Z",
+      "date": "2026-08-04T10:26:17.180Z",
       "mode": "korrektur",
       "items": 1,
       "firstTry": 1,
-      "durationSec": 2
+      "durationSec": 3
     }
   ],
   "corrections": [
@@ -1348,7 +1348,7 @@
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
       "doneCount": 1,
-      "lastPassedAt": "2026-08-04T10:26:15.539Z",
+      "lastPassedAt": "2026-08-04T10:26:17.180Z",
       "status": "open"
     },
     {
