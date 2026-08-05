@@ -1,6 +1,6 @@
 {
-  "currentLessonId": "0010",
-  "currentHomeworkId": "0010",
+  "currentLessonId": "0011",
+  "currentHomeworkId": "0011",
   "counters": {
     "lessonsCompleted": 8,
     "totalQuestions": 92,
@@ -686,6 +686,13 @@
       "section": "Phase 1 — Survival Deutsch",
       "subsection": "Trennbare Verben",
       "createdAt": "2026-08-03T15:41:02.836Z"
+    },
+    {
+      "id": "0011",
+      "title": "Wartungsrunde — die drei lebenden Baustellen",
+      "section": "Phase 1 — Survival Deutsch",
+      "subsection": "Wartung",
+      "createdAt": "2026-08-05T08:14:11.430Z"
     }
   ],
   "tests": [
@@ -713,8 +720,8 @@
     "ct": "83h5ghjTpO06FwrhRRYb1Sup7FnUcgr2219KgnOlPUwWylubD2eUFQ=="
   },
   "teacherNote": {
-    "date": "2026-08-03T15:41:28.400Z",
-    "text": "The ear turned a corner: last week you heard the words right and lost them on spelling — a smaller, better problem. New this week: trennbare Verben — the front-piece flies to the END (…hier ab, not ab hier). The verb engine still slips: er nimmt -t, never -s. Friday's detention was defective, so it cost nothing; the repair is in the lesson. Two clean Artikel rounds owed. Betragen 69.",
+    "date": "2026-08-05T08:14:59.510Z",
+    "text": "You asked for a lighter load, and it is granted — no penalty for a week that slips, only for silence, and you wrote instead of vanishing. Until you surface: one five-minute round a week, no daily Korrektur. This week's Wartungsrunde replaces the full 0010. Keep an ear open for one separable verb in the wild. Betragen 69, untouched.",
     "weakAreas": [
       "Wortstellung"
     ]
@@ -1664,6 +1671,17 @@
         "salt": "qrcG/Px2KK1+p3Dwomp/7w==",
         "iv": "tF21CoF0ofLKNAl8",
         "ct": "F12yX/3U7ydw69QFq1co2qTMuntz67IckG7URuJRSU78oJL2mT64LA3OH6l5IfitaSLV145ipNMUCAFUjbt0hKvPgytM67AzmCVeDylYS71ow8g7WB6+VMo81/7Yj3/3n+1DHmrqPO8Cs4gn24OOQUl9nSvy+ALZiWYfntqZO2VCZju0pBHTWVROsiG1qKwB08vRJCNlP2D/7M6AVmOMiXnkXaXmIBoGyafgBFNoEH3gjtFll1k1t1P+oeR9dUQIzq3muJmFKi8wWNi67McA9jAEd+L2i2xAFGKe8kj5ZovE896cxETypME9rbgkuxxVltvyGIA2bGxuqpoihpDjvSWnyAqeWx96M+ujPijacPwu4FQUZwoxYqjF06zpljLb/aCj7dV4UJ7HXZlbWrstJVPHq7Y+LiJ0W/r9sr157BEVXKmH+MZl37x5wfIuw1znbbVAkdf5bxDJ6Ud9y8qraxSXPr9vabEiXC6xcadz6O7R0a9WOQ+clqMYgsOfeLDPja+Wz4y0pFxGgP4aGqVO36aO4fT2VPUVCEC1fAlSBQvoGy8mGlv0ghtdqn5juCR/qHndh8aZgxvlbQSZCh2V8GAS6cDc8HspKF/D/MD+Qe5eJFiw8E7bdLym7OwOptMT/YcRfLFuafkJDsQNTc1HQmhl8ekUgu6HOi+iMeCFrhCYsihyBEt/3k7NqkUGrFZKDktiDh5MOm8oWDUBmHSaQNMbUKSBIEXLFRIxyg3QrzXHR0CB/16maDBZ2tX2R/IaWEwbcd+04C8WQlQgXhV9yL0htz6quvUGExRiehj1RIkTyIsayiEVNpIHvdmcljkmDlpcvaUKx5OFHUB3zPFcWBST9J11Iif8dpdPG6By7k6kxuz+tnsMasfHQTK+U6LgAGFbdf3pD9G26E/XfSxxW0777yhDTFIuL5To6Umhi/GbqXFCEhgov0ZRtwy0aeIU+MsE8LAnQczJxw9iVJmZh1kQIiQ+RN1U4MKHCvn7oP2MUWZV/MmxPWISccJIGZHlFOSYhG+hVBzLUJTIUGLbfav1r37sRvkkv4YFiQwKsBh6BB7gbNEPr3E65fWKBKrnDzSFoGfGjNfrRwVgLSeS16EiPZcDbX3sM6J5/o2EjPkg7igxk9QVCt8DGr2CUJdcx2EA"
+      }
+    },
+    {
+      "id": "m1785917684274",
+      "date": "2026-08-05T08:14:44.274Z",
+      "from": "richter",
+      "enc": {
+        "v": 1,
+        "salt": "crP4CvA2yjtbhQb76ST2Fg==",
+        "iv": "cGi3MZHiSaHMmkCk",
+        "ct": "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"
       }
     }
   ],
