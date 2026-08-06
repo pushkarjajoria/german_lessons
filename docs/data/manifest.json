@@ -1071,11 +1071,11 @@
       "durationSec": 3
     },
     {
-      "date": "2026-08-06T09:53:37.916Z",
+      "date": "2026-08-06T09:53:39.316Z",
       "mode": "korrektur",
       "items": 1,
       "firstTry": 1,
-      "durationSec": 2
+      "durationSec": 4
     }
   ],
   "corrections": [
@@ -1355,9 +1355,9 @@
       "addedAt": "2026-07-30T10:59:53.784Z",
       "required": 3,
       "doneCount": 3,
-      "lastPassedAt": "2026-08-06T09:53:37.916Z",
+      "lastPassedAt": "2026-08-06T09:53:39.316Z",
       "status": "cleared",
-      "clearedAt": "2026-08-06T09:53:37.916Z"
+      "clearedAt": "2026-08-06T09:53:39.316Z"
     },
     {
       "key": "0009:q11",
