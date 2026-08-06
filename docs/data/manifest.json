@@ -2,11 +2,11 @@
   "currentLessonId": "0010",
   "currentHomeworkId": "0010",
   "counters": {
-    "lessonsCompleted": 8,
-    "totalQuestions": 92,
-    "totalCorrect": 67,
+    "lessonsCompleted": 9,
+    "totalQuestions": 104,
+    "totalCorrect": 73,
     "streakDays": 1,
-    "lastPracticed": "2026-07-30T10:59:53.784Z"
+    "lastPracticed": "2026-08-06T10:22:55.507Z"
   },
   "history": [
     {
@@ -624,6 +624,71 @@
         "Hörverstehen",
         "Konjugation",
         "Wortstellung",
+        "Redemittel"
+      ]
+    },
+    {
+      "reportId": "0010",
+      "homeworkId": "0010",
+      "title": "Trennbare Verben — der Vorsatz fliegt ans Ende",
+      "date": "2026-08-06T10:22:55.507Z",
+      "startedAt": "2026-08-06T10:07:49.102Z",
+      "durationSec": 906,
+      "totalQuestions": 12,
+      "firstTryCorrect": 6,
+      "eventualCorrect": 12,
+      "totalAttempts": 21,
+      "reworkRatio": 1.75,
+      "avgFirstAnswerLatencySec": 24,
+      "hintsUsedCount": 0,
+      "audioReplaysTotal": 1,
+      "categoryAttempts": {
+        "Wortstellung": {
+          "attempts": 4,
+          "count": 3
+        },
+        "Konjugation": {
+          "attempts": 4,
+          "count": 2
+        },
+        "Redemittel": {
+          "attempts": 6,
+          "count": 2
+        },
+        "Hörverstehen": {
+          "attempts": 6,
+          "count": 4
+        },
+        "Kasus": {
+          "attempts": 1,
+          "count": 1
+        }
+      },
+      "categories": {
+        "Wortstellung": {
+          "correct": 2,
+          "total": 3
+        },
+        "Konjugation": {
+          "correct": 0,
+          "total": 2
+        },
+        "Redemittel": {
+          "correct": 0,
+          "total": 2
+        },
+        "Hörverstehen": {
+          "correct": 3,
+          "total": 4
+        },
+        "Kasus": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "weakCategories": [
+        "Wortstellung",
+        "Konjugation",
         "Redemittel"
       ]
     }
