@@ -15,6 +15,7 @@ import { lockdownPhotoUrl, disciplinePhotoUrl, detentionPhotoUrl } from './shame
 import { disciplineActive, disciplineStatus, retryAfterDate } from './discipline.js';
 import { detentionActive, detentionStatus, repsForMiss, labelForMode } from './detention.js';
 import { checkTextAnswer, checkTextAnswerDetailed } from './checking.js';
+import { outstandingAssignments, nextAssignment } from './assignments-common.js';
 import { speakGerman } from './speech.js';
 import * as gh from './github.js';
 
@@ -1208,8 +1209,14 @@ function render(manifest) {
     cta.innerHTML = '';
     return;
   }
-  const done = history.some((h) => h.homeworkId === manifest.currentHomeworkId);
-  if (done) {
+  // Derived, not pointed at: the single currentHomeworkId pointer used to hide
+  // published homework once it went stale (see assignments-common.js).
+  const open = outstandingAssignments(manifest);
+  const next = nextAssignment(manifest);
+  const alsoWaiting = open.length > 1
+    ? `<p class="muted cta-sub">${open.length - 1} more assignment${open.length > 2 ? 's' : ''} waiting after this one: ${open.filter((l) => l.id !== next.id).map((l) => l.id).join(', ')}.</p>`
+    : '';
+  if (!next) {
     cta.innerHTML = `
       <div class="empty-state">
         <p>${S.ctaDone(manifest.currentHomeworkId)}</p>
@@ -1218,11 +1225,11 @@ function render(manifest) {
   } else if (homeworkGated(manifest)) {
     cta.innerHTML = `
       <a class="btn btn-primary btn-big" href="practice.html">Erst die Korrektur →</a>
-      <p class="muted cta-sub">Homework ${manifest.currentHomeworkId} stays locked while corrections sit overdue. The queue is below.</p>`;
+      <p class="muted cta-sub">Homework ${next.id} stays locked while corrections sit overdue. The queue is below.</p>`;
   } else {
     cta.innerHTML = `
       <a class="btn btn-primary btn-big" href="homework.html">${S.ctaStart}</a>
-      <p class="muted cta-sub">${S.ctaSub(manifest.currentHomeworkId)}</p>`;
+      <p class="muted cta-sub">${S.ctaSub(next.id)}</p>${alsoWaiting}`;
   }
 }
 

@@ -9,6 +9,7 @@ import { checkTextAnswerDetailed } from './checking.js';
 import { getPolicy, attachModelRepeat, enrollFromReport, homeworkGated, freezeQuestionArea } from './corrections.js';
 import { conductLocked, conductScore } from './conduct.js';
 import { speakGerman } from './speech.js';
+import { nextAssignmentId } from './assignments-common.js';
 
 // ---------- feedback voice ----------
 
@@ -68,7 +69,10 @@ function guard(e) {
 // Pre-start gate: decrypt and present, but count NOTHING until Begin. An
 // accidental open costs nothing; an abandoned begun attempt is on the record.
 async function prepareQuiz(manifest) {
-  const hwId = manifest.currentHomeworkId;
+  // Must agree with the dashboard's CTA and the Assignments page — all three
+  // derive the next outstanding assignment the same way, or "Start" would open
+  // homework the learner has already completed (assignments-common.js).
+  const hwId = nextAssignmentId(manifest);
   const { text } = await gh.readText(`data/homework/homework-${hwId}.json.enc`);
   const homework = JSON.parse(await decryptString(getPassword(), JSON.parse(text)));
   state.homework = homework;

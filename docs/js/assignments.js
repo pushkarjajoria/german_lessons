@@ -13,6 +13,7 @@
 import { initLock, initLockButton, getPassword } from './auth.js';
 import { encryptString, decryptString } from './crypto.js';
 import { homeworkGated } from './corrections.js';
+import { outstandingAssignments, nextAssignment } from './assignments-common.js';
 import * as gh from './github.js';
 
 const $ = (id) => document.getElementById(id);
@@ -28,8 +29,10 @@ function render(manifest) {
   const byHw = new Map(history.map((h) => [h.homeworkId, h]));
   const halted = Boolean(manifest.discipline?.active);
 
-  // Pinned pending assignment
-  const pendingEntry = lessons.find((l) => l.id === manifest.currentHomeworkId && !byHw.has(l.id));
+  // Pinned pending assignment — derived, not read off currentHomeworkId, which
+  // hid published homework whenever the pointer went stale (assignments-common.js).
+  const pendingEntry = nextAssignment(manifest);
+  const alsoOpen = outstandingAssignments(manifest).filter((l) => l.id !== pendingEntry?.id);
   const gated = !halted && homeworkGated(manifest);
   const pin = $('pending-panel');
   if (pendingEntry) {
@@ -39,7 +42,10 @@ function render(manifest) {
       ? 'Locked. The course is halted — see the dashboard. The tasks there come first.'
       : gated
         ? 'Locked behind overdue corrections. Erst die Korrektur — the queue is on the Practice page.'
-        : `${pendingEntry.section}${pendingEntry.subsection ? ' → ' + pendingEntry.subsection : ''} · everything after this waits until it is done.`;
+        : `${pendingEntry.section}${pendingEntry.subsection ? ' → ' + pendingEntry.subsection : ''}`
+          + (alsoOpen.length
+            ? ` · also assigned and waiting: ${alsoOpen.map((l) => l.id).join(', ')}.`
+            : ' · everything after this waits until it is done.');
     const btn = $('pending-start');
     if (halted || gated) {
       btn.classList.remove('btn-primary');
