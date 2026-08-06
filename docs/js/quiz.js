@@ -552,6 +552,9 @@ function buildReport() {
 
 function updatedManifest(manifest, report) {
   const m = structuredClone(manifest);
+  // IDEMPOTENT. A retry after a partial failure (or scripts/reconcile-reports.js)
+  // must not double-count the same report into history and the counters.
+  if ((m.history || []).some((h) => h.reportId === report.id)) return m;
   const today = report.date.slice(0, 10);
   const last = m.counters.lastPracticed ? m.counters.lastPracticed.slice(0, 10) : null;
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -625,14 +628,47 @@ async function finish() {
 
   const status = $('done-status');
   if (gh.isConfigured()) {
+    // TWO writes, and they are not atomic. If the report lands but the manifest
+    // does not, the work is saved yet the dashboard still shows the homework as
+    // to-do — it reads the manifest, not the reports directory. That happened to
+    // reports 0009 and 0010. So: the manifest write is retried, re-reading fresh
+    // each time (which also stops a concurrent write — detention progress, a
+    // scheduled run — from being clobbered by a stale copy), and if it still
+    // fails the message says exactly what is and is not saved.
+    let reportSaved = false;
     try {
       status.textContent = 'Writing the encrypted report to the repo…';
       await gh.writeText(reportPath, reportEnc, `report ${report.id}: ${report.firstTryCorrect}/${report.totalQuestions} first-try`);
-      await gh.writeText('data/manifest.json', manifestText, `manifest: record report ${report.id}`);
+      reportSaved = true;
+
+      status.textContent = 'Recording it in the manifest…';
+      let manifestErr = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const fresh = (await gh.readJson('data/manifest.json')).data;
+          const merged = updatedManifest(fresh, report);   // idempotent — safe to retry
+          await gh.writeText('data/manifest.json', JSON.stringify(merged, null, 2), `manifest: record report ${report.id}`);
+          manifestErr = null;
+          break;
+        } catch (e) {
+          manifestErr = e;
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 500 * attempt));
+        }
+      }
+      if (manifestErr) throw manifestErr;
       status.textContent = 'Report committed. Frau Richter reads it before your next lesson.';
     } catch (e) {
-      status.textContent = `Write failed (${e.message}). Download the files and commit them by hand.`;
-      offerDownloads(report, reportEnc, manifestText);
+      if (reportSaved) {
+        // The work is safe; only the index entry is missing. Say so plainly —
+        // telling him to commit "the files" when the report is already committed
+        // is how this stayed confusing the first two times.
+        status.textContent = `Your report IS saved (report ${report.id}) — but recording it in the manifest failed (${e.message}), `
+          + 'so the dashboard may still show this homework as to-do. Nothing is lost, and you will not have to redo it — '
+          + 'the next session reconciles the index (scripts/reconcile-reports.js).';
+      } else {
+        status.textContent = `Write failed (${e.message}). Download the files and commit them by hand.`;
+        offerDownloads(report, reportEnc, manifestText);
+      }
     }
   } else {
     status.textContent = 'No GitHub token configured — download both files and commit them yourself.';

@@ -161,11 +161,17 @@ git pull --rebase && git push
 function syncLocalToRemote(commit) {
   try {
     execFileSync('git', ['fetch', '--quiet', HTTPS_URL, 'main'], { cwd: ROOT, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' }, stdio: ['ignore', 'pipe', 'pipe'] });
-    execFileSync('git', ['reset', '--hard', commit], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
+    // --mixed, NEVER --hard. This used to hard-reset, which silently DESTROYED
+    // any uncommitted work in the tree — observed: it wiped an in-progress source
+    // edit during a publish. The goal is only to move HEAD onto the published
+    // commit so `git status` is truthful; --mixed does that and leaves the working
+    // tree alone. Files this run published are already byte-identical to the
+    // commit, so they still read clean; anything else stays as an honest diff.
+    execFileSync('git', ['reset', '--mixed', commit], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
     execFileSync('git', ['update-ref', 'refs/remotes/origin/main', commit], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
-    console.log(`  local repo synced to ${commit.slice(0, 7)} — git status is truthful.`);
+    console.log(`  local repo synced to ${commit.slice(0, 7)} — git status is truthful (uncommitted work preserved).`);
   } catch {
-    console.log('  (local git not synced — expected in the sandbox; the publish is live regardless. `git fetch && git reset --hard origin/main` tidies it on a real machine.)');
+    console.log('  (local git not synced — expected in the sandbox; the publish is live regardless. `git fetch && git reset --mixed origin/main` tidies it on a real machine.)');
   }
 }
 
